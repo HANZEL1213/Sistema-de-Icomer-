@@ -78,12 +78,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<i class="bx bx-check-circle me-1"></i> Permitido manualmente'
             );
         } else {
-        setButtonState(
-    estadoActivoTexto,
-    ['btn', 'btn-danger-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
-    ['btn-primary-custom', 'btn-secondary-custom', 'btn-warning-custom', 'btn-info-custom'],
-    '<i class="bx bx-x-circle me-1"></i> Bloqueado manualmente'
-);
+            setButtonState(
+                estadoActivoTexto,
+                ['btn', 'btn-danger-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
+                ['btn-primary-custom', 'btn-secondary-custom', 'btn-warning-custom', 'btn-info-custom'],
+                '<i class="bx bx-x-circle me-1"></i> Bloqueado manualmente'
+            );
         }
     }
 
@@ -116,12 +116,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<i class="bx bx-calendar me-1"></i> Sin rango definido'
             );
 
-        setButtonState(
-    estadoCalculadoTexto,
-    ['btn', 'btn-secondary-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
-    ['btn-primary-custom', 'btn-danger-custom', 'btn-warning-custom', 'btn-info-custom'],
-    '<i class="bx bx-error me-1"></i> Falta completar fechas'
-);
+            setButtonState(
+                estadoCalculadoTexto,
+                ['btn', 'btn-secondary-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
+                ['btn-primary-custom', 'btn-danger-custom', 'btn-warning-custom', 'btn-info-custom'],
+                '<i class="bx bx-error me-1"></i> Falta completar fechas'
+            );
 
             estadoHelper.innerHTML =
                 '<i class="bx bx-info-circle me-1"></i> Debes completar correctamente las fechas para que el sistema pueda determinar si el banner entra o no al carrusel.';
@@ -172,12 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (!activoManual) {
-        setButtonState(
-    estadoCalculadoTexto,
-    ['btn', 'btn-danger-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
-    ['btn-primary-custom', 'btn-secondary-custom', 'btn-warning-custom', 'btn-info-custom'],
-    '<i class="bx bx-power-off me-1"></i> Quedará bloqueado'
-);
+            setButtonState(
+                estadoCalculadoTexto,
+                ['btn', 'btn-danger-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
+                ['btn-primary-custom', 'btn-secondary-custom', 'btn-warning-custom', 'btn-info-custom'],
+                '<i class="bx bx-power-off me-1"></i> Quedará bloqueado'
+            );
 
             if (rangoValido) {
                 estadoHelper.innerHTML =
@@ -203,12 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (ahora < inicia) {
-      setButtonState(
-    estadoCalculadoTexto,
-    ['btn', 'btn-secondary-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
-    ['btn-primary-custom', 'btn-danger-custom', 'btn-warning-custom', 'btn-info-custom'],
-    '<i class="bx bx-time-five me-1"></i> Quedará pendiente'
-);
+            setButtonState(
+                estadoCalculadoTexto,
+                ['btn', 'btn-secondary-custom', 'btn-sm', 'px-3', 'py-2', 'd-inline-flex', 'align-items-center'],
+                ['btn-primary-custom', 'btn-danger-custom', 'btn-warning-custom', 'btn-info-custom'],
+                '<i class="bx bx-time-five me-1"></i> Quedará pendiente'
+            );
 
             estadoHelper.innerHTML =
                 '<i class="bx bx-info-circle me-1"></i> El banner queda permitido manualmente, pero todavía no entra al carrusel porque su rango aún no inicia. Se activará automáticamente cuando llegue su fecha.';
@@ -258,6 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ====================================================== */
     const inputImagen = document.getElementById('ruta_imagen');
     const preview = document.getElementById('preview');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
     const removeImage = document.getElementById('removeImage');
     const eliminarImagen = document.getElementById('eliminar_imagen');
     const imageReplaceHelper = document.getElementById('imageReplaceHelper');
@@ -271,29 +272,49 @@ document.addEventListener('DOMContentLoaded', () => {
     let imagenMarcadaParaEliminar = false;
 
     function restaurarPreviewPlaceholder() {
-        if (!preview) return;
-        preview.src = placeholder || '';
+        if (preview) {
+            preview.src = '';
+            preview.classList.add('d-none');
+        }
+
+        if (previewPlaceholder) {
+            previewPlaceholder.classList.remove('d-none');
+        }
     }
 
     function restaurarPreviewOriginal() {
         if (!preview) return;
-        preview.src = imagenOriginal || placeholder || '';
+
+        preview.src = imagenOriginal || '';
+        preview.classList.remove('d-none');
+
+        if (previewPlaceholder) {
+            previewPlaceholder.classList.add('d-none');
+        }
     }
 
     function ocultarBotonEliminarImagen() {
-        if (removeImage) removeImage.classList.add('d-none');
+        if (removeImage) {
+            removeImage.classList.add('d-none');
+        }
     }
 
     function mostrarBotonEliminarImagen() {
-        if (removeImage) removeImage.classList.remove('d-none');
+        if (removeImage) {
+            removeImage.classList.remove('d-none');
+        }
     }
 
     function mostrarHelperReemplazo() {
-        if (imageReplaceHelper) imageReplaceHelper.classList.remove('d-none');
+        if (imageReplaceHelper) {
+            imageReplaceHelper.classList.remove('d-none');
+        }
     }
 
     function ocultarHelperReemplazo() {
-        if (imageReplaceHelper) imageReplaceHelper.classList.add('d-none');
+        if (imageReplaceHelper) {
+            imageReplaceHelper.classList.add('d-none');
+        }
     }
 
     function obtenerContenedorErrorImagen() {
@@ -316,7 +337,9 @@ document.addEventListener('DOMContentLoaded', () => {
         inputImagen.classList.add('is-invalid');
 
         const errorBox = obtenerContenedorErrorImagen();
-        if (errorBox) errorBox.textContent = mensaje;
+        if (errorBox) {
+            errorBox.textContent = mensaje;
+        }
     }
 
     function limpiarErrorImagen() {
@@ -325,7 +348,9 @@ document.addEventListener('DOMContentLoaded', () => {
         inputImagen.classList.remove('is-invalid');
 
         const errorBox = obtenerContenedorErrorImagen();
-        if (errorBox) errorBox.textContent = '';
+        if (errorBox) {
+            errorBox.textContent = '';
+        }
     }
 
     function limpiarObjectUrlActual() {
@@ -342,7 +367,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function restaurarEstadoInicialImagen() {
-        if (inputImagen) inputImagen.value = '';
+        if (inputImagen) {
+            inputImagen.value = '';
+        }
 
         limpiarObjectUrlActual();
         imagenMarcadaParaEliminar = false;
@@ -359,7 +386,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function dejarImagenPendienteDeReemplazo() {
-        if (inputImagen) inputImagen.value = '';
+        if (inputImagen) {
+            inputImagen.value = '';
+        }
 
         limpiarObjectUrlActual();
         imagenMarcadaParaEliminar = true;
@@ -418,6 +447,12 @@ document.addEventListener('DOMContentLoaded', () => {
             objectUrlActual = URL.createObjectURL(file);
 
             preview.src = objectUrlActual;
+            preview.classList.remove('d-none');
+
+            if (previewPlaceholder) {
+                previewPlaceholder.classList.add('d-none');
+            }
+
             imagenMarcadaParaEliminar = false;
             actualizarEstadoImagenOculta();
             mostrarBotonEliminarImagen();
@@ -433,7 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (teniaImagenInicial) {
                     restaurarEstadoInicialImagen();
                 } else {
-                    if (inputImagen) inputImagen.value = '';
+                    if (inputImagen) {
+                        inputImagen.value = '';
+                    }
+
                     limpiarObjectUrlActual();
                     restaurarPreviewPlaceholder();
                     ocultarBotonEliminarImagen();
@@ -456,8 +494,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (teniaImagenInicial) {
+            preview.classList.remove('d-none');
+
+            if (previewPlaceholder) {
+                previewPlaceholder.classList.add('d-none');
+            }
+
             mostrarBotonEliminarImagen();
         } else {
+            restaurarPreviewPlaceholder();
             ocultarBotonEliminarImagen();
         }
 

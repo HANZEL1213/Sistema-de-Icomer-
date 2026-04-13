@@ -6,6 +6,7 @@
 @section('content')
 
 
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrusel.css') }}">
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -37,9 +38,8 @@
 
         $yaInicio = $item->inicia_en && $item->inicia_en <= $ahora;
         $yaVencio = $item->termina_en && $item->termina_en <= $ahora;
-        $estaVigente = $item->inicia_en && $item->termina_en
-            ? ($item->inicia_en <= $ahora && $item->termina_en > $ahora)
-            : false;
+        $estaVigente =
+            $item->inicia_en && $item->termina_en ? $item->inicia_en <= $ahora && $item->termina_en > $ahora : false;
 
         $tipoDestino = match ($item->tipo_destino) {
             'url' => 'URL',
@@ -86,7 +86,7 @@
         }
 
         // Estado del carrusel
-      if ($item->activo && $item->orden > 0) {
+        if ($item->activo && $item->orden > 0) {
             $textoCarrusel = 'En carrusel';
             $claseCarrusel = 'estado-badge bg-success text-white';
             $iconoCarrusel = 'bx bx-check-circle';
@@ -123,7 +123,7 @@
             $iconoProgramacion = 'bx bx-check-circle me-1';
         }
 
-       $ordenActual = $item->activo && $item->orden > 0 ? $item->orden : 0;
+        $ordenActual = $item->activo && $item->orden > 0 ? $item->orden : 0;
     @endphp
 
     <div class="card card-form">
@@ -151,13 +151,12 @@
 
                     {{-- IMAGEN --}}
                     <div class="card border-0 bg-light mb-3">
-                        <div class="card-body text-center">
+                        <div class="card-body p-3">
 
-                            <label class="fw-semibold mb-3 d-block">Imagen</label>
+                            <label class="fw-semibold mb-3 d-block text-center">Imagen</label>
 
-                            <div class="image-box">
-                                <img src="{{ $imagenBanner }}"
-                                    class="img-fluid rounded shadow-sm"
+                            <div class="image-box banner-image-box mb-3 w-100">
+                                <img id="preview" src="{{ $imagenBanner }}" class="img-fluid w-100"
                                     alt="{{ $item->titulo ?: 'Banner' }}">
                             </div>
 
@@ -387,18 +386,18 @@
             {{-- BOTONES --}}
             <div class="d-flex justify-content-end gap-3 mt-4 flex-wrap">
 
-                <a href="{{ route('admin.carrusel-items.edit', $item->id_carrusel_item) }}" class="btn btn-primary-custom">
+                <a href="{{ route('admin.carrusel-items.edit', $item->id_carrusel_item) }}"
+                    class="btn btn-primary-custom">
                     <i class="bx bx-edit"></i>
                     <span>Editar</span>
                 </a>
 
-                <form action="{{ route('admin.carrusel-items.destroy', $item->id_carrusel_item) }}" method="POST" style="display:inline;">
+                <form action="{{ route('admin.carrusel-items.destroy', $item->id_carrusel_item) }}" method="POST"
+                    style="display:inline;">
                     @csrf
                     @method('DELETE')
 
-                    <button type="button"
-                        class="btn btn-danger-custom btn-delete-modal"
-                        data-clave="Banner"
+                    <button type="button" class="btn btn-danger-custom btn-delete-modal" data-clave="Banner"
                         data-valor="{{ $item->titulo ?: 'Banner #' . $item->id_carrusel_item }}">
                         <i class="bx bx-trash"></i>
                         <span>Eliminar</span>

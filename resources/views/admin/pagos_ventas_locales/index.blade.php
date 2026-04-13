@@ -3,37 +3,11 @@
 @section('title', 'Pagos de Ventas Locales')
 
 @section('content')
-@php
-    $pagosVentasLocales = [];
 
-    $metodos = ['efectivo', 'tarjeta', 'sinpe', 'mixto'];
-    $clientes = ['Cliente Mostrador', 'María López', 'Carlos Ramírez', 'Ana Gómez', 'Consumidor Final'];
-    $cajeros = ['Caja 1', 'Caja 2', 'Admin General'];
-
-    for ($i = 1; $i <= 70; $i++) {
-        $metodo = $metodos[array_rand($metodos)];
-        $monto = rand(5, 180) * 1000;
-
-        $pagosVentasLocales[] = (object)[
-            'id_pago_venta_local' => $i,
-            'id_venta_local' => rand(100, 999),
-            'numero_ticket' => 'TCK-' . str_pad($i, 6, '0', STR_PAD_LEFT),
-            'cliente' => $clientes[array_rand($clientes)],
-            'cajero' => $cajeros[array_rand($cajeros)],
-            'metodo' => $metodo,
-            'monto' => $monto,
-            'referencia' => in_array($metodo, ['tarjeta', 'sinpe', 'mixto']) ? 'REF-' . rand(100000, 999999) : null,
-            'fecha' => now()->subDays(rand(0, 20))->format('Y-m-d'),
-            'hora' => now()->subMinutes(rand(0, 1440))->format('H:i'),
-        ];
-    }
-@endphp
-
-<div class="page-content">
-
+    {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
-            <nav aria-label="breadcrumb">
+            <nav>
                 <ol class="breadcrumb mb-0 p-0">
                     <li class="breadcrumb-item">
                         <a href="{{ route('admin.dashboard') }}">
@@ -46,20 +20,26 @@
         </div>
     </div>
 
-    <div class="card card-index">
+    {{-- Card --}}
+    <div class="card card-form">
         <div class="card-body">
 
+            {{-- Header --}}
             <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
                 <div>
                     <h4 class="mb-1 text-uppercase fw-bold">Pagos de Ventas Locales</h4>
-                    <small class="text-muted">Registro de métodos de pago aplicados a ventas físicas</small>
+                    <small class="text-muted">
+                        Registro de pagos aplicados a ventas físicas en caja
+                    </small>
                 </div>
             </div>
 
-            <hr class="my-2"/>
+            <hr class="my-2" />
 
+            {{-- Top bar --}}
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
 
+                {{-- Por página --}}
                 <div class="pagination-perpage-top">
                     <div class="input-group input-group-perpage">
                         <span class="input-group-text bg-transparent border-end-0">
@@ -77,18 +57,17 @@
                     </div>
                 </div>
 
+                {{-- Buscador --}}
                 <div class="search-container ms-auto">
                     <div class="search-box" role="search">
                         <i class="bx bx-search search-icon"></i>
-                        <input
-                            type="text"
-                            id="searchInput"
-                            class="search-input"
-                            placeholder="Buscar ticket, cliente, método, referencia..."
-                            autocomplete="off"
-                        >
+                        <input type="text"
+                               id="searchInput"
+                               class="search-input"
+                               placeholder="Buscar ticket, cliente, método, referencia..."
+                               autocomplete="off">
                         <div class="search-actions">
-                            <button class="btn-search-clear" id="clearSearch" type="button" title="Limpiar">
+                            <button class="btn-search-clear" id="clearSearch" type="button">
                                 <i class="bx bx-x"></i>
                             </button>
                         </div>
@@ -96,91 +75,116 @@
                 </div>
             </div>
 
+            {{-- Tabla --}}
             <div class="table-responsive">
                 <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
-                            <th class="fw-semibold">ID</th>
-                            <th class="fw-semibold">Ticket</th>
-                            <th class="fw-semibold">Cliente</th>
-                            <th class="fw-semibold">Cajero</th>
-                            <th class="fw-semibold">Método</th>
-                            <th class="fw-semibold">Monto</th>
-                            <th class="fw-semibold">Referencia</th>
-                            <th class="fw-semibold">Fecha</th>
-                            <th class="fw-semibold">Acciones</th>
+                            <th>ID</th>
+                            <th>Venta</th>
+                            <th>Cliente</th>
+                            <th>Método</th>
+                            <th>Monto</th>
+                            <th>Referencia</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @foreach($pagosVentasLocales as $pago)
-                        <tr>
-                            <td class="text-muted fw-semibold">{{ $pago->id_pago_venta_local }}</td>
+                        @foreach($items as $pago)
 
-                            <td class="text-start">
-                                <div class="fw-semibold">{{ $pago->numero_ticket }}</div>
-                                <small class="text-muted">ID Venta: {{ $pago->id_venta_local }}</small>
-                            </td>
+                            <tr>
+                                <td class="text-muted fw-semibold">
+                                    {{ $pago->id_pago_venta_local }}
+                                </td>
 
-                            <td class="text-start">
-                                <div class="fw-semibold">{{ $pago->cliente }}</div>
-                            </td>
+                                {{-- Venta --}}
+                                <td class="text-start">
+                                    <div class="fw-semibold">
+                                        {{ $pago->ventaLocal?->numero_ticket ?? '—' }}
+                                    </div>
 
-                            <td>
-                                <span class="fw-semibold">{{ $pago->cajero }}</span>
-                            </td>
+                                    <small class="text-muted d-block">
+                                        ID Venta: {{ $pago->id_venta_local }}
+                                    </small>
 
-                            <td>
-                                @if($pago->metodo === 'efectivo')
-                                    <span class="status-badge status-active">
-                                        <i class="bx bx-money me-1"></i>Efectivo
+                                    <div class="small text-muted">
+                                        Total: ₡{{ number_format((float) $pago->ventaLocal?->total, 2, '.', ',') }}
+                                    </div>
+                                </td>
+
+                                {{-- Cliente --}}
+                                <td class="text-start">
+                                    <div class="fw-semibold">
+                                        {{ $pago->ventaLocal?->nombre_cliente ?: 'Consumidor final' }}
+                                    </div>
+                                </td>
+
+                                {{-- Método --}}
+                                <td>
+                                    @php
+                                        $badge = match ($pago->metodo) {
+                                            'efectivo' => 'status-active',
+                                            'tarjeta' => 'status-info',
+                                            'sinpe' => 'status-primary',
+                                            default => 'status-inactive',
+                                        };
+
+                                        $icon = match ($pago->metodo) {
+                                            'efectivo' => 'bx-money',
+                                            'tarjeta' => 'bx-credit-card',
+                                            'sinpe' => 'bx-mobile-alt',
+                                            default => 'bx-layer',
+                                        };
+                                    @endphp
+
+                                    <span class="status-badge {{ $badge }}">
+                                        <i class="bx {{ $icon }} me-1"></i>
+                                        {{ strtoupper($pago->metodo) }}
                                     </span>
-                                @elseif($pago->metodo === 'tarjeta')
-                                    <span class="status-badge" style="background: rgba(13, 110, 253, .12); color: #0d6efd; border: 1px solid rgba(13, 110, 253, .20);">
-                                        <i class="bx bx-credit-card me-1"></i>Tarjeta
-                                    </span>
-                                @elseif($pago->metodo === 'sinpe')
-                                    <span class="status-badge" style="background: rgba(25, 135, 84, .12); color: #198754; border: 1px solid rgba(25, 135, 84, .20);">
-                                        <i class="bx bx-mobile-alt me-1"></i>SINPE
-                                    </span>
-                                @else
-                                    <span class="status-badge status-inactive">
-                                        <i class="bx bx-layer me-1"></i>Mixto
-                                    </span>
-                                @endif
-                            </td>
+                                </td>
 
-                            <td class="fw-semibold">
-                                ₡{{ number_format($pago->monto, 0, '.', ',') }}
-                            </td>
+                                {{-- Monto --}}
+                                <td class="fw-semibold">
+                                    ₡{{ number_format((float) $pago->monto, 2, '.', ',') }}
+                                </td>
 
-                            <td>
-                                @if($pago->referencia)
-                                    <span class="fw-semibold">{{ $pago->referencia }}</span>
-                                @else
-                                    <span class="text-muted">—</span>
-                                @endif
-                            </td>
+                                {{-- Referencia --}}
+                                <td>
+                                    {{ $pago->referencia ?: '—' }}
+                                </td>
 
-                            <td>
-                                <div class="fw-semibold">{{ $pago->fecha }}</div>
-                                <small class="text-muted">{{ $pago->hora }}</small>
-                            </td>
+                                {{-- Fecha --}}
+                                <td>
+                                    <div class="fw-semibold">
+                                        {{ optional($pago->created_at)->format('Y-m-d') }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        {{ optional($pago->created_at)->format('H:i') }}
+                                    </div>
+                                </td>
 
-                            <td>
-                                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    <a class="btn-action btn-view" title="Ver"
-                                       href="{{ route('admin.pagos-ventas-locales.show', $pago->id_pago_venta_local) }}">
-                                        <i class="bx bx-show"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                                {{-- Acciones --}}
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="{{ route('admin.pagos-ventas-locales.show', $pago->id_pago_venta_local) }}"
+                                           class="btn-action btn-view"
+                                           title="Ver pago">
+                                            <i class="bx bx-show"></i>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+
                         @endforeach
                     </tbody>
+
                 </table>
             </div>
 
+            {{-- Paginación --}}
             <div class="custom-pagination-container mt-3">
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-2">
                     <div class="pagination-info">
@@ -194,16 +198,16 @@
                     </div>
 
                     <div class="pagination-controls">
-                        <nav aria-label="Page navigation">
+                        <nav>
                             <ul class="pagination pagination-modern mb-0">
                                 <li class="page-item disabled" id="pagination-prev">
-                                    <a class="page-link" href="#" aria-label="Previous">
+                                    <a class="page-link" href="#">
                                         <i class="bx bx-chevron-left"></i>
                                     </a>
                                 </li>
 
                                 <li class="page-item disabled" id="pagination-next">
-                                    <a class="page-link" href="#" aria-label="Next">
+                                    <a class="page-link" href="#">
                                         <i class="bx bx-chevron-right"></i>
                                     </a>
                                 </li>
@@ -215,5 +219,5 @@
 
         </div>
     </div>
-</div>
+
 @endsection

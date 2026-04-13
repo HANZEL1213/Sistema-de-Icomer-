@@ -35,8 +35,7 @@
                     <small class="text-muted">Modificar parámetro (clave → valor)</small>
                 </div>
 
-                <a href="{{ route('admin.configuracion.index') }}"
-                   class="btn btn-secondary-custom btn-back">
+                <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary-custom btn-back">
                     <i class="bx bx-arrow-back"></i>
                     <span class="btn-text">Volver</span>
                 </a>
@@ -59,12 +58,7 @@
                             <span class="input-group-text">
                                 <i class="bx bx-key"></i>
                             </span>
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ $item->clave }}"
-                                disabled
-                            >
+                            <input type="text" class="form-control" value="{{ $item->clave }}" disabled>
                         </div>
 
                         <small class="text-muted">
@@ -76,14 +70,9 @@
                     <div class="col-md-6">
                         <label for="valorInput" class="form-label fw-semibold">Valor</label>
 
-                        <input
-                            type="text"
-                            name="valor"
-                            id="valorInput"
-                            class="form-control @error('valor') is-invalid @enderror"
-                            placeholder="Ej: Rukada Store"
-                            value="{{ old('valor', $item->valor) }}"
-                        >
+                        <input type="text" name="valor" id="valorInput"
+                            class="form-control @error('valor') is-invalid @enderror" placeholder="Ej: Rukada Store"
+                            value="{{ old('valor', $item->valor) }}">
 
                         @error('valor')
                             <small class="text-danger">{{ $message }}</small>
@@ -106,8 +95,7 @@
 
                 {{-- Botones --}}
                 <div class="d-flex justify-content-end gap-3 mt-4">
-                    <a href="{{ route('admin.configuracion.index') }}"
-                       class="btn btn-secondary-custom">
+                    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary-custom">
                         Cancelar
                     </a>
 
@@ -123,5 +111,5 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/js/modules/configuracion.js') }}"></script>
+    <script src="{{ asset('assets/js/modules/configuracion.js') }}"></script>
 @endpush

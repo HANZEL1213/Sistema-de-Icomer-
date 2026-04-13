@@ -25,6 +25,7 @@ class Pedido extends Model
         'distrito_envio',
         'direccion_envio',
         'referencia_envio',
+        'link_google_maps',
         'costo_envio',
         'id_cupon',
         'codigo_cupon',
@@ -61,16 +62,22 @@ class Pedido extends Model
 
     public function pagos()
     {
-        return $this->hasMany(PagoPedido::class, 'id_pedido', 'id_pedido')->orderByDesc('intento');
+        return $this->hasMany(PagoPedido::class, 'id_pedido', 'id_pedido')
+            ->orderByDesc('intento');
     }
 
-    public function pagoUltimo()
-    {
-        return $this->hasOne(PagoPedido::class, 'id_pedido', 'id_pedido')->where('es_ultimo', 1);
-    }
-
+public function pagoUltimo()
+{
+    return $this->hasOne(PagoPedido::class, 'id_pedido', 'id_pedido')
+        ->latestOfMany('intento');
+}
     public function venta()
     {
         return $this->hasOne(Venta::class, 'id_pedido', 'id_pedido');
+    }
+
+    public function usoCupon()
+    {
+        return $this->hasOne(UsoCupon::class, 'id_pedido', 'id_pedido');
     }
 }

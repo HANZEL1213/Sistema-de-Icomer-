@@ -52,7 +52,7 @@
 
                 <div class="row g-4">
 
-                    {{-- 🔥 COLUMNA IZQUIERDA --}}
+                    {{-- COLUMNA IZQUIERDA --}}
                     <div class="col-md-6">
 
                         <div class="card border-0 bg-light mb-3">
@@ -67,20 +67,27 @@
                                         ? (\Illuminate\Support\Str::startsWith($item->imagen, ['http://', 'https://'])
                                             ? $item->imagen
                                             : asset('storage/' . $item->imagen))
-                                        : 'https://via.placeholder.com/300x300?text=Marca';
+                                        : '';
 
-                                    $imagenPlaceholder = 'https://via.placeholder.com/300x300?text=Marca';
+                                    $tieneImagen = !empty($imagenActual);
                                 @endphp
 
-                                <div class="image-box mb-3 position-relative">
-                                    <img id="preview" src="{{ $imagenActual }}"
-                                        data-placeholder="{{ $imagenPlaceholder }}" class="img-fluid rounded shadow-sm"
-                                        alt="Vista previa de imagen">
+                                <div class="image-box banner-image-box mb-3">
+
+                                    <div id="previewPlaceholder"
+                                        class="image-placeholder {{ $tieneImagen ? 'd-none' : '' }}">
+                                        <i class="bx bx-image"></i>
+                                        <span>Sin imagen </span>
+                                    </div>
+
+                                    <img id="preview" src="{{ $tieneImagen ? $imagenActual : '' }}" data-placeholder=""
+                                        class="img-fluid {{ $tieneImagen ? '' : 'd-none' }}" alt="Vista previa de imagen">
 
                                     <button type="button" id="removeImage"
-                                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 {{ $item->imagen ? '' : 'd-none' }}">
+                                        class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 {{ $tieneImagen ? '' : 'd-none' }}">
                                         ✕
                                     </button>
+
                                 </div>
 
                                 <input type="file" id="imagen" name="imagen"

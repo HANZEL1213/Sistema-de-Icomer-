@@ -126,9 +126,8 @@
                                             @csrf
                                             @method('DELETE')
 
-                                            <button type="button"
-                                                class="btn-action btn-delete btn-delete-modal"
-                                               data-clave=" Configuracion" data-valor="{{ $conf->clave }}">
+                                            <button type="button" class="btn-action btn-delete btn-delete-modal"
+                                                data-clave=" Configuracion" data-valor="{{ $conf->clave }}">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </form>

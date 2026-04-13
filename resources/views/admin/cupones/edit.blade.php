@@ -4,24 +4,6 @@
 
 @section('content')
 
-@php
-    // 🔥 Datos simulados para el EDIT (como hacemos en Marcas y Productos)
-    $cupon = (object)[
-        'id' => 10,
-        'codigo' => 'BIENVENIDA10',
-        'tipo' => 'porcentaje',
-        'valor' => 10,
-        'minimo_subtotal' => 5000,
-        'inicia_en' => '2026-03-22T09:00',
-        'termina_en' => '2026-04-30T23:59',
-        'max_usos_total' => 100,
-        'max_usos_por_usuario' => 1,
-        'activo' => true,
-    ];
-@endphp
-
-<div class="page-content">
-
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -41,7 +23,7 @@
         </div>
     </div>
 
-    <div class="card card-index">
+    <div class="card card-form">
         <div class="card-body">
 
             {{-- HEADER --}}
@@ -59,81 +41,128 @@
 
             <hr>
 
-            <form action="#" method="POST">
+            @php
+                $activoOld = old('activo', $item->activo ? '1' : '0');
+                $estaActivo = $activoOld == '1' || $activoOld === 1 || $activoOld === true || $activoOld === 'on';
+            @endphp
+
+            <form action="{{ route('admin.cupones.update', $item->id_cupon) }}" method="POST">
                 @csrf
+                @method('PUT')
 
                 <div class="row g-4">
 
-                    {{-- 🔥 COLUMNA IZQUIERDA --}}
+                    {{-- COLUMNA IZQUIERDA --}}
                     <div class="col-md-6">
 
                         {{-- Código --}}
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label class="fw-semibold mb-2">Código</label>
+
+                                <label class="fw-semibold mb-2">Código <span class="text-danger">*</span></label>
+
                                 <div class="input-group custom-dark-input">
                                     <span class="input-group-text">
                                         <i class="bx bx-barcode"></i>
                                     </span>
-                                    <input type="text"
-                                           name="codigo"
-                                           class="form-control"
-                                           value="{{ $cupon->codigo }}"
-                                           required>
+                                    <input type="text" id="codigo" name="codigo"
+                                        class="form-control @error('codigo') is-invalid @enderror"
+                                        placeholder="Ej: BIENVENIDA10" value="{{ old('codigo', $item->codigo) }}" required>
                                 </div>
+
+                                @error('codigo')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+
+                                <small class="text-muted d-block mt-2">
+                                    Usa un código fácil de recordar y escribir.
+                                </small>
+
                             </div>
                         </div>
 
                         {{-- Tipo --}}
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label class="fw-semibold mb-2">Tipo de descuento</label>
-                                <select name="tipo" class="form-select" required>
+
+                                <label class="fw-semibold mb-2">Tipo de descuento <span class="text-danger">*</span></label>
+
+                                <select name="tipo" id="tipo"
+                                    class="form-select @error('tipo') is-invalid @enderror" required>
                                     <option value="">Seleccione</option>
-                                    <option value="porcentaje" {{ $cupon->tipo === 'porcentaje' ? 'selected' : '' }}>
+                                    <option value="porcentaje"
+                                        {{ old('tipo', $item->tipo) === 'porcentaje' ? 'selected' : '' }}>
                                         Porcentaje (%)
                                     </option>
-                                    <option value="monto_fijo" {{ $cupon->tipo === 'monto_fijo' ? 'selected' : '' }}>
+                                    <option value="monto_fijo"
+                                        {{ old('tipo', $item->tipo) === 'monto_fijo' ? 'selected' : '' }}>
                                         Monto fijo (₡)
                                     </option>
                                 </select>
+
+                                @error('tipo')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+
+                                <small class="text-muted d-block mt-2">
+                                    Selecciona si el descuento será porcentual o un monto fijo.
+                                </small>
+
                             </div>
                         </div>
 
                         {{-- Valor --}}
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label class="fw-semibold mb-2">Valor</label>
+
+                                <label class="fw-semibold mb-2">Valor <span class="text-danger">*</span></label>
+
                                 <div class="input-group custom-dark-input">
                                     <span class="input-group-text">₡ / %</span>
-                                    <input type="number"
-                                           step="0.01"
-                                           name="valor"
-                                           class="form-control"
-                                           value="{{ $cupon->valor }}"
-                                           required>
+                                    <input type="number" step="0.01" min="0.01" id="valor" name="valor"
+                                        class="form-control @error('valor') is-invalid @enderror" placeholder="Ej: 10.00"
+                                        value="{{ old('valor', $item->valor) }}" required>
                                 </div>
+
+                                @error('valor')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+
+                                <small class="text-muted d-block mt-2">
+                                    Si es porcentaje, el valor no debe ser mayor a 100.
+                                </small>
+
                             </div>
                         </div>
 
                         {{-- Mínimo subtotal --}}
-                        <div class="card border-0 bg-light">
+                        <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
+
                                 <label class="fw-semibold mb-2">Mínimo subtotal</label>
+
                                 <div class="input-group custom-dark-input">
                                     <span class="input-group-text">₡</span>
-                                    <input type="number"
-                                           step="0.01"
-                                           name="minimo_subtotal"
-                                           class="form-control"
-                                           value="{{ $cupon->minimo_subtotal }}">
+                                    <input type="number" step="0.01" min="0" id="minimo_subtotal"
+                                        name="minimo_subtotal"
+                                        class="form-control @error('minimo_subtotal') is-invalid @enderror"
+                                        placeholder="0.00" value="{{ old('minimo_subtotal', $item->minimo_subtotal) }}">
                                 </div>
+
+                                @error('minimo_subtotal')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+
+                                <small class="text-muted d-block mt-2">
+                                    Opcional. Déjalo en 0 o vacío para aplicarlo sin compra mínima.
+                                </small>
+
                             </div>
                         </div>
 
                     </div>
 
-                    {{-- 🔥 COLUMNA DERECHA --}}
+                    {{-- COLUMNA DERECHA --}}
                     <div class="col-md-6">
 
                         {{-- Programación --}}
@@ -142,15 +171,31 @@
 
                                 <label class="fw-semibold mb-3 d-block">Programación</label>
 
-                                <input type="datetime-local"
-                                       name="inicia_en"
-                                       class="form-control mb-2"
-                                       value="{{ $cupon->inicia_en }}">
+                                <div class="mb-3">
+                                    <label for="inicia_en" class="small text-muted">Fecha de inicio</label>
+                                    <input type="datetime-local" id="inicia_en" name="inicia_en"
+                                        class="form-control @error('inicia_en') is-invalid @enderror"
+                                        value="{{ old('inicia_en', optional($item->inicia_en)->format('Y-m-d\TH:i')) }}">
+                                    @error('inicia_en')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted d-block mt-2">
+                                        Opcional. Déjalo vacío para que el cupón pueda usarse desde cualquier momento.
+                                    </small>
+                                </div>
 
-                                <input type="datetime-local"
-                                       name="termina_en"
-                                       class="form-control"
-                                       value="{{ $cupon->termina_en }}">
+                                <div>
+                                    <label for="termina_en" class="small text-muted">Fecha de finalización</label>
+                                    <input type="datetime-local" id="termina_en" name="termina_en"
+                                        class="form-control @error('termina_en') is-invalid @enderror"
+                                        value="{{ old('termina_en', optional($item->termina_en)->format('Y-m-d\TH:i')) }}">
+                                    @error('termina_en')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted d-block mt-2">
+                                        Opcional. Déjalo vacío para que el cupón no tenga vencimiento.
+                                    </small>
+                                </div>
 
                             </div>
                         </div>
@@ -162,21 +207,32 @@
                                 <label class="fw-semibold mb-3 d-block">Límites de uso</label>
 
                                 <div class="mb-3">
-                                    <label class="small text-muted">Máximo usos total</label>
-                                    <input type="number"
-                                           name="max_usos_total"
-                                           class="form-control"
-                                           min="1"
-                                           value="{{ $cupon->max_usos_total }}">
+                                    <label for="max_usos_total" class="small text-muted">Máximo usos total</label>
+                                    <input type="number" min="1" id="max_usos_total" name="max_usos_total"
+                                        class="form-control @error('max_usos_total') is-invalid @enderror"
+                                        placeholder="Ej: 100" value="{{ old('max_usos_total', $item->max_usos_total) }}">
+                                    @error('max_usos_total')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted d-block mt-2">
+                                        Opcional. Déjalo vacío para permitir usos ilimitados.
+                                    </small>
                                 </div>
 
                                 <div>
-                                    <label class="small text-muted">Máximo usos por usuario</label>
-                                    <input type="number"
-                                           name="max_usos_por_usuario"
-                                           class="form-control"
-                                           min="1"
-                                           value="{{ $cupon->max_usos_por_usuario }}">
+                                    <label for="max_usos_por_usuario" class="small text-muted">Máximo usos por
+                                        usuario</label>
+                                    <input type="number" min="1" id="max_usos_por_usuario"
+                                        name="max_usos_por_usuario"
+                                        class="form-control @error('max_usos_por_usuario') is-invalid @enderror"
+                                        placeholder="Ej: 1"
+                                        value="{{ old('max_usos_por_usuario', $item->max_usos_por_usuario) }}">
+                                    @error('max_usos_por_usuario')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted d-block mt-2">
+                                        Opcional. Déjalo vacío para no limitar cuántas veces lo usa un mismo cliente.
+                                    </small>
                                 </div>
 
                             </div>
@@ -192,22 +248,20 @@
                                 </div>
 
                                 <div class="d-flex align-items-center gap-3">
-
                                     <span id="estadoTexto"
-                                          class="badge estado-badge px-3 py-2 {{ $cupon->activo ? 'bg-success' : 'bg-secondary' }}">
-                                        {!! $cupon->activo
-                                            ? '<i class="bx bx-check-circle me-1"></i> Activo'
-                                            : '<i class="bx bx-x-circle me-1"></i> Inactivo' !!}
+                                        class="badge estado-badge px-3 py-2 {{ $estaActivo ? 'bg-success' : 'bg-secondary' }}">
+                                        @if ($estaActivo)
+                                            <i class="bx bx-check-circle me-1"></i> Activo
+                                        @else
+                                            <i class="bx bx-x-circle me-1"></i> Inactivo
+                                        @endif
                                     </span>
 
                                     <label class="switch">
-                                        <input type="checkbox"
-                                               id="activoSwitch"
-                                               name="activo"
-                                               {{ $cupon->activo ? 'checked' : '' }}>
+                                        <input type="checkbox" id="activoSwitch" name="activo" value="1"
+                                            {{ $estaActivo ? 'checked' : '' }}>
                                         <span class="slider round"></span>
                                     </label>
-
                                 </div>
 
                             </div>
@@ -234,7 +288,5 @@
 
         </div>
     </div>
-
-</div>
 
 @endsection

@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
-use App\Models\Usuario;
-use App\Models\Cupon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PedidosController extends Controller
 {
@@ -15,7 +16,12 @@ class PedidosController extends Controller
     ============================================ */
     public function index()
     {
-        $items = Pedido::with(['usuario', 'cupon', 'pagoUltimo', 'venta'])
+        $items = Pedido::with([
+                'usuario',
+                'cupon',
+                'pagoUltimo',
+                'venta',
+            ])
             ->orderByDesc('created_at')
             ->get();
 
@@ -28,102 +34,355 @@ class PedidosController extends Controller
     public function show(string $id)
     {
         $item = Pedido::with([
-            'usuario',
-            'cupon',
-            'detalle',
-            'pagos',
-            'pagoUltimo',
-            'venta',
-        ])->findOrFail($id);
+                'usuario',
+                'cupon',
+                'detalle',
+                'pagos',
+                'pagoUltimo',
+                'venta',
+                'usoCupon',
+            ])
+            ->findOrFail($id);
+
+        $this->sincronizarPagoActualEnMemoria($item);
 
         return view('admin.pedidos.show', compact('item'));
     }
 
     /* ============================================
-       ✏️ EDITAR
+       🧭 PANEL DE GESTIÓN DEL PEDIDO
     ============================================ */
-    public function edit(string $id)
+    public function verificar(string $id)
     {
-        $item = Pedido::findOrFail($id);
+        $item = Pedido::with([
+                'usuario',
+                'cupon',
+                'detalle',
+                'pagos',
+                'pagoUltimo',
+                'venta',
+                'usoCupon',
+            ])
+            ->findOrFail($id);
 
-        $usuarios = Usuario::orderBy('nombre')->get();
-        $cupones = Cupon::orderBy('codigo')->get();
+        $this->sincronizarPagoActualEnMemoria($item);
 
-        return view('admin.pedidos.edit', compact('item', 'usuarios', 'cupones'));
+        $estados = $this->estadosPedido();
+        $transicionesDisponibles = $this->transicionesPermitidas($item);
+
+        return view('admin.pedidos.verificar', compact('item', 'estados', 'transicionesDisponibles'));
     }
 
-    public function update(Request $request, string $id)
+    /* ============================================
+       ✅ APROBAR PAGO
+    ============================================ */
+    public function aprobarPago(string $id)
     {
-        $request->validate([
-            'estado' => 'required|in:pendiente_pago,en_revision,pagado_verificado,preparando,enviado,entregado,rechazado,cancelado',
-            'id_usuario' => 'nullable|exists:usuarios,id_usuario',
-
-            'nombre_cliente' => 'required|string|max:120',
-            'telefono_cliente' => 'required|string|max:30',
-            'correo_cliente' => 'nullable|email|max:190',
-
-            'tipo_entrega' => 'required|in:retiro,envio',
-            'provincia_envio' => 'nullable|string|max:80',
-            'canton_envio' => 'nullable|string|max:80',
-            'distrito_envio' => 'nullable|string|max:80',
-            'direccion_envio' => 'nullable|string|max:255',
-            'referencia_envio' => 'nullable|string|max:255',
-
-            'costo_envio' => 'required|numeric|min:0',
-
-            'id_cupon' => 'nullable|exists:cupones,id_cupon',
-            'codigo_cupon' => 'nullable|string|max:60',
-            'descuento' => 'required|numeric|min:0',
-
-            'subtotal' => 'required|numeric|min:0',
-            'subtotal_con_descuento' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
-
-            'notas' => 'nullable|string|max:255',
-            'codigo_seguimiento_publico' => 'nullable|string|max:64|unique:pedidos,codigo_seguimiento_publico,' . $id . ',id_pedido',
-        ]);
+        if (! Auth::check()) {
+            return redirect()
+                ->back()
+                ->with('error', 'No hay un usuario autenticado para verificar este pago.');
+        }
 
         try {
-            $item = Pedido::findOrFail($id);
+            $item = Pedido::with([
+                    'pagos',
+                    'pagoUltimo',
+                ])
+                ->findOrFail($id);
 
-            $item->update([
-                'estado' => $request->estado,
-                'id_usuario' => $request->id_usuario,
+            $this->sincronizarPagoActualEnMemoria($item);
 
-                'nombre_cliente' => $request->nombre_cliente,
-                'telefono_cliente' => $request->telefono_cliente,
-                'correo_cliente' => $request->correo_cliente,
+            if (! $item->pagoUltimo) {
+                return redirect()
+                    ->route('admin.pedidos.show', $item->id_pedido)
+                    ->with('error', 'El pedido no tiene un pago registrado.');
+            }
 
-                'tipo_entrega' => $request->tipo_entrega,
-                'provincia_envio' => $request->provincia_envio,
-                'canton_envio' => $request->canton_envio,
-                'distrito_envio' => $request->distrito_envio,
-                'direccion_envio' => $request->direccion_envio,
-                'referencia_envio' => $request->referencia_envio,
+            if ($item->estado !== 'en_revision') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Solo puedes aprobar pagos de pedidos que estén en revisión.');
+            }
 
-                'costo_envio' => $request->costo_envio,
+            if ($item->pagoUltimo->estado === 'verificado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Este pago ya fue verificado y no se puede procesar nuevamente.');
+            }
 
-                'id_cupon' => $request->id_cupon,
-                'codigo_cupon' => $request->codigo_cupon,
-                'descuento' => $request->descuento,
+            if ($item->pagoUltimo->estado === 'rechazado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Este pago ya fue rechazado y no se puede aprobar nuevamente.');
+            }
 
-                'subtotal' => $request->subtotal,
-                'subtotal_con_descuento' => $request->subtotal_con_descuento,
-                'total' => $request->total,
+            if ($item->pagoUltimo->estado !== 'enviado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Solo puedes aprobar un pago cuyo estado actual sea ENVIADO.');
+            }
 
-                'notas' => $request->notas,
-                'codigo_seguimiento_publico' => $request->codigo_seguimiento_publico,
-            ]);
+            DB::transaction(function () use ($item) {
+                $item->pagoUltimo->update([
+                    'estado' => 'verificado',
+                    'id_usuario_verificador' => Auth::id(),
+                    'verificado_en' => now(),
+                    'motivo_rechazo' => null,
+                ]);
+
+                $item->update([
+                    'estado' => 'pagado_verificado',
+                ]);
+            });
 
             return redirect()
-                ->route('admin.pedidos.index')
-                ->with('success', 'Pedido actualizado correctamente.');
+                ->route('admin.pedidos.verificar', $item->id_pedido)
+                ->with('success', 'Pago verificado correctamente y pedido actualizado a PAGADO VERIFICADO.');
+        } catch (\Throwable $e) {
+            report($e);
 
-        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Error al verificar el pago.');
+        }
+    }
+
+    /* ============================================
+       ❌ RECHAZAR PAGO
+    ============================================ */
+    public function rechazarPago(Request $request, string $id)
+    {
+        $request->validate([
+            'motivo_rechazo' => 'required|string|max:255',
+        ]);
+
+        if (! Auth::check()) {
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Error al actualizar el pedido.');
+                ->with('error', 'No hay un usuario autenticado para rechazar este pago.');
+        }
+
+        try {
+            $item = Pedido::with([
+                    'pagos',
+                    'pagoUltimo',
+                ])
+                ->findOrFail($id);
+
+            $this->sincronizarPagoActualEnMemoria($item);
+
+            if (! $item->pagoUltimo) {
+                return redirect()
+                    ->route('admin.pedidos.show', $item->id_pedido)
+                    ->with('error', 'El pedido no tiene un pago registrado.');
+            }
+
+            if ($item->estado !== 'en_revision') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Solo puedes rechazar pagos de pedidos que estén en revisión.');
+            }
+
+            if ($item->pagoUltimo->estado === 'rechazado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Este pago ya fue rechazado y no se puede procesar nuevamente.');
+            }
+
+            if ($item->pagoUltimo->estado === 'verificado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Este pago ya fue verificado y no se puede rechazar nuevamente.');
+            }
+
+            if ($item->pagoUltimo->estado !== 'enviado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $item->id_pedido)
+                    ->with('error', 'Solo puedes rechazar un pago cuyo estado actual sea ENVIADO.');
+            }
+
+            DB::transaction(function () use ($item, $request) {
+                $item->pagoUltimo->update([
+                    'estado' => 'rechazado',
+                    'id_usuario_verificador' => Auth::id(),
+                    'verificado_en' => now(),
+                    'motivo_rechazo' => trim($request->motivo_rechazo),
+                ]);
+
+                $item->update([
+                    'estado' => 'rechazado',
+                ]);
+            });
+
+            return redirect()
+                ->route('admin.pedidos.verificar', $item->id_pedido)
+                ->with('success', 'Pago rechazado correctamente.');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Error al rechazar el pago.');
+        }
+    }
+
+    /* ============================================
+       🔄 ACTUALIZAR ESTADO DEL PEDIDO
+    ============================================ */
+    public function actualizarEstado(Request $request, string $id)
+    {
+        $pedido = Pedido::with([
+                'pagos',
+                'pagoUltimo',
+            ])
+            ->findOrFail($id);
+
+        $this->sincronizarPagoActualEnMemoria($pedido);
+
+        $request->validate([
+            'estado' => [
+                'required',
+                'string',
+                Rule::in(array_keys($this->estadosPedido())),
+            ],
+        ]);
+
+        $estadoNuevo = $request->estado;
+        $transicionesPermitidas = $this->transicionesPermitidas($pedido);
+
+        if (! in_array($estadoNuevo, $transicionesPermitidas, true)) {
+            return redirect()
+                ->route('admin.pedidos.verificar', $pedido->id_pedido)
+                ->with('error', 'La transición de estado no está permitida desde el estado actual.');
+        }
+
+        if ($estadoNuevo === 'pagado_verificado') {
+            if (! $pedido->pagoUltimo || $pedido->pagoUltimo->estado !== 'verificado') {
+                return redirect()
+                    ->route('admin.pedidos.verificar', $pedido->id_pedido)
+                    ->with('error', 'No puedes pasar el pedido a PAGADO VERIFICADO si el pago aún no está verificado.');
+            }
+        }
+
+        try {
+            $pedido->update([
+                'estado' => $estadoNuevo,
+            ]);
+
+            return redirect()
+                ->route('admin.pedidos.verificar', $pedido->id_pedido)
+                ->with('success', 'Estado del pedido actualizado correctamente.');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('admin.pedidos.verificar', $pedido->id_pedido)
+                ->with('error', 'No se pudo actualizar el estado del pedido.');
+        }
+    }
+
+    /* ============================================
+       🧠 CATÁLOGO DE ESTADOS
+    ============================================ */
+    private function estadosPedido(): array
+    {
+        return [
+            'pendiente_pago' => [
+                'label' => 'Pendiente de Pago',
+                'icon' => 'bx-time-five',
+                'class' => 'status-inactive',
+                'descripcion' => 'Pedido creado, aún sin validación del pago.',
+            ],
+            'en_revision' => [
+                'label' => 'En Revisión',
+                'icon' => 'bx-search-alt',
+                'class' => 'status-warning',
+                'descripcion' => 'Pago enviado por el cliente y pendiente de revisión.',
+            ],
+            'pagado_verificado' => [
+                'label' => 'Pagado Verificado',
+                'icon' => 'bx-check-circle',
+                'class' => 'status-active',
+                'descripcion' => 'Pago confirmado correctamente.',
+            ],
+            'preparando' => [
+                'label' => 'Preparando',
+                'icon' => 'bx-package',
+                'class' => 'status-info',
+                'descripcion' => 'El pedido está siendo preparado.',
+            ],
+            'enviado' => [
+                'label' => 'Enviado',
+                'icon' => 'bx-send',
+                'class' => 'status-primary',
+                'descripcion' => 'El pedido salió para entrega.',
+            ],
+            'entregado' => [
+                'label' => 'Entregado',
+                'icon' => 'bx-check-shield',
+                'class' => 'status-dark',
+                'descripcion' => 'El cliente ya recibió su pedido.',
+            ],
+            'rechazado' => [
+                'label' => 'Rechazado',
+                'icon' => 'bx-x-circle',
+                'class' => 'status-danger',
+                'descripcion' => 'El pago o el pedido fue rechazado.',
+            ],
+            'cancelado' => [
+                'label' => 'Cancelado',
+                'icon' => 'bx-block',
+                'class' => 'status-danger',
+                'descripcion' => 'Pedido cancelado.',
+            ],
+        ];
+    }
+
+    /* ============================================
+       🔐 TRANSICIONES PERMITIDAS
+    ============================================ */
+    private function transicionesPermitidas(Pedido $pedido): array
+    {
+        $mapa = [
+            'pendiente_pago' => ['en_revision', 'cancelado'],
+            'en_revision' => ['pagado_verificado', 'rechazado', 'cancelado'],
+            'pagado_verificado' => ['preparando', 'cancelado'],
+            'preparando' => ['enviado', 'cancelado'],
+            'enviado' => ['entregado'],
+            'entregado' => [],
+            'rechazado' => ['en_revision', 'cancelado'],
+            'cancelado' => [],
+        ];
+
+        return $mapa[$pedido->estado] ?? [];
+    }
+
+    /* ============================================
+       🛡️ RESOLVER PAGO ACTUAL REAL
+    ============================================ */
+    private function sincronizarPagoActualEnMemoria(Pedido $pedido): void
+    {
+        if (! $pedido->relationLoaded('pagos') || $pedido->pagos->isEmpty()) {
+            return;
+        }
+
+        $pagoActual = $pedido->pagos
+            ->sortByDesc(function ($pago) {
+                return sprintf(
+                    '%01d-%010d-%010d-%010d',
+                    (int) ($pago->es_ultimo ?? 0),
+                    (int) ($pago->intento ?? 0),
+                    optional($pago->enviado_en)->timestamp ?? 0,
+                    optional($pago->created_at)->timestamp ?? 0
+                );
+            })
+            ->first();
+
+        if ($pagoActual) {
+            $pedido->setRelation('pagoUltimo', $pagoActual);
         }
     }
 }

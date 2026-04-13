@@ -4,43 +4,7 @@
 @section('title', 'Reporte de ventas')
 
 @section('content')
-@php
-    /**
-     * Tabla ventas:
-     * - id_venta, canal(online|local), id_pedido, id_venta_local, created_at
-     * (Para reporte unificamos: canal + referencia + total + fecha)
-     */
 
-    $ventas = [];
-
-    $canales = ['online', 'local'];
-
-    for ($i = 1; $i <= 120; $i++) {
-        $canal = $canales[$i % 2];
-
-        $fecha = now()->subDays(rand(0, 45))->setTime(rand(8, 20), rand(0, 59));
-        $subtotal = rand(8, 120) * 1000;
-        $descuento = (rand(0, 3) === 0) ? rand(1, 20) * 500 : 0;
-        $total = max(0, $subtotal - $descuento);
-
-        $ventas[] = (object)[
-            'id_venta' => $i,
-            'canal' => $canal,
-            'referencia' => $canal === 'online'
-                ? 'PED-' . str_pad($i, 6, '0', STR_PAD_LEFT)
-                : 'TCK-' . str_pad($i, 6, '0', STR_PAD_LEFT),
-            'subtotal' => (float)$subtotal,
-            'descuento' => (float)$descuento,
-            'total' => (float)$total,
-            'fecha' => $fecha->format('Y-m-d'),
-            'hora' => $fecha->format('H:i'),
-        ];
-    }
-@endphp
-
-<div class="page-content">
-
-    {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
             <nav aria-label="breadcrumb">
@@ -56,7 +20,7 @@
         </div>
     </div>
 
-    <div class="card card-index">
+    <div class="card card-form">
         <div class="card-body">
 
             {{-- Header --}}
@@ -66,14 +30,13 @@
                     <small class="text-muted">Consolidado (online + físicas)</small>
                 </div>
 
-                {{-- (Opcional) Botón exportar --}}
                 <button class="btn btn-nuevo d-inline-flex align-items-center gap-2" type="button">
                     <i class="bx bx-download"></i>
                     <span>Exportar</span>
                 </button>
             </div>
 
-            <hr class="my-2"/>
+            <hr class="my-2" />
 
             {{-- Top bar --}}
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
@@ -100,11 +63,8 @@
                 <div class="search-container ms-auto">
                     <div class="search-box" role="search">
                         <i class="bx bx-search search-icon"></i>
-                        <input type="text"
-                               id="searchInput"
-                               class="search-input"
-                               placeholder="Buscar ID, canal, referencia..."
-                               autocomplete="off">
+                        <input type="text" id="searchInput" class="search-input"
+                            placeholder="Buscar ID, canal, referencia, cliente, cajero..." autocomplete="off">
                         <div class="search-actions">
                             <button class="btn-search-clear" id="clearSearch" type="button" title="Limpiar">
                                 <i class="bx bx-x"></i>
@@ -112,7 +72,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             {{-- Tabla --}}
@@ -123,6 +82,7 @@
                             <th class="fw-semibold">ID</th>
                             <th class="fw-semibold">Canal</th>
                             <th class="fw-semibold">Referencia</th>
+                            <th class="fw-semibold">Cliente / Cajero</th>
                             <th class="fw-semibold">Subtotal</th>
                             <th class="fw-semibold">Descuento</th>
                             <th class="fw-semibold">Total</th>
@@ -132,56 +92,96 @@
                     </thead>
 
                     <tbody>
-                        @foreach($ventas as $v)
-                        <tr>
-                            <td class="text-muted fw-semibold">{{ $v->id_venta }}</td>
+                        @foreach($items as $item)
+                            @php
+                                $esOnline = $item->canal === 'online';
 
-                            <td class="fw-semibold">
-                                @if($v->canal === 'online')
-                                    <span class="status-badge status-active">
-                                        <i class="bx bx-globe me-1"></i>Online
-                                    </span>
-                                @else
-                                    <span class="status-badge status-inactive">
-                                        <i class="bx bx-store me-1"></i>Física
-                                    </span>
-                                @endif
-                            </td>
+                                $referencia = $esOnline
+                                    ? ($item->pedido?->numero_pedido ?: 'Sin pedido')
+                                    : ($item->ventaLocal?->numero_ticket ?: 'Sin ticket');
 
-                            <td class="fw-semibold">{{ $v->referencia }}</td>
+                                $nombrePrincipal = $esOnline
+                                    ? ($item->pedido?->nombre_cliente ?: ($item->pedido?->usuario?->nombre ?: 'Sin cliente'))
+                                    : ($item->ventaLocal?->nombre_cliente ?: 'Cliente mostrador');
 
-                            <td class="fw-semibold">₡{{ number_format($v->subtotal, 0, '.', ',') }}</td>
-                            <td class="fw-semibold">₡{{ number_format($v->descuento, 0, '.', ',') }}</td>
-                            <td class="fw-semibold">₡{{ number_format($v->total, 0, '.', ',') }}</td>
+                                $subtexto = $esOnline
+                                    ? ($item->pedido?->usuario?->correo ?: 'Venta online')
+                                    : ($item->ventaLocal?->cajero?->nombre
+                                        ? 'Cajero: ' . $item->ventaLocal->cajero->nombre
+                                        : 'Venta local');
 
-                            <td>
-                                <div class="fw-semibold">{{ $v->fecha }}</div>
-                                <small class="text-muted">{{ $v->hora }}</small>
-                            </td>
+                                $subtotal = $esOnline
+                                    ? (float) ($item->pedido?->subtotal ?? 0)
+                                    : (float) ($item->ventaLocal?->subtotal ?? 0);
 
-                            <td>
-                                <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                    @if($v->canal === 'online')
-                                        <a class="btn-action btn-view" title="Ver pedido"
-                                           href="{{ route('admin.pedidos.show', 1) }}">
-                                            <i class="bx bx-show"></i>
-                                        </a>
+                                $descuento = $esOnline
+                                    ? (float) ($item->pedido?->descuento ?? 0)
+                                    : (float) ($item->ventaLocal?->descuento ?? 0);
+
+                                $total = $esOnline
+                                    ? (float) ($item->pedido?->total ?? 0)
+                                    : (float) ($item->ventaLocal?->total ?? 0);
+                            @endphp
+
+                            <tr>
+                                <td class="text-muted fw-semibold">{{ $item->id_venta }}</td>
+
+                                <td class="fw-semibold">
+                                    @if ($esOnline)
+                                        <span class="status-badge status-active">
+                                            <i class="bx bx-globe me-1"></i>Online
+                                        </span>
                                     @else
-                                        <a class="btn-action btn-view" title="Ver venta física"
-                                           href="{{ route('admin.ventas-locales.show', 1) }}">
-                                            <i class="bx bx-show"></i>
-                                        </a>
+                                        <span class="status-badge status-inactive">
+                                            <i class="bx bx-store me-1"></i>Física
+                                        </span>
                                     @endif
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+
+                                <td class="text-start">
+                                    <div class="fw-semibold">{{ $referencia }}</div>
+                                </td>
+
+                                <td class="text-start">
+                                    <div class="fw-semibold">{{ $nombrePrincipal }}</div>
+                                    <small class="text-muted">{{ $subtexto }}</small>
+                                </td>
+
+                                <td class="fw-semibold">₡{{ number_format($subtotal, 2) }}</td>
+                                <td class="fw-semibold text-success">₡{{ number_format($descuento, 2) }}</td>
+                                <td class="fw-semibold">₡{{ number_format($total, 2) }}</td>
+
+                                <td>
+                                    <div class="fw-semibold">{{ optional($item->created_at)->format('Y-m-d') ?: '—' }}</div>
+                                    <small class="text-muted">{{ optional($item->created_at)->format('H:i') ?: '—' }}</small>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        @if ($esOnline && $item->pedido)
+                                            <a class="btn-action btn-view" title="Ver pedido"
+                                                href="{{ route('admin.pedidos.show', $item->pedido->id_pedido) }}">
+                                                <i class="bx bx-show"></i>
+                                            </a>
+                                        @elseif(!$esOnline && $item->ventaLocal)
+                                            <a class="btn-action btn-view" title="Ver venta local"
+                                                href="{{ route('admin.ventas-locales.show', $item->ventaLocal->id_venta_local) }}">
+                                                <i class="bx bx-show"></i>
+                                            </a>
+                                        @else
+                                            <button type="button" class="btn-action btn-view opacity-50" disabled>
+                                                <i class="bx bx-show"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
-
                 </table>
             </div>
 
-            {{-- Paginación custom --}}
+            {{-- Paginación --}}
             <div class="custom-pagination-container mt-3">
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-2">
                     <div class="pagination-info">
@@ -219,143 +219,4 @@
         </div>
     </div>
 
-</div>
 @endsection
-
-@push('scripts')
-<script>
-(function () {
-    const table = document.getElementById('tabla_index');
-    if (!table) return;
-
-    const perPageSelect = document.getElementById('perPageSelect');
-    const searchInput = document.getElementById('searchInput');
-    const clearSearch = document.getElementById('clearSearch');
-
-    const fromEl = document.getElementById('pagination-from');
-    const toEl = document.getElementById('pagination-to');
-    const totalEl = document.getElementById('pagination-total');
-
-    const prevLi = document.getElementById('pagination-prev');
-    const nextLi = document.getElementById('pagination-next');
-
-    const tbody = table.querySelector('tbody');
-    const allRows = Array.from(tbody.querySelectorAll('tr'));
-
-    let currentPage = 1;
-
-    function getPerPage() {
-        return parseInt(perPageSelect.value || '10', 10);
-    }
-
-    function normalize(txt) {
-        return (txt || '').toString().toLowerCase().trim();
-    }
-
-    function getFilteredRows() {
-        const q = normalize(searchInput.value);
-        if (!q) return allRows;
-        return allRows.filter(row => normalize(row.innerText).includes(q));
-    }
-
-    function clearPaginationNumbers() {
-        const ul = prevLi.parentElement;
-        const dynamic = Array.from(ul.querySelectorAll('li.page-item.dynamic-page'));
-        dynamic.forEach(li => li.remove());
-    }
-
-    function renderPaginationNumbers(totalPages) {
-        const ul = prevLi.parentElement;
-        clearPaginationNumbers();
-
-        const makePageLi = (page) => {
-            const li = document.createElement('li');
-            li.className = 'page-item dynamic-page' + (page === currentPage ? ' active' : '');
-            const a = document.createElement('a');
-            a.className = 'page-link';
-            a.href = '#';
-            a.textContent = page;
-            a.addEventListener('click', (e) => {
-                e.preventDefault();
-                currentPage = page;
-                render();
-            });
-            li.appendChild(a);
-            return li;
-        };
-
-        // Ventana de páginas (máx 5)
-        const windowSize = 5;
-        let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
-        let end = Math.min(totalPages, start + windowSize - 1);
-        start = Math.max(1, end - windowSize + 1);
-
-        for (let p = start; p <= end; p++) {
-            ul.insertBefore(makePageLi(p), nextLi);
-        }
-    }
-
-    function updatePrevNext(totalPages) {
-        prevLi.classList.toggle('disabled', currentPage <= 1);
-        nextLi.classList.toggle('disabled', currentPage >= totalPages);
-
-        prevLi.querySelector('a').onclick = (e) => {
-            e.preventDefault();
-            if (currentPage <= 1) return;
-            currentPage--;
-            render();
-        };
-
-        nextLi.querySelector('a').onclick = (e) => {
-            e.preventDefault();
-            if (currentPage >= totalPages) return;
-            currentPage++;
-            render();
-        };
-    }
-
-    function render() {
-        const perPage = getPerPage();
-        const filtered = getFilteredRows();
-        const total = filtered.length;
-
-        // ocultar todo
-        allRows.forEach(r => r.style.display = 'none');
-
-        const totalPages = Math.max(1, Math.ceil(total / perPage));
-        if (currentPage > totalPages) currentPage = totalPages;
-
-        const startIdx = (currentPage - 1) * perPage;
-        const endIdx = Math.min(startIdx + perPage, total);
-
-        filtered.slice(startIdx, endIdx).forEach(r => r.style.display = '');
-
-        fromEl.textContent = total === 0 ? 0 : (startIdx + 1);
-        toEl.textContent = endIdx;
-        totalEl.textContent = total;
-
-        renderPaginationNumbers(totalPages);
-        updatePrevNext(totalPages);
-    }
-
-    perPageSelect.addEventListener('change', () => {
-        currentPage = 1;
-        render();
-    });
-
-    searchInput.addEventListener('input', () => {
-        currentPage = 1;
-        render();
-    });
-
-    clearSearch.addEventListener('click', () => {
-        searchInput.value = '';
-        currentPage = 1;
-        render();
-        searchInput.focus();
-    });
-
-    render();
-})();
-</script>
-@endpush

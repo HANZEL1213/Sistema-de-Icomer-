@@ -4,24 +4,55 @@
 
 @section('content')
 
-@php
-    $item = (object)[
-        'id_pago_venta_local' => 15,
-        'id_venta_local' => 234,
-        'numero_ticket' => 'TCK-000234',
-        'cliente' => 'Carlos Ramírez',
-        'cajero' => 'Caja 1',
-        'metodo' => 'tarjeta',
-        'monto' => 85000,
-        'referencia' => 'REF-456789',
-        'fecha' => now()->subDays(1)->format('Y-m-d'),
-        'hora' => now()->format('H:i'),
-    ];
-@endphp
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/pagos_ventas_locales.css') }}">
 
-<div class="page-content">
+    @php
+        $metodoConfig = [
+            'efectivo' => [
+                'label' => 'Efectivo',
+                'badge' => 'status-active',
+                'icon' => 'bx-money',
+                'desc' => 'Pago recibido directamente en caja en efectivo.',
+                'large_class' => 'estado-verificado',
+            ],
+            'tarjeta' => [
+                'label' => 'Tarjeta',
+                'badge' => 'status-info',
+                'icon' => 'bx-credit-card',
+                'desc' => 'Pago procesado mediante tarjeta.',
+                'large_class' => 'estado-enviado',
+            ],
+            'sinpe' => [
+                'label' => 'SINPE',
+                'badge' => 'status-primary',
+                'icon' => 'bx-mobile-alt',
+                'desc' => 'Pago registrado mediante transferencia SINPE.',
+                'large_class' => 'estado-verificado',
+            ],
+            'mixto' => [
+                'label' => 'Mixto',
+                'badge' => 'status-inactive',
+                'icon' => 'bx-layer',
+                'desc' => 'Pago compuesto por más de un método.',
+                'large_class' => 'estado-rechazado',
+            ],
+        ];
 
-    {{-- Breadcrumb --}}
+        $metodoActual = $metodoConfig[$item->metodo] ?? [
+            'label' => strtoupper((string) $item->metodo),
+            'badge' => 'status-inactive',
+            'icon' => 'bx-info-circle',
+            'desc' => 'Método no configurado.',
+            'large_class' => 'estado-rechazado',
+        ];
+
+        $venta = $item->ventaLocal;
+        $clienteNombre = $venta?->nombre_cliente ?: 'Consumidor final';
+        $ticket = $venta?->numero_ticket ?: 'Sin ticket';
+        $totalVenta = (float) ($venta?->total ?? 0);
+    @endphp
+
+
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
             <nav>
@@ -32,172 +63,301 @@
                         </a>
                     </li>
                     <li class="breadcrumb-item">
-                        <a href="{{ route('admin.pagos-ventas-locales.index') }}">Pagos Ventas Locales</a>
+                        <a href="{{ route('admin.pagos-ventas-locales.index') }}">Pagos de Ventas Locales</a>
                     </li>
-                    <li class="breadcrumb-item active">Detalle</li>
+                    <li class="breadcrumb-item active">Detalle del Pago</li>
                 </ol>
             </nav>
         </div>
     </div>
 
-    <div class="card card-index">
-        <div class="card-body">
-
-            {{-- HEADER --}}
-            <div class="d-flex justify-content-between align-items-center mb-3">
+    {{-- HERO --}}
+    <div class="card border-0 bg-light mb-4">
+        <div class="card-body p-4 p-lg-4">
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
                 <div>
-                    <h4 class="fw-bold text-uppercase mb-1">Detalle del Pago</h4>
-                    <small class="text-muted">Información completa del pago en venta local</small>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                        <span class="payment-hero-badge">
+                            <i class="bx bx-receipt"></i>
+                            Pago #{{ $item->id_pago_venta_local }}
+                        </span>
+
+                        <span class="status-badge {{ $metodoActual['badge'] }}">
+                            <i class="bx {{ $metodoActual['icon'] }} me-1"></i>{{ strtoupper($metodoActual['label']) }}
+                        </span>
+                    </div>
+
+                    <h4 class="fw-bold text-uppercase mb-1">Detalle del Pago de Venta Local</h4>
+                    <small class="text-muted">
+                        Consulta operativa del pago registrado en una venta física, junto con su venta relacionada.
+                    </small>
                 </div>
 
-                <a href="{{ route('admin.pagos-ventas-locales.index') }}" 
-                   class="btn btn-secondary-custom btn-back">
-                    <i class="bx bx-arrow-back"></i> 
-                    <span>Volver</span>
-                </a>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ route('admin.pagos-ventas-locales.index') }}" class="btn btn-secondary-custom btn-back">
+                        <i class="bx bx-arrow-back"></i>
+                        <span class="btn-text">Volver</span>
+                    </a>
+                </div>
             </div>
 
-            <hr>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="payment-mini-stat">
+                        <small class="text-muted d-block">Ticket</small>
+                        <div class="fw-bold">{{ $ticket }}</div>
+                        <div class="text-muted small">ID Venta: {{ $item->id_venta_local }}</div>
+                    </div>
+                </div>
 
-            {{-- 🔥 TICKET FULL WIDTH --}}
-            <div class="card border-0 bg-light mb-4 text-center">
+                <div class="col-md-3">
+                    <div class="payment-mini-stat">
+                        <small class="text-muted d-block">Cliente</small>
+                        <div class="fw-bold">{{ $clienteNombre }}</div>
+                        <div class="text-muted small">{{ $metodoActual['label'] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="payment-mini-stat">
+                        <small class="text-muted d-block">Fecha de registro</small>
+                        <div class="fw-bold">{{ optional($item->created_at)->format('Y-m-d') ?: '—' }}</div>
+                        <div class="text-muted small">{{ optional($item->created_at)->format('H:i') ?: '—' }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="payment-mini-stat">
+                        <small class="text-muted d-block">Monto</small>
+                        <div class="monto-badge fw-bold">
+                            ₡{{ number_format((float) $item->monto, 2, '.', ',') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- BLOQUES DESTACADOS --}}
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="payment-highlight-card">
+                <div class="payment-highlight-icon">
+                    <i class="bx {{ $metodoActual['icon'] }}"></i>
+                </div>
+                <div class="payment-highlight-label">Método de Pago</div>
+                <div class="payment-highlight-value">
+                    <span class="estado-badge-large {{ $metodoActual['large_class'] }}">
+                        <i class="bx {{ $metodoActual['icon'] }}"></i> {{ $metodoActual['label'] }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="payment-highlight-card">
+                <div class="payment-highlight-icon">
+                    <i class="bx bx-money"></i>
+                </div>
+                <div class="payment-highlight-label">Monto Registrado</div>
+                <div class="payment-highlight-value">
+                    <span class="monto-badge w-100 justify-content-center">
+                        ₡{{ number_format((float) $item->monto, 2, '.', ',') }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        {{-- COLUMNA IZQUIERDA --}}
+        <div class="col-xl-7">
+
+            <div class="payment-section-card mb-4">
+                <div class="card-header-soft">
+                    <h6 class="mb-0 fw-bold">Información General del Pago</h6>
+                </div>
                 <div class="card-body">
-                    <label class="fw-semibold mb-2 d-block">Ticket</label>
-                    <div class="fw-bold fs-4">{{ $item->numero_ticket }}</div>
-                    <small class="text-muted">ID Venta: {{ $item->id_venta_local }}</small>
-                </div>
-            </div>
+                    <div class="row g-3">
 
-            {{-- 🔥 MÉTODO + MONTO --}}
-            <div class="row g-4 mb-4">
-
-                {{-- MÉTODO --}}
-                <div class="col-md-6">
-                    <div class="highlight-card bg-light">
-                        <div class="highlight-icon">
-                            <i class="bx bx-credit-card"></i>
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Ticket</small>
+                                <div class="fw-semibold">{{ $ticket }}</div>
+                            </div>
                         </div>
-                        <div class="highlight-label">Método</div>
-                        <div class="highlight-value">
 
-                            @if($item->metodo === 'efectivo')
-                                <span class="estado-badge-large estado-verificado w-100 justify-content-center">
-                                    <i class="bx bx-money"></i> Efectivo
-                                </span>
-                            @elseif($item->metodo === 'tarjeta')
-                                <span class="estado-badge-large estado-enviado w-100 justify-content-center">
-                                    <i class="bx bx-credit-card"></i> Tarjeta
-                                </span>
-                            @elseif($item->metodo === 'sinpe')
-                                <span class="estado-badge-large estado-verificado w-100 justify-content-center">
-                                    <i class="bx bx-mobile-alt"></i> SINPE
-                                </span>
-                            @else
-                                <span class="estado-badge-large estado-rechazado w-100 justify-content-center">
-                                    <i class="bx bx-layer"></i> Mixto
-                                </span>
-                            @endif
-
-                        </div>
-                    </div>
-                </div>
-
-                {{-- MONTO --}}
-                <div class="col-md-6">
-                    <div class="highlight-card bg-light">
-                        <div class="highlight-icon">
-                            <i class="bx bx-money"></i>
-                        </div>
-                        <div class="highlight-label">Monto</div>
-                        <div class="highlight-value">
-                            <span class="monto-badge w-100 justify-content-center">
-                                ₡{{ number_format($item->monto, 0, '.', ',') }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            {{-- CONTENIDO --}}
-            <div class="row g-4">
-
-                {{-- IZQUIERDA --}}
-                <div class="col-md-6">
-
-                    <div class="card border-0 bg-light mb-3">
-                        <div class="card-body">
-
-                            <div class="mb-3">
+                        <div class="col-md-6">
+                            <div class="payment-kv">
                                 <small class="text-muted">Cliente</small>
-                                <div class="fw-semibold">{{ $item->cliente }}</div>
+                                <div class="fw-semibold">{{ $clienteNombre }}</div>
                             </div>
+                        </div>
 
-                            <div>
-                                <small class="text-muted">Cajero</small>
-                                <div class="fw-semibold">{{ $item->cajero }}</div>
+                        <div class="col-md-4">
+                            <div class="payment-kv">
+                                <small class="text-muted">Método</small>
+                                <div class="fw-semibold">{{ strtoupper($metodoActual['label']) }}</div>
                             </div>
+                        </div>
 
+                        <div class="col-md-4">
+                            <div class="payment-kv">
+                                <small class="text-muted">Monto</small>
+                                <div class="fw-semibold">
+                                    ₡{{ number_format((float) $item->monto, 2, '.', ',') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="payment-kv">
+                                <small class="text-muted">ID del pago</small>
+                                <div class="fw-semibold">{{ $item->id_pago_venta_local }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Referencia</small>
+                                <div class="fw-semibold">
+                                    {{ $item->referencia ?: 'Sin referencia registrada' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Registrado en</small>
+                                <div class="fw-semibold">
+                                    {{ optional($item->created_at)->format('Y-m-d H:i') ?: '—' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="payment-kv">
+                                <small class="text-muted">Descripción del método</small>
+                                <div class="fw-semibold">{{ $metodoActual['desc'] }}</div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="card border-0 bg-light">
-                        <div class="card-body">
-                            <small class="text-muted">Fecha</small>
-                            <div class="fw-semibold">{{ $item->fecha }}</div>
-
-                            <small class="text-muted">Hora</small>
-                            <div class="fw-semibold">{{ $item->hora }}</div>
-                        </div>
-                    </div>
-
                 </div>
-
-                {{-- DERECHA --}}
-                <div class="col-md-6">
-
-                    <div class="card border-0 bg-light">
-                        <div class="card-body">
-
-                            <small class="text-muted">Referencia</small>
-                            <div class="fw-semibold">
-                                {{ $item->referencia ?? '—' }}
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-
             </div>
 
-            {{-- BOTONES --}}
-            <div class="d-flex justify-content-end gap-3 mt-4">
+            <div class="payment-section-card">
+                <div class="card-header-soft">
+                    <h6 class="mb-0 fw-bold">Venta Relacionada</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Número de ticket</small>
+                                <div class="fw-semibold">{{ $ticket }}</div>
+                            </div>
+                        </div>
 
-                <a href="#"
-                   class="btn btn-primary-custom">
-                    <i class="bx bx-edit"></i>
-                    <span>Editar</span>
-                </a>
-                
-                <form action="#"
-                      method="POST"
-                      onsubmit="return confirm('¿Eliminar este pago?')"
-                      style="display:inline;">
-                    @csrf
-                    @method('DELETE')
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Total de la venta</small>
+                                <div class="fw-semibold">
+                                    ₡{{ number_format($totalVenta, 2, '.', ',') }}
+                                </div>
+                            </div>
+                        </div>
 
-                    <button type="submit" class="btn btn-danger-custom">
-                        <i class="bx bx-trash"></i>
-                        <span>Eliminar</span>
-                    </button>
-                </form>
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Cliente de la venta</small>
+                                <div class="fw-semibold">{{ $clienteNombre }}</div>
+                            </div>
+                        </div>
 
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Cajero</small>
+                                <div class="fw-semibold">
+                                    {{ $venta?->cajero?->nombre ?: 'Sin cajero registrado' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        @if ($venta)
+                            <div class="col-12">
+                                <a href="{{ route('admin.ventas-locales.show', $venta->id_venta_local) }}"
+                                    class="btn btn-primary-custom w-100">
+                                    <i class="bx bx-show"></i>
+                                    <span>Ir a la venta relacionada</span>
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- COLUMNA DERECHA --}}
+        <div class="col-xl-5">
+
+            <div class="payment-section-card mb-4">
+                <div class="card-header-soft">
+                    <h6 class="mb-0 fw-bold">Resumen Rápido</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="payment-kv">
+                                <small class="text-muted">ID del pago</small>
+                                <div class="fw-semibold">{{ $item->id_pago_venta_local }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Método actual</small>
+                                <div class="fw-semibold">{{ $metodoActual['label'] }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="payment-kv">
+                                <small class="text-muted">Venta asociada</small>
+                                <div class="fw-semibold">{{ $item->id_venta_local }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="payment-kv">
+                                <small class="text-muted">Referencia visible</small>
+                                <div class="fw-semibold">
+                                    {{ $item->referencia ?: '—' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section-card">
+                <div class="card-header-soft">
+                    <h6 class="mb-0 fw-bold">Observaciones</h6>
+                </div>
+                <div class="card-body">
+                    <div class="soft-alert">
+                        <div class="fw-semibold mb-1 text-primary">
+                            <i class="bx {{ $metodoActual['icon'] }} me-1"></i>Pago registrado
+                        </div>
+                        <small class="text-muted">
+                            Este registro corresponde a un pago aplicado a una venta local física y se mantiene disponible
+                            para consulta administrativa y trazabilidad.
+                        </small>
+                    </div>
+                </div>
             </div>
 
         </div>
     </div>
-
-</div>
 
 @endsection

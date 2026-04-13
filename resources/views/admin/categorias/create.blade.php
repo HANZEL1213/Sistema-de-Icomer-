@@ -59,15 +59,21 @@
                                     Imagen de la Categoría
                                 </label>
 
-                                <div class="image-box mb-3 position-relative">
-                                    <img id="preview" src="https://via.placeholder.com/300x300?text=Categoría"
-                                        data-placeholder="https://via.placeholder.com/300x300?text=Categoría"
-                                        class="img-fluid rounded shadow-sm" alt="Vista previa de imagen">
+                                <div class="image-box banner-image-box mb-3">
+
+                                    <div id="previewPlaceholder" class="image-placeholder">
+                                        <i class="bx bx-image"></i>
+                                        <span>Sin imagen</span>
+                                    </div>
+
+                                    <img id="preview" src="" data-placeholder="" class="img-fluid d-none"
+                                        alt="Vista previa de imagen">
 
                                     <button type="button" id="removeImage"
                                         class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 d-none">
                                         ✕
                                     </button>
+
                                 </div>
 
                                 <input type="file" name="imagen" id="imagen"

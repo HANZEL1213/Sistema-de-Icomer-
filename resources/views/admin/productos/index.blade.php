@@ -98,7 +98,7 @@
                     </thead>
 
                     <tbody>
-                        @forelse ($items as $item)
+                        @foreach ($items as $item)
                             @php
                                 $imagenProducto = $item->imagenPrincipal?->ruta
                                     ? (\Illuminate\Support\Str::startsWith($item->imagenPrincipal->ruta, ['http://', 'https://'])
@@ -233,13 +233,7 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="12" class="text-center py-4 text-muted">
-                                    No hay productos registrados.
-                                </td>
-                            </tr>
-                        @endforelse
+                        @endforeach
                     </tbody>
                 </table>
             </div>

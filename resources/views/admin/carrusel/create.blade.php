@@ -5,7 +5,7 @@
 
 @section('content')
 
-
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrusel.css') }}">
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -58,25 +58,22 @@
                                 <label class="fw-semibold mb-3 d-block">
                                     Imagen del Banner <span class="text-danger">*</span>
                                 </label>
+                                <div class="image-box banner-image-box mb-3 position-relative">
+                                    <div id="previewPlaceholder" class="image-placeholder">
+                                        <i class="bx bx-image"></i>
+                                        <span>Sin imágenes</span>
+                                    </div>
 
-                                <div class="image-box mb-3 position-relative">
-                                    <img id="preview"
-                                        src="https://via.placeholder.com/480x240?text=Banner"
-                                        data-placeholder="https://via.placeholder.com/480x240?text=Banner"
-                                        class="img-fluid rounded shadow-sm"
-                                        alt="Vista previa de imagen">
+                                    <img id="preview" src="" data-placeholder=""
+                                        class="img-fluid rounded shadow-sm d-none" alt="Vista previa de imagen">
 
                                     <button type="button" id="removeImage"
                                         class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 d-none">
                                         ✕
                                     </button>
                                 </div>
-
-                                <input type="file"
-                                    id="ruta_imagen"
-                                    name="ruta_imagen"
-                                    class="form-control @error('ruta_imagen') is-invalid @enderror"
-                                    accept="image/*"
+                                <input type="file" id="ruta_imagen" name="ruta_imagen"
+                                    class="form-control @error('ruta_imagen') is-invalid @enderror" accept="image/*"
                                     required>
 
                                 @error('ruta_imagen')
@@ -102,12 +99,9 @@
                                     <label class="form-label">
                                         Inicia en <span class="text-danger">*</span>
                                     </label>
-                                    <input type="datetime-local"
-                                        name="inicia_en"
-                                        id="inicia_en"
+                                    <input type="datetime-local" name="inicia_en" id="inicia_en"
                                         class="form-control @error('inicia_en') is-invalid @enderror"
-                                        value="{{ old('inicia_en') }}"
-                                        required>
+                                        value="{{ old('inicia_en') }}" required>
                                     @error('inicia_en')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
@@ -117,12 +111,9 @@
                                     <label class="form-label">
                                         Termina en <span class="text-danger">*</span>
                                     </label>
-                                    <input type="datetime-local"
-                                        name="termina_en"
-                                        id="termina_en"
+                                    <input type="datetime-local" name="termina_en" id="termina_en"
                                         class="form-control @error('termina_en') is-invalid @enderror"
-                                        value="{{ old('termina_en') }}"
-                                        required>
+                                        value="{{ old('termina_en') }}" required>
                                     @error('termina_en')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
@@ -137,16 +128,24 @@
 
                                 @php
                                     $activoManualOld = old('activo_manual', '1');
-                                    $activoManual = ($activoManualOld == '1' || $activoManualOld === 1 || $activoManualOld === true || $activoManualOld === 'on') ? 1 : 0;
+                                    $activoManual =
+                                        $activoManualOld == '1' ||
+                                        $activoManualOld === 1 ||
+                                        $activoManualOld === true ||
+                                        $activoManualOld === 'on'
+                                            ? 1
+                                            : 0;
                                 @endphp
 
-                                <input type="hidden" name="activo_manual" id="activoManualHidden" value="{{ $activoManual }}">
+                                <input type="hidden" name="activo_manual" id="activoManualHidden"
+                                    value="{{ $activoManual }}">
 
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                                     <div>
                                         <label class="fw-semibold d-block mb-1">Activación manual</label>
                                         <small class="text-muted">
-                                            Si está dentro del rango, este control define si el banner podrá entrar al carrusel.
+                                            Si está dentro del rango, este control define si el banner podrá entrar al
+                                            carrusel.
                                         </small>
                                     </div>
 
@@ -161,8 +160,7 @@
                                         </span>
 
                                         <label class="switch">
-                                            <input type="checkbox"
-                                                id="activoSwitchVisual"
+                                            <input type="checkbox" id="activoSwitchVisual"
                                                 {{ $activoManual ? 'checked' : '' }}>
                                             <span class="slider round"></span>
                                         </label>
@@ -188,7 +186,8 @@
 
                                     <div class="bg-light border rounded p-2 small text-muted" id="estadoHelper">
                                         <i class="bx bx-info-circle me-1"></i>
-                                        El sistema activará el banner solo si está permitido manualmente y además entra en su rango de fechas.
+                                        El sistema activará el banner solo si está permitido manualmente y además entra en
+                                        su rango de fechas.
                                     </div>
                                 </div>
 
@@ -205,7 +204,8 @@
                             <div class="card-body">
 
                                 <label class="fw-semibold mb-3 d-flex align-items-center gap-2">
-                                    <i class="bx bx-sort-alt-2"></i> Posición programada <span class="text-danger">*</span>
+                                    <i class="bx bx-sort-alt-2"></i> Posición programada <span
+                                        class="text-danger">*</span>
                                 </label>
 
                                 @php
@@ -221,15 +221,10 @@
                                             <span class="input-group-text">
                                                 <i class="bx bx-hash"></i>
                                             </span>
-                                            <input type="number"
-                                                name="orden_programado"
-                                                id="ordenNumero"
+                                            <input type="number" name="orden_programado" id="ordenNumero"
                                                 class="form-control @error('orden_programado') is-invalid @enderror"
-                                                min="1"
-                                                step="1"
-                                                value="{{ $ordenOld }}"
-                                                placeholder="Ingrese la posición"
-                                                required>
+                                                min="1" step="1" value="{{ $ordenOld }}"
+                                                placeholder="Ingrese la posición" required>
                                         </div>
 
                                         @error('orden_programado')
@@ -237,7 +232,8 @@
                                         @enderror
 
                                         <small class="text-muted d-block mt-2">
-                                            Esta será la posición cuando el banner entre en vigencia y quede activo en el carrusel.
+                                            Esta será la posición cuando el banner entre en vigencia y quede activo en el
+                                            carrusel.
                                         </small>
                                     </div>
 
@@ -257,12 +253,9 @@
                             <div class="card-body">
 
                                 <div class="form-floating mb-3">
-                                    <input type="text"
-                                        name="titulo"
-                                        class="form-control @error('titulo') is-invalid @enderror"
-                                        id="titulo"
-                                        placeholder=" "
-                                        value="{{ old('titulo') }}">
+                                    <input type="text" name="titulo"
+                                        class="form-control @error('titulo') is-invalid @enderror" id="titulo"
+                                        placeholder=" " value="{{ old('titulo') }}">
                                     <label for="titulo">Título</label>
                                     @error('titulo')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -270,12 +263,9 @@
                                 </div>
 
                                 <div class="form-floating mb-3">
-                                    <input type="text"
-                                        name="subtitulo"
-                                        class="form-control @error('subtitulo') is-invalid @enderror"
-                                        id="subtitulo"
-                                        placeholder=" "
-                                        value="{{ old('subtitulo') }}">
+                                    <input type="text" name="subtitulo"
+                                        class="form-control @error('subtitulo') is-invalid @enderror" id="subtitulo"
+                                        placeholder=" " value="{{ old('subtitulo') }}">
                                     <label for="subtitulo">Subtítulo</label>
                                     @error('subtitulo')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -283,12 +273,9 @@
                                 </div>
 
                                 <div class="form-floating">
-                                    <input type="text"
-                                        name="texto_boton"
-                                        class="form-control @error('texto_boton') is-invalid @enderror"
-                                        id="texto_boton"
-                                        placeholder=" "
-                                        value="{{ old('texto_boton') }}">
+                                    <input type="text" name="texto_boton"
+                                        class="form-control @error('texto_boton') is-invalid @enderror" id="texto_boton"
+                                        placeholder=" " value="{{ old('texto_boton') }}">
                                     <label for="texto_boton">Texto del botón</label>
                                     @error('texto_boton')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -308,24 +295,23 @@
                                     $tipoDestinoOld = old('tipo_destino');
                                 @endphp
 
-                                <select name="tipo_destino"
-                                    id="tipoDestino"
+                                <select name="tipo_destino" id="tipoDestino"
                                     class="form-select mb-3 @error('tipo_destino') is-invalid @enderror">
                                     <option value="">Seleccionar</option>
                                     <option value="url" {{ $tipoDestinoOld === 'url' ? 'selected' : '' }}>URL</option>
-                                    <option value="producto" {{ $tipoDestinoOld === 'producto' ? 'selected' : '' }}>Producto</option>
-                                    <option value="categoria" {{ $tipoDestinoOld === 'categoria' ? 'selected' : '' }}>Categoría</option>
+                                    <option value="producto" {{ $tipoDestinoOld === 'producto' ? 'selected' : '' }}>
+                                        Producto</option>
+                                    <option value="categoria" {{ $tipoDestinoOld === 'categoria' ? 'selected' : '' }}>
+                                        Categoría</option>
                                 </select>
                                 @error('tipo_destino')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
 
                                 <div id="campoUrl" class="{{ $tipoDestinoOld === 'url' ? '' : 'd-none' }}">
-                                    <input type="url"
-                                        name="url_destino"
+                                    <input type="url" name="url_destino"
                                         class="form-control @error('url_destino') is-invalid @enderror"
-                                        placeholder="https://..."
-                                        value="{{ old('url_destino') }}">
+                                        placeholder="https://..." value="{{ old('url_destino') }}">
                                     @error('url_destino')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror

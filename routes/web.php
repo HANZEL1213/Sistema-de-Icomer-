@@ -48,8 +48,27 @@ Route::resource('inventario-movimientos', MovimientosInventarioController::class
         Route::resource('configuracion', ConfiguracionController::class);
 
     // Pedidos (online)
-    Route::resource('pedidos', PedidosController::class)->only(['index', 'show', 'edit']);
+Route::resource('pedidos', PedidosController::class)->only(['index', 'show']);
 
+Route::get('pedidos/{id}/verificar', [PedidosController::class, 'verificar'])
+    ->name('pedidos.verificar');
+
+Route::patch('pedidos/{id}/aprobar-pago', [PedidosController::class, 'aprobarPago'])
+    ->name('pedidos.aprobar-pago');
+
+Route::patch('pedidos/{id}/rechazar-pago', [PedidosController::class, 'rechazarPago'])
+    ->name('pedidos.rechazar-pago');
+
+Route::patch('pedidos/{id}/actualizar-estado', [PedidosController::class, 'actualizarEstado'])
+    ->name('pedidos.actualizar-estado');
+
+
+
+
+
+
+
+    
     // Pagos pedidos y locales (verificar/rechazar normalmente es update)
     Route::resource('pagos-pedidos', PagosPedidosController::class)->only(['index', 'show', 'update']);
 

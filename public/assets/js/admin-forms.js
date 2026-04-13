@@ -2,55 +2,129 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ======================================================
-       🔥 PREVIEW UNIVERSAL DE IMAGEN (Carrusel / Marca / Categoría)
-       ====================================================== */
+/* ======================================================
+   🔥 IMAGEN SIMPLE EDIT (Marca / Categoría)
+====================================================== */
 
-    const input = document.getElementById('imagen');
-    const preview = document.getElementById('preview');
-    const removeBtn = document.getElementById('removeImage');
+const inputImagen = document.getElementById('imagen');
+const preview = document.getElementById('preview');
+const previewPlaceholder = document.getElementById('previewPlaceholder');
+const removeImage = document.getElementById('removeImage');
+const eliminarImagen = document.getElementById('eliminar_imagen');
 
-    let currentImage = null;
+let objectUrlActual = null;
 
-    if (input && preview) {
+const imagenOriginal = preview ? preview.getAttribute('src') : '';
+const placeholder = preview ? (preview.dataset.placeholder || '') : '';
+const teniaImagenInicial = !!(preview && imagenOriginal && imagenOriginal !== placeholder);
 
-        input.addEventListener('change', function () {
-
-            const file = this.files[0];
-            if (!file) return;
-
-            // liberar memoria anterior
-            if (currentImage) {
-                URL.revokeObjectURL(currentImage);
-            }
-
-            currentImage = URL.createObjectURL(file);
-            preview.src = currentImage;
-
-            if (removeBtn) {
-                removeBtn.classList.remove('d-none');
-            }
-        });
-
+function restaurarPreviewPlaceholder() {
+    if (preview) {
+        preview.src = '';
+        preview.classList.add('d-none');
     }
 
-    if (removeBtn && input && preview) {
+    if (previewPlaceholder) {
+        previewPlaceholder.classList.remove('d-none');
+    }
+}
 
-        removeBtn.addEventListener('click', function () {
+function restaurarPreviewOriginal() {
+    if (!preview) return;
 
-            if (currentImage) {
-                URL.revokeObjectURL(currentImage);
-                currentImage = null;
+    preview.src = imagenOriginal || '';
+    preview.classList.remove('d-none');
+
+    if (previewPlaceholder) {
+        previewPlaceholder.classList.add('d-none');
+    }
+}
+
+function ocultarBotonEliminarImagen() {
+    if (removeImage) {
+        removeImage.classList.add('d-none');
+    }
+}
+
+function mostrarBotonEliminarImagen() {
+    if (removeImage) {
+        removeImage.classList.remove('d-none');
+    }
+}
+
+function limpiarObjectUrlActual() {
+    if (objectUrlActual) {
+        URL.revokeObjectURL(objectUrlActual);
+        objectUrlActual = null;
+    }
+}
+
+function marcarEliminacion(valor) {
+    if (eliminarImagen) {
+        eliminarImagen.value = valor ? '1' : '0';
+    }
+}
+
+if (inputImagen && preview && removeImage) {
+    inputImagen.addEventListener('change', (event) => {
+        const file = event.target.files?.[0];
+
+        if (!file) {
+            limpiarObjectUrlActual();
+
+            if (teniaImagenInicial && (!eliminarImagen || eliminarImagen.value !== '1')) {
+                restaurarPreviewOriginal();
+                mostrarBotonEliminarImagen();
+            } else {
+                restaurarPreviewPlaceholder();
+                ocultarBotonEliminarImagen();
             }
+            return;
+        }
 
-            input.value = '';
-            preview.src = preview.dataset.placeholder || '';
+        limpiarObjectUrlActual();
+        objectUrlActual = URL.createObjectURL(file);
 
-            removeBtn.classList.add('d-none');
-        });
+        preview.src = objectUrlActual;
+        preview.classList.remove('d-none');
 
+        if (previewPlaceholder) {
+            previewPlaceholder.classList.add('d-none');
+        }
+
+        marcarEliminacion(false);
+        mostrarBotonEliminarImagen();
+    });
+
+    removeImage.addEventListener('click', () => {
+        inputImagen.value = '';
+        limpiarObjectUrlActual();
+
+        if (teniaImagenInicial) {
+            marcarEliminacion(true);
+            restaurarPreviewPlaceholder();
+            ocultarBotonEliminarImagen();
+        } else {
+            marcarEliminacion(false);
+            restaurarPreviewPlaceholder();
+            ocultarBotonEliminarImagen();
+        }
+    });
+
+    if (teniaImagenInicial) {
+        marcarEliminacion(false);
+        restaurarPreviewOriginal();
+        mostrarBotonEliminarImagen();
+    } else {
+        marcarEliminacion(false);
+        restaurarPreviewPlaceholder();
+        ocultarBotonEliminarImagen();
     }
 
+    window.addEventListener('beforeunload', () => {
+        limpiarObjectUrlActual();
+    });
+}
 
     /* ======================================================
        🔥 ESTADO SWITCH UNIVERSAL

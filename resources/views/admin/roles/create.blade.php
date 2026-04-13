@@ -67,12 +67,9 @@
                                         <span class="input-group-text">
                                             <i class="bx bx-id-card"></i>
                                         </span>
-                                        <input type="text"
-                                               name="nombre"
-                                               class="form-control @error('nombre') is-invalid @enderror"
-                                               placeholder="Ej: Administrador"
-                                               value="{{ old('nombre') }}"
-                                               required>
+                                        <input type="text" name="nombre"
+                                            class="form-control @error('nombre') is-invalid @enderror"
+                                            placeholder="Ej: Administrador" value="{{ old('nombre') }}" required>
                                     </div>
 
                                     @error('nombre')
@@ -88,11 +85,9 @@
                                         <span class="input-group-text">
                                             <i class="bx bx-detail"></i>
                                         </span>
-                                        <input type="text"
-                                               name="descripcion"
-                                               class="form-control @error('descripcion') is-invalid @enderror"
-                                               placeholder="Ej: Acceso total al sistema"
-                                               value="{{ old('descripcion') }}">
+                                        <input type="text" name="descripcion"
+                                            class="form-control @error('descripcion') is-invalid @enderror"
+                                            placeholder="Ej: Acceso total al sistema" value="{{ old('descripcion') }}">
                                     </div>
 
                                     @error('descripcion')
@@ -120,8 +115,8 @@
                                 <div class="d-flex align-items-center gap-3">
 
                                     <span id="estadoTexto"
-                                          class="badge estado-badge px-3 py-2 {{ old('activo', 1) ? 'bg-success' : 'bg-secondary' }}">
-                                        @if(old('activo', 1))
+                                        class="badge estado-badge px-3 py-2 {{ old('activo', 1) ? 'bg-success' : 'bg-secondary' }}">
+                                        @if (old('activo', 1))
                                             <i class="bx bx-check-circle me-1"></i> Activo
                                         @else
                                             <i class="bx bx-x-circle me-1"></i> Inactivo
@@ -129,11 +124,8 @@
                                     </span>
 
                                     <label class="switch">
-                                        <input type="checkbox"
-                                               id="activoSwitch"
-                                               name="activo"
-                                               value="1"
-                                               {{ old('activo', 1) ? 'checked' : '' }}>
+                                        <input type="checkbox" id="activoSwitch" name="activo" value="1"
+                                            {{ old('activo', 1) ? 'checked' : '' }}>
                                         <span class="slider round"></span>
                                     </label>
 

@@ -330,19 +330,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================================================
    🌟 HIGHLIGHT CARDS (SHOW VIEWS ESTÁNDAR)
    Usado en: pagos, movimientos, etc.
@@ -511,5 +498,93 @@
     }
     .modal-footer .btn {
         width: 100%;
+    }
+}
+
+
+
+
+
+
+
+/* =========================================================
+   🖼️ IMAGEN SIMPLE ESTILO PRODUCTO (Marca / Categoría)
+========================================================= */
+
+.banner-image-box {
+    position: relative;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* 🔲 Placeholder */
+.banner-image-box .image-placeholder {
+    width: 140px;
+    height: 140px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #ced4da;
+    border-radius: 8px;
+    color: #6c757d;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 0.25rem;
+    text-align: center;
+}
+
+/* 🔥 Imagen tipo producto */
+.banner-image-box #preview {
+    max-width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+
+    border-radius: 10px;
+
+    /* 🔥 BORDE MÁS FINO Y ELEGANTE */
+    border: 1px solid rgba(0,0,0,0.08);
+
+    /* 🔥 MENOS BORDE BLANCO */
+    background: #fff;
+    padding: 4px;
+
+    /* 🔥 TRANSICIÓN PARA HOVER */
+    transition: all 0.25s ease;
+}
+
+/* ✨ HOVER TIPO PRODUCTO */
+.banner-image-box:hover #preview {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    border-color: rgba(0,0,0,0.15);
+}
+
+/* ❌ Botón eliminar */
+.banner-image-box #removeImage {
+    z-index: 3;
+
+    /* 🔥 mejor estilo hover */
+    transition: all 0.2s ease;
+}
+
+.banner-image-box #removeImage:hover {
+    transform: scale(1.1);
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+    .banner-image-box {
+        min-height: 220px;
+    }
+
+    .banner-image-box #preview {
+        max-height: 180px;
     }
 }

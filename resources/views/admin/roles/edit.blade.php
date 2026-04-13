@@ -68,12 +68,10 @@
                                         <span class="input-group-text">
                                             <i class="bx bx-id-card"></i>
                                         </span>
-                                        <input type="text"
-                                               name="nombre"
-                                               class="form-control @error('nombre') is-invalid @enderror"
-                                               value="{{ old('nombre', $item->nombre) }}"
-                                               placeholder="Ej: Administrador"
-                                               required>
+                                        <input type="text" name="nombre"
+                                            class="form-control @error('nombre') is-invalid @enderror"
+                                            value="{{ old('nombre', $item->nombre) }}" placeholder="Ej: Administrador"
+                                            required>
                                     </div>
 
                                     @error('nombre')
@@ -89,11 +87,10 @@
                                         <span class="input-group-text">
                                             <i class="bx bx-detail"></i>
                                         </span>
-                                        <input type="text"
-                                               name="descripcion"
-                                               class="form-control @error('descripcion') is-invalid @enderror"
-                                               value="{{ old('descripcion', $item->descripcion) }}"
-                                               placeholder="Ej: Acceso total al sistema">
+                                        <input type="text" name="descripcion"
+                                            class="form-control @error('descripcion') is-invalid @enderror"
+                                            value="{{ old('descripcion', $item->descripcion) }}"
+                                            placeholder="Ej: Acceso total al sistema">
                                     </div>
 
                                     @error('descripcion')
@@ -121,7 +118,7 @@
 
                                     <span id="estadoTexto"
                                         class="badge estado-badge px-3 py-2 {{ old('activo', $item->activo) ? 'bg-success' : 'bg-secondary' }}">
-                                        @if(old('activo', $item->activo))
+                                        @if (old('activo', $item->activo))
                                             <i class="bx bx-check-circle me-1"></i> Activo
                                         @else
                                             <i class="bx bx-x-circle me-1"></i> Inactivo
@@ -129,11 +126,8 @@
                                     </span>
 
                                     <label class="switch">
-                                        <input type="checkbox"
-                                               id="activoSwitch"
-                                               name="activo"
-                                               value="1"
-                                               {{ old('activo', $item->activo) ? 'checked' : '' }}>
+                                        <input type="checkbox" id="activoSwitch" name="activo" value="1"
+                                            {{ old('activo', $item->activo) ? 'checked' : '' }}>
                                         <span class="slider round"></span>
                                     </label>
 

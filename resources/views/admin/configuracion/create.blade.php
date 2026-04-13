@@ -35,8 +35,7 @@
                     <small class="text-muted">Crear un nuevo parámetro (clave → valor)</small>
                 </div>
 
-                <a href="{{ route('admin.configuracion.index') }}"
-                   class="btn btn-secondary-custom btn-back">
+                <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary-custom btn-back">
                     <i class="bx bx-arrow-back"></i>
                     <span class="btn-text">Volver</span>
                 </a>
@@ -60,15 +59,9 @@
                             <span class="input-group-text">
                                 <i class="bx bx-key"></i>
                             </span>
-                            <input
-                                type="text"
-                                name="clave"
-                                id="claveInput"
-                                class="form-control @error('clave') is-invalid @enderror"
-                                placeholder="Ej: tienda_nombre"
-                                value="{{ old('clave') }}"
-                                required
-                            >
+                            <input type="text" name="clave" id="claveInput"
+                                class="form-control @error('clave') is-invalid @enderror" placeholder="Ej: tienda_nombre"
+                                value="{{ old('clave') }}" required>
                         </div>
 
                         @error('clave')
@@ -84,14 +77,9 @@
                             Valor
                         </label>
 
-                        <input
-                            type="text"
-                            name="valor"
-                            id="valorInput"
-                            class="form-control @error('valor') is-invalid @enderror"
-                            placeholder="Ej: Rukada Store"
-                            value="{{ old('valor') }}"
-                        >
+                        <input type="text" name="valor" id="valorInput"
+                            class="form-control @error('valor') is-invalid @enderror" placeholder="Ej: Rukada Store"
+                            value="{{ old('valor') }}">
 
                         @error('valor')
                             <small class="text-danger">{{ $message }}</small>
@@ -114,8 +102,7 @@
 
                 {{-- Botones --}}
                 <div class="d-flex justify-content-end gap-3 mt-4">
-                    <a href="{{ route('admin.configuracion.index') }}"
-                       class="btn btn-secondary-custom">
+                    <a href="{{ route('admin.configuracion.index') }}" class="btn btn-secondary-custom">
                         Cancelar
                     </a>
 
@@ -131,5 +118,5 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('assets/js/modules/configuracion.js') }}"></script>
+    <script src="{{ asset('assets/js/modules/configuracion.js') }}"></script>
 @endpush

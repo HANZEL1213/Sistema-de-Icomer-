@@ -24,7 +24,7 @@
     </div>
 
     {{-- Card --}}
-   <div class="card card-form">
+    <div class="card card-form">
         <div class="card-body">
 
             {{-- Header --}}
@@ -177,22 +177,16 @@
                                             @method('DELETE')
 
                                             <button type="button" class="btn-action btn-delete btn-delete-modal"
-                                             data-clave="Usuario"   data-valor="{{ $usuario->nombre }}">
+                                                data-clave="Usuario" data-valor="{{ $usuario->nombre }}">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </form>
-   
+
                                     </div>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
-
-
-
-
-
-
 
                 </table>
             </div>

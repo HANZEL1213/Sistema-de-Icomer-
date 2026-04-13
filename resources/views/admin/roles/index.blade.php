@@ -161,7 +161,7 @@
                                             @method('DELETE')
 
                                             <button type="button" class="btn-action btn-delete btn-delete-modal"
-                                                data-clave="Rol" data-valor="{{ $rol->nombre }}"   >
+                                                data-clave="Rol" data-valor="{{ $rol->nombre }}">
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </form>
@@ -171,11 +171,6 @@
                             </tr>
                         @endforeach
                     </tbody>
-
-
-
-
-
                 </table>
             </div>
 

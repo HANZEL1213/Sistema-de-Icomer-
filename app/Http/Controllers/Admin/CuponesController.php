@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cupon;
-use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class CuponesController extends Controller
 {
@@ -29,35 +31,14 @@ class CuponesController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'codigo' => 'required|string|max:60|unique:cupones,codigo',
-            'tipo' => 'required|in:porcentaje,monto_fijo',
-            'valor' => 'required|numeric|min:0',
-            'minimo_subtotal' => 'nullable|numeric|min:0',
-            'inicia_en' => 'nullable|date',
-            'termina_en' => 'nullable|date|after_or_equal:inicia_en',
-            'max_usos_total' => 'nullable|integer|min:1',
-            'max_usos_por_usuario' => 'nullable|integer|min:1',
-            'activo' => 'nullable|boolean',
-        ]);
+        $data = $this->validarDatos($request);
 
         try {
-            Cupon::create([
-                'codigo' => strtoupper(trim($request->codigo)),
-                'tipo' => $request->tipo,
-                'valor' => $request->valor,
-                'minimo_subtotal' => $request->minimo_subtotal ?? 0,
-                'inicia_en' => $request->inicia_en,
-                'termina_en' => $request->termina_en,
-                'max_usos_total' => $request->max_usos_total,
-                'max_usos_por_usuario' => $request->max_usos_por_usuario,
-                'activo' => $request->has('activo') ? 1 : 0,
-            ]);
+            Cupon::create($data);
 
             return redirect()
                 ->route('admin.cupones.index')
                 ->with('success', 'Cupón creado correctamente.');
-
         } catch (\Exception $e) {
             return redirect()
                 ->back()
@@ -88,37 +69,15 @@ class CuponesController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'codigo' => 'required|string|max:60|unique:cupones,codigo,' . $id . ',id_cupon',
-            'tipo' => 'required|in:porcentaje,monto_fijo',
-            'valor' => 'required|numeric|min:0',
-            'minimo_subtotal' => 'nullable|numeric|min:0',
-            'inicia_en' => 'nullable|date',
-            'termina_en' => 'nullable|date|after_or_equal:inicia_en',
-            'max_usos_total' => 'nullable|integer|min:1',
-            'max_usos_por_usuario' => 'nullable|integer|min:1',
-            'activo' => 'nullable|boolean',
-        ]);
+        $item = Cupon::findOrFail($id);
+        $data = $this->validarDatos($request, $item->id_cupon);
 
         try {
-            $item = Cupon::findOrFail($id);
-
-            $item->update([
-                'codigo' => strtoupper(trim($request->codigo)),
-                'tipo' => $request->tipo,
-                'valor' => $request->valor,
-                'minimo_subtotal' => $request->minimo_subtotal ?? 0,
-                'inicia_en' => $request->inicia_en,
-                'termina_en' => $request->termina_en,
-                'max_usos_total' => $request->max_usos_total,
-                'max_usos_por_usuario' => $request->max_usos_por_usuario,
-                'activo' => $request->has('activo') ? 1 : 0,
-            ]);
+            $item->update($data);
 
             return redirect()
                 ->route('admin.cupones.index')
                 ->with('success', 'Cupón actualizado correctamente.');
-
         } catch (\Exception $e) {
             return redirect()
                 ->back()
@@ -139,16 +98,103 @@ class CuponesController extends Controller
             return redirect()
                 ->route('admin.cupones.index')
                 ->with('success', 'Cupón eliminado correctamente.');
-
         } catch (QueryException $e) {
             return redirect()
                 ->route('admin.cupones.index')
                 ->with('error', 'No se pudo eliminar el cupón.');
-
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.cupones.index')
                 ->with('error', 'Error al eliminar el cupón.');
         }
+    }
+
+    /* ============================================
+       🔒 VALIDACIÓN Y NORMALIZACIÓN
+    ============================================ */
+    private function validarDatos(Request $request, ?int $idCupon = null): array
+    {
+        $codigoNormalizado = strtoupper(trim((string) $request->input('codigo')));
+
+        $data = $request->validate([
+            'codigo' => [
+                'required',
+                'string',
+                'max:60',
+                Rule::unique('cupones', 'codigo')
+                    ->ignore($idCupon, 'id_cupon')
+                    ->whereNull('deleted_at'),
+            ],
+            'tipo' => [
+                'required',
+                Rule::in(['porcentaje', 'monto_fijo']),
+            ],
+            'valor' => [
+                'required',
+                'numeric',
+                'gt:0',
+            ],
+            'minimo_subtotal' => [
+                'nullable',
+                'numeric',
+                'min:0',
+            ],
+            'inicia_en' => [
+                'nullable',
+                'date',
+            ],
+            'termina_en' => [
+                'nullable',
+                'date',
+                'after_or_equal:inicia_en',
+            ],
+            'max_usos_total' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
+            'max_usos_por_usuario' => [
+                'nullable',
+                'integer',
+                'min:1',
+            ],
+            'activo' => [
+                'nullable',
+                'boolean',
+            ],
+        ]);
+
+        if ($codigoNormalizado === '') {
+            throw ValidationException::withMessages([
+                'codigo' => 'El código del cupón es obligatorio.',
+            ]);
+        }
+
+        if ($data['tipo'] === 'porcentaje' && (float) $data['valor'] > 100) {
+            throw ValidationException::withMessages([
+                'valor' => 'Cuando el cupón es de tipo porcentaje, el valor no puede ser mayor a 100.',
+            ]);
+        }
+
+        $iniciaEn = $data['inicia_en'] ?? null;
+        $terminaEn = $data['termina_en'] ?? null;
+
+        if ($iniciaEn && $terminaEn && $terminaEn < $iniciaEn) {
+            throw ValidationException::withMessages([
+                'termina_en' => 'La fecha de finalización no puede ser menor que la fecha de inicio.',
+            ]);
+        }
+
+        return [
+            'codigo' => $codigoNormalizado,
+            'tipo' => $data['tipo'],
+            'valor' => $data['valor'],
+            'minimo_subtotal' => $data['minimo_subtotal'] ?? 0,
+            'inicia_en' => $iniciaEn,
+            'termina_en' => $terminaEn,
+            'max_usos_total' => $data['max_usos_total'] ?? null,
+            'max_usos_por_usuario' => $data['max_usos_por_usuario'] ?? null,
+            'activo' => $request->has('activo') ? 1 : 0,
+        ];
     }
 }

@@ -61,12 +61,19 @@
                                     ? (\Illuminate\Support\Str::startsWith($item->imagen, ['http://', 'https://'])
                                         ? $item->imagen
                                         : asset('storage/' . $item->imagen))
-                                    : 'https://via.placeholder.com/300x300?text=Marca';
+                                    : '';
                             @endphp
 
-                            <div class="image-box">
-                                <img src="{{ $imagenMarca }}" class="img-fluid rounded shadow-sm"
-                                    alt="{{ $item->nombre }}">
+                            <div class="image-box banner-image-box mb-3">
+                                @if ($item->imagen)
+                                    <img id="preview" src="{{ $imagenMarca }}" data-placeholder="" class="img-fluid"
+                                        alt="{{ $item->nombre }}">
+                                @else
+                                    <div class="image-placeholder">
+                                        <i class="bx bx-image"></i>
+                                        <span>Sin imagen</span>
+                                    </div>
+                                @endif
                             </div>
 
                         </div>

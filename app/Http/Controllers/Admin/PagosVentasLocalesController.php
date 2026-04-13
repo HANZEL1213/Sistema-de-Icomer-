@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PagoVentaLocal;
-use Illuminate\Http\Request;
 
 class PagosVentasLocalesController extends Controller
 {
@@ -13,7 +12,9 @@ class PagosVentasLocalesController extends Controller
     ============================================ */
     public function index()
     {
-        $items = PagoVentaLocal::with('ventaLocal')
+        $items = PagoVentaLocal::with([
+                'ventaLocal:id_venta_local,numero_ticket,nombre_cliente,total',
+            ])
             ->orderByDesc('created_at')
             ->get();
 
@@ -25,41 +26,12 @@ class PagosVentasLocalesController extends Controller
     ============================================ */
     public function show(string $id)
     {
-        $item = PagoVentaLocal::with('ventaLocal')
+        $item = PagoVentaLocal::with([
+                'ventaLocal',
+                'ventaLocal.cajero:id_usuario,nombre,correo',
+            ])
             ->findOrFail($id);
 
         return view('admin.pagos_ventas_locales.show', compact('item'));
-    }
-
-    /* ============================================
-       ✏️ ACTUALIZAR
-    ============================================ */
-    public function update(Request $request, string $id)
-    {
-        $request->validate([
-            'metodo' => 'required|in:efectivo,tarjeta,sinpe,mixto',
-            'monto' => 'required|numeric|min:0',
-            'referencia' => 'nullable|string|max:80',
-        ]);
-
-        try {
-            $item = PagoVentaLocal::findOrFail($id);
-
-            $item->update([
-                'metodo' => $request->metodo,
-                'monto' => $request->monto,
-                'referencia' => $request->referencia,
-            ]);
-
-            return redirect()
-                ->route('admin.pagos-ventas-locales.index')
-                ->with('success', 'Pago de venta local actualizado correctamente.');
-
-        } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', 'Error al actualizar el pago de la venta local.');
-        }
     }
 }

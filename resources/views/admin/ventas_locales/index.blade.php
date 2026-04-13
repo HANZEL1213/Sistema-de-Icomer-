@@ -1,12 +1,9 @@
-{{-- resources/views/admin/cupones/usos_cupones/index.blade.php --}}
+{{-- resources/views/admin/ventas_locales/index.blade.php --}}
 @extends('admin.layouts.app')
 
-@section('title', 'Usos de Cupones')
+@section('title', 'Ventas Locales')
 
 @section('content')
-
-
-
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -18,22 +15,27 @@
                             <i class="bx bx-home-alt"></i>
                         </a>
                     </li>
-                    <li class="breadcrumb-item active">Usos de Cupones</li>
+                    <li class="breadcrumb-item active">Ventas Locales</li>
                 </ol>
             </nav>
         </div>
     </div>
 
-    {{-- Card --}}
     <div class="card card-form">
         <div class="card-body">
 
             {{-- Header --}}
             <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
                 <div>
-                    <h4 class="mb-1 text-uppercase fw-bold">Usos de Cupones</h4>
-                    <small class="text-muted">Historial de cupones aplicados en pedidos</small>
+                    <h4 class="mb-1 text-uppercase fw-bold">Ventas Locales</h4>
+                    <small class="text-muted">Registro y control de ventas realizadas en el local</small>
                 </div>
+
+                <a href="{{ route('admin.ventas-locales.create') }}"
+                    class="btn btn-nuevo d-inline-flex align-items-center gap-2">
+                    <i class="bx bx-plus-circle"></i>
+                    <span>Nueva</span>
+                </a>
             </div>
 
             <hr class="my-2" />
@@ -41,7 +43,6 @@
             {{-- Top bar --}}
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
 
-                {{-- Por página --}}
                 <div class="pagination-perpage-top">
                     <div class="input-group input-group-perpage">
                         <span class="input-group-text bg-transparent border-end-0">
@@ -59,12 +60,11 @@
                     </div>
                 </div>
 
-                {{-- Buscador --}}
                 <div class="search-container ms-auto">
                     <div class="search-box" role="search">
                         <i class="bx bx-search search-icon"></i>
                         <input type="text" id="searchInput" class="search-input"
-                            placeholder="Buscar cupón, pedido, usuario, correo..." autocomplete="off">
+                            placeholder="Buscar ticket, cliente, teléfono, cajero, método..." autocomplete="off">
                         <div class="search-actions">
                             <button class="btn-search-clear" id="clearSearch" type="button" title="Limpiar">
                                 <i class="bx bx-x"></i>
@@ -76,87 +76,132 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-
                 <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
-                            <th class="fw-semibold">ID</th>
-                            <th class="fw-semibold">Cupón</th>
-                            <th class="fw-semibold">Pedido</th>
-                            <th class="fw-semibold">Usuario</th>
-                            <th class="fw-semibold">Descuento</th>
-                            <th class="fw-semibold">Fecha de uso</th>
-                            <th class="fw-semibold">Acciones</th>
+                            <th>ID</th>
+                            <th>N° Ticket</th>
+                            <th>Cliente</th>
+                            <th>Cajero</th>
+                            <th>Ítems</th>
+                            <th>Pago</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                            <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
                         @foreach ($items as $item)
+                            @php
+                                $pagos = $item->pagos ?? collect();
+                                $montoPagado = (float) $pagos->sum('monto');
+                                $totalVenta = (float) $item->total;
+
+                                $estaPagado = abs($montoPagado - $totalVenta) < 0.01 || $montoPagado > $totalVenta;
+
+                                $pagoBadgeClass = $estaPagado ? 'status-active' : 'status-warning';
+                                $pagoIcon = $estaPagado ? 'bx-check-circle' : 'bx-time-five';
+                                $pagoLabel = $estaPagado ? 'PAGADO' : 'INCOMPLETO';
+
+                                $metodosUsados = $pagos
+                                    ->pluck('metodo')
+                                    ->filter()
+                                    ->unique()
+                                    ->map(fn($m) => strtoupper($m))
+                                    ->implode(' + ');
+                                $metodosUsados = $metodosUsados ?: 'SIN PAGO';
+
+                                $clienteNombre = $item->nombre_cliente ?: 'Cliente no registrado';
+                                $clienteTelefono = $item->telefono_cliente ?: 'Sin teléfono';
+                                $cantidadItems = (int) ($item->cantidad_items ?? 0);
+                                $notas = $item->notas ?: 'Sin nota';
+                            @endphp
+
                             <tr>
-                                <td class="text-muted fw-semibold">{{ $item->id_uso_cupon }}</td>
+                                <td class="fw-semibold text-muted">{{ $item->id_venta_local }}</td>
 
                                 <td class="text-start">
-                                    <div class="fw-semibold">
-                                        {{ $item->cupon?->codigo ?: 'Cupón no disponible' }}
-                                    </div>
+                                    <div class="fw-semibold">{{ $item->numero_ticket }}</div>
+
                                     <small class="text-muted">
-                                        ID Cupón: {{ $item->id_cupon }}
+                                        Subtotal: ₡{{ number_format($item->subtotal, 2) }}
                                     </small>
-                                </td>
 
-                                <td class="text-start">
-                                    <div class="fw-semibold">
-                                        {{ $item->pedido?->numero_pedido ?: 'Pedido no disponible' }}
-                                    </div>
-                                    <small class="text-muted">
-                                        ID Pedido: {{ $item->id_pedido }}
-                                    </small>
-                                </td>
-
-                                <td class="text-start">
-                                    @if ($item->usuario)
-                                        <div class="fw-semibold">{{ $item->usuario->nombre }}</div>
-                                        <small class="text-muted">
-                                            {{ $item->usuario->correo ?: 'Sin correo registrado' }}
-                                        </small>
-                                    @else
-                                        <div class="fw-semibold">Cliente invitado</div>
-                                        <small class="text-muted">
-                                            {{ $item->correo_invitado ?: 'Sin correo registrado' }}
-                                        </small>
+                                    @if ((float) $item->descuento > 0)
+                                        <div class="small text-success">
+                                            Descuento: ₡{{ number_format($item->descuento, 2) }}
+                                        </div>
                                     @endif
+
+                                    <div class="small text-muted">
+                                        Nota: {{ $notas }}
+                                    </div>
+                                </td>
+
+                                <td class="text-start">
+                                    <div class="fw-semibold">{{ $clienteNombre }}</div>
+                                    <small class="text-muted">{{ $clienteTelefono }}</small>
                                 </td>
 
                                 <td>
-                                    <span class="order-badge">
-                                        ₡{{ number_format((float) $item->monto_descuento, 2, '.', ',') }}
+                                    <span class="status-badge status-info">
+                                        <i class="bx bx-user me-1"></i>
+                                        {{ strtoupper($item->cajero?->nombre ?? 'SIN CAJERO') }}
                                     </span>
                                 </td>
 
                                 <td>
+                                    <span class="fw-semibold">{{ $cantidadItems }}</span>
+                                    <div class="small text-muted">producto(s)</div>
+                                </td>
+
+                                <td>
+                                    <span class="status-badge {{ $pagoBadgeClass }}">
+                                        <i class="bx {{ $pagoIcon }} me-1"></i>
+                                        {{ $pagoLabel }}
+                                    </span>
+
+                                    <div class="small text-muted mt-1">
+                                        {{ $metodosUsados }}
+                                    </div>
+                                </td>
+
+                                <td class="fw-bold">
+                                    ₡{{ number_format($item->total, 2) }}
+                                </td>
+
+                                <td>
                                     <div class="fw-semibold">
-                                        {{ optional($item->usado_en)->format('Y-m-d') }}
+                                        {{ optional($item->created_at)->format('Y-m-d') }}
                                     </div>
                                     <small class="text-muted">
-                                        {{ optional($item->usado_en)->format('H:i') }}
+                                        {{ optional($item->created_at)->format('H:i') }}
                                     </small>
                                 </td>
 
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-
-                                        <a class="btn-action btn-view"
-                                            href="{{ route('admin.usos-cupones.show', $item->id_uso_cupon) }}">
+                                        <a class="btn-action btn-view" title="Ver"
+                                            href="{{ route('admin.ventas-locales.show', $item->id_venta_local) }}">
                                             <i class="bx bx-show"></i>
                                         </a>
 
+                                        <button type="button" class="btn-action btn-edit" title="Editar deshabilitado"
+                                            disabled>
+                                            <i class="bx bx-edit"></i>
+                                        </button>
+
+                                        <button type="button" class="btn-action btn-edit" title="Imprimir próximamente">
+                                            <i class="bx bx-printer"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
-                </table>
 
+                </table>
             </div>
 
             {{-- Paginación --}}
