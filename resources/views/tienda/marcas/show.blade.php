@@ -1,83 +1,9 @@
 {{-- resources/views/tienda/marcas/show.blade.php --}}
 
-@php
-
-$marca = (object)[
-    'nombre' => 'Nike',
-    'descripcion' => 'Explora productos deportivos, urbanos y premium diseñados para rendimiento, comodidad y estilo moderno.',
-    'banner' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1800&auto=format&fit=crop',
-    'productos_count' => 32,
-    'logo' => 'N',
-];
-
-$productos = collect([
-    (object)[
-        'nombre' => 'Nike Air Max Urban',
-        'precio' => 45990,
-        'stock' => 12,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Tenis'],
-        'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'nombre' => 'Nike Street Runner',
-        'precio' => 51990,
-        'stock' => 8,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Moda'],
-        'imagen' => 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'nombre' => 'Nike Active Pro',
-        'precio' => 68990,
-        'stock' => 5,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Running'],
-        'imagen' => 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'nombre' => 'Nike Casual X',
-        'precio' => 38990,
-        'stock' => 0,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Lifestyle'],
-        'imagen' => 'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'nombre' => 'Nike Zoom Elite',
-        'precio' => 79990,
-        'stock' => 4,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Running'],
-        'imagen' => 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'nombre' => 'Nike Motion Flex',
-        'precio' => 56990,
-        'stock' => 7,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Training'],
-        'imagen' => 'https://images.unsplash.com/photo-1556906781-9a412961c28c?q=80&w=1200&auto=format&fit=crop',
-    ],
-]);
-
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', $marca->nombre . ' | Marca')
-@section('meta_description', $marca->descripcion)
+@section('meta_description', $marca->descripcion ?? ('Productos de la marca ' . $marca->nombre))
 
 @section('content')
 
@@ -86,9 +12,17 @@ $productos = collect([
     {{-- HERO --}}
     <div class="store-brand-show-hero">
 
-        <img src="{{ $marca->banner }}"
-             alt="{{ $marca->nombre }}"
-             class="store-brand-show-banner">
+        @if($marca->imagen)
+
+            <img src="{{ asset('storage/' . $marca->imagen) }}"
+                 alt="{{ $marca->nombre }}"
+                 class="store-brand-show-banner">
+
+        @else
+
+            <div class="store-brand-show-placeholder"></div>
+
+        @endif
 
         <div class="store-brand-show-overlay"></div>
 
@@ -96,25 +30,41 @@ $productos = collect([
 
             <div class="store-brand-show-content">
 
+                {{-- BREADCRUMB --}}
                 <div class="store-detail-breadcrumb text-white mb-3">
-                    <a href="{{ route('tienda.home') }}" class="text-white">
+
+                    <a href="{{ route('tienda.home') }}"
+                       class="text-white">
+
                         Inicio
+
                     </a>
 
                     <i class="bi bi-chevron-right"></i>
 
-                    <a href="{{ route('tienda.marcas.index') }}" class="text-white">
+                    <a href="{{ route('tienda.marcas.index') }}"
+                       class="text-white">
+
                         Marcas
+
                     </a>
 
                     <i class="bi bi-chevron-right"></i>
 
-                    <span>{{ $marca->nombre }}</span>
+                    <span>
+                        {{ $marca->nombre }}
+                    </span>
+
                 </div>
 
+
+                {{-- LOGO --}}
                 <div class="store-brand-show-logo">
-                    {{ $marca->logo }}
+
+                    {{ strtoupper(substr($marca->nombre, 0, 2)) }}
+
                 </div>
+
 
                 <span class="store-section-eyebrow">
                     Marca
@@ -125,25 +75,40 @@ $productos = collect([
                 </h1>
 
                 <p class="store-brand-show-description">
-                    {{ $marca->descripcion }}
+
+                    {{ $marca->descripcion ?: 'Explora todos los productos disponibles de esta marca en nuestra tienda.' }}
+
                 </p>
 
+
+                {{-- STATS --}}
                 <div class="store-brand-show-stats">
 
                     <div class="store-brand-show-stat">
-                        <strong>{{ $marca->productos_count }}</strong>
-                        <span>Productos</span>
+
+                        <strong>
+                            {{ $productos->count() }}
+                        </strong>
+
+                        <span>
+                            Productos
+                        </span>
+
                     </div>
 
                     <div class="store-brand-show-stat">
-                        <strong>Premium</strong>
-                        <span>Selección</span>
+
+                        <strong>
+                            Premium
+                        </strong>
+
+                        <span>
+                            Calidad
+                        </span>
+
                     </div>
 
-                    <div class="store-brand-show-stat">
-                        <strong>Mobile</strong>
-                        <span>Optimizado</span>
-                    </div>
+                  
 
                 </div>
 
@@ -161,18 +126,27 @@ $productos = collect([
         <div class="store-products-toolbar">
 
             <div>
+
                 <h5 class="store-toolbar-title mb-1">
+
                     Productos de {{ $marca->nombre }}
+
                 </h5>
 
                 <p class="store-toolbar-subtitle mb-0">
-                    {{ $productos->count() }} productos encontrados
+
+                    {{ $productos->count() }}
+                    {{ $productos->count() == 1 ? 'producto encontrado' : 'productos encontrados' }}
+
                 </p>
+
             </div>
 
             <a href="{{ route('tienda.productos.index') }}"
                class="btn btn-store-outline d-none d-md-inline-flex">
+
                 Ver catálogo
+
             </a>
 
         </div>
@@ -181,19 +155,34 @@ $productos = collect([
         {{-- GRID --}}
         <div class="row g-3 g-md-4">
 
-            @foreach($productos as $producto)
+            @forelse($productos as $producto)
 
                 <div class="col-6 col-md-4 col-xl-3">
 
                     <div class="store-product-card">
 
-                        <a href="#"
+                        {{-- IMAGEN --}}
+                        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                            class="store-product-image-wrap">
 
-                            <img src="{{ $producto->imagen }}"
-                                 alt="{{ $producto->nombre }}"
-                                 class="store-product-image">
+                            @if($producto->imagenPrincipal)
 
+                                <img src="{{ asset('storage/' . $producto->imagenPrincipal->ruta) }}"
+                                     alt="{{ $producto->nombre }}"
+                                     class="store-product-image">
+
+                            @else
+
+                                <div class="store-product-placeholder">
+
+                                    <i class="bi bi-image"></i>
+
+                                </div>
+
+                            @endif
+
+
+                            {{-- FAVORITO --}}
                             <button type="button"
                                     class="store-product-heart">
 
@@ -201,29 +190,39 @@ $productos = collect([
 
                             </button>
 
+
+                            {{-- BADGES --}}
                             @if($producto->stock <= 0)
 
                                 <span class="store-product-badge store-product-badge-muted">
+
                                     Agotado
+
                                 </span>
 
                             @elseif($producto->destacado)
 
                                 <span class="store-product-badge">
+
                                     Destacado
+
                                 </span>
 
                             @endif
 
                         </a>
 
+
+                        {{-- BODY --}}
                         <div class="store-product-body">
 
                             <div class="store-product-meta">
-                                {{ $producto->marca->nombre }}
+
+                                {{ $producto->marca?->nombre }}
+
                             </div>
 
-                            <a href="#"
+                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                class="store-product-name">
 
                                 {{ $producto->nombre }}
@@ -231,24 +230,33 @@ $productos = collect([
                             </a>
 
                             <div class="store-product-category">
-                                {{ $producto->categoriaPrincipal->nombre }}
+
+                                {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+
                             </div>
 
+
+                            {{-- FOOTER --}}
                             <div class="store-product-footer">
 
                                 <div>
 
                                     <div class="store-product-price">
+
                                         ₡{{ number_format($producto->precio, 2) }}
+
                                     </div>
 
                                     <small class="store-product-stock">
-                                        Stock: {{ $producto->stock }}
+
+                                        Stock:
+                                        {{ $producto->stock }}
+
                                     </small>
 
                                 </div>
 
-                                <a href="#"
+                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                    class="store-product-action">
 
                                     <i class="bi bi-eye"></i>
@@ -263,7 +271,29 @@ $productos = collect([
 
                 </div>
 
-            @endforeach
+            @empty
+
+                <div class="col-12">
+
+                    <div class="store-empty-state">
+
+                        <div class="store-empty-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                        <h4>
+                            Esta marca aún no tiene productos
+                        </h4>
+
+                        <p>
+                            Pronto agregaremos nuevos productos disponibles.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            @endforelse
 
         </div>
 

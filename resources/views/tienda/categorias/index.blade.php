@@ -1,52 +1,5 @@
 {{-- resources/views/tienda/categorias/index.blade.php --}}
 
-@php
-    $categorias = collect([
-        (object)[
-            'nombre' => 'Tecnología',
-            'descripcion' => 'Dispositivos, accesorios y productos modernos para el día a día.',
-            'productos_count' => 24,
-            'imagen' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-cpu',
-        ],
-        (object)[
-            'nombre' => 'Moda',
-            'descripcion' => 'Prendas, estilos y accesorios para una imagen más actual.',
-            'productos_count' => 18,
-            'imagen' => 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-bag',
-        ],
-        (object)[
-            'nombre' => 'Gaming',
-            'descripcion' => 'Accesorios, periféricos y productos para jugadores.',
-            'productos_count' => 15,
-            'imagen' => 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-controller',
-        ],
-        (object)[
-            'nombre' => 'Tenis',
-            'descripcion' => 'Calzado casual, deportivo y urbano para diferentes estilos.',
-            'productos_count' => 32,
-            'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-lightning-charge',
-        ],
-        (object)[
-            'nombre' => 'Computadoras',
-            'descripcion' => 'Laptops, equipos y accesorios para productividad.',
-            'productos_count' => 9,
-            'imagen' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-laptop',
-        ],
-        (object)[
-            'nombre' => 'Wearables',
-            'descripcion' => 'Relojes inteligentes y accesorios conectados.',
-            'productos_count' => 11,
-            'imagen' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop',
-            'icono' => 'bi-smartwatch',
-        ],
-    ]);
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', 'Categorías | Tienda')
@@ -83,7 +36,8 @@
 
                     <div class="col-12 col-lg-5">
 
-                        <form action="#" method="GET">
+                        <form action="{{ route('tienda.categorias.index') }}" method="GET">
+
                             <div class="input-group store-search-group">
 
                                 <span class="input-group-text">
@@ -91,6 +45,8 @@
                                 </span>
 
                                 <input type="text"
+                                       name="q"
+                                       value="{{ request('q') }}"
                                        class="form-control"
                                        placeholder="Buscar categoría...">
 
@@ -99,6 +55,7 @@
                                 </button>
 
                             </div>
+
                         </form>
 
                     </div>
@@ -118,6 +75,7 @@
         <div class="store-products-toolbar">
 
             <div>
+
                 <h5 class="store-toolbar-title mb-1">
                     Categorías disponibles
                 </h5>
@@ -125,6 +83,7 @@
                 <p class="store-toolbar-subtitle mb-0">
                     {{ $categorias->count() }} categorías encontradas
                 </p>
+
             </div>
 
             <a href="{{ route('tienda.productos.index') }}"
@@ -138,23 +97,27 @@
         {{-- GRID CATEGORÍAS --}}
         <div class="row g-3 g-md-4">
 
-            @foreach($categorias as $index => $categoria)
+            @forelse($categorias as $categoria)
 
                 <div class="col-12 col-sm-6 col-lg-4">
 
-                    <a href="{{ route('tienda.categorias.show', 'categoria-demo-' . ($index + 1)) }}"
+                    <a href="{{ route('tienda.categorias.show', $categoria->slug) }}"
                        class="store-category-card">
 
                         <div class="store-category-image-wrap">
 
-                            <img src="{{ $categoria->imagen }}"
-                                 alt="{{ $categoria->nombre }}"
-                                 class="store-category-image">
+                            <img
+                                src="{{ $categoria->imagen
+                                    ? asset('storage/' . $categoria->imagen)
+                                    : asset('assets/img/placeholder/category.jpg') }}"
+                                alt="{{ $categoria->nombre }}"
+                                class="store-category-image"
+                            >
 
                             <div class="store-category-overlay"></div>
 
                             <div class="store-category-icon">
-                                <i class="bi {{ $categoria->icono }}"></i>
+                                <i class="bi bi-grid"></i>
                             </div>
 
                             <span class="store-category-badge">
@@ -166,18 +129,25 @@
                         <div class="store-category-body">
 
                             <div>
+
                                 <h3 class="store-category-title">
                                     {{ $categoria->nombre }}
                                 </h3>
 
                                 <p class="store-category-text">
-                                    {{ $categoria->descripcion }}
+                                    {{ $categoria->descripcion ?: 'Explora productos disponibles en esta categoría.' }}
                                 </p>
+
                             </div>
 
                             <div class="store-category-footer">
-                                <span>Explorar categoría</span>
+
+                                <span>
+                                    Explorar categoría
+                                </span>
+
                                 <i class="bi bi-arrow-right"></i>
+
                             </div>
 
                         </div>
@@ -186,16 +156,39 @@
 
                 </div>
 
-            @endforeach
+            @empty
+
+                <div class="col-12">
+
+                    <div class="alert alert-light border text-center py-5">
+
+                        <i class="bi bi-grid display-5 d-block mb-3 text-muted"></i>
+
+                        <h5 class="mb-2">
+                            No hay categorías disponibles
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Intenta nuevamente más tarde.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            @endforelse
 
         </div>
 
 
         {{-- BLOQUE CTA MOBILE --}}
         <div class="d-grid mt-4 d-md-none">
-            <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-primary">
+
+            <a href="{{ route('tienda.productos.index') }}"
+               class="btn btn-store-primary">
                 Ver todos los productos
             </a>
+
         </div>
 
     </div>
@@ -203,5 +196,3 @@
 </section>
 
 @endsection
-
-

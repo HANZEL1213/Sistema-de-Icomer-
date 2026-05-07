@@ -1,77 +1,4 @@
 {{-- resources/views/tienda/productos/index.blade.php --}}
-
-@php
-
-$productos = collect([
-    (object)[
-        'id_producto' => 1,
-        'nombre' => 'Nike Air Max Urban',
-        'precio' => 45990,
-        'stock' => 12,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Nike'],
-        'categoriaPrincipal' => (object)['nombre' => 'Tenis'],
-        'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'id_producto' => 2,
-        'nombre' => 'Audífonos Bluetooth Pro',
-        'precio' => 32990,
-        'stock' => 4,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'Sony'],
-        'categoriaPrincipal' => (object)['nombre' => 'Tecnología'],
-        'imagen' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'id_producto' => 3,
-        'nombre' => 'Smart Watch Active',
-        'precio' => 68990,
-        'stock' => 7,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Samsung'],
-        'categoriaPrincipal' => (object)['nombre' => 'Wearables'],
-        'imagen' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'id_producto' => 4,
-        'nombre' => 'Mouse Gamer RGB',
-        'precio' => 18990,
-        'stock' => 0,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'Logitech'],
-        'categoriaPrincipal' => (object)['nombre' => 'Gaming'],
-        'imagen' => 'https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'id_producto' => 5,
-        'nombre' => 'Chaqueta Minimal Premium',
-        'precio' => 52990,
-        'stock' => 15,
-        'destacado' => true,
-        'marca' => (object)['nombre' => 'Zara'],
-        'categoriaPrincipal' => (object)['nombre' => 'Moda'],
-        'imagen' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
-    ],
-
-    (object)[
-        'id_producto' => 6,
-        'nombre' => 'Laptop Ultra Slim',
-        'precio' => 489990,
-        'stock' => 2,
-        'destacado' => false,
-        'marca' => (object)['nombre' => 'HP'],
-        'categoriaPrincipal' => (object)['nombre' => 'Computadoras'],
-        'imagen' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200&auto=format&fit=crop',
-    ],
-]);
-
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', 'Productos | Tienda')
@@ -82,6 +9,7 @@ $productos = collect([
 
     {{-- HERO --}}
     <div class="store-products-hero">
+
         <div class="container">
 
             <div class="store-products-hero-card">
@@ -107,7 +35,8 @@ $productos = collect([
 
                     <div class="col-12 col-lg-5">
 
-                        <form action="#" method="GET">
+                        {{-- BUSCADOR --}}
+                        <form action="{{ route('tienda.productos.index') }}" method="GET">
 
                             <div class="input-group store-search-group">
 
@@ -116,6 +45,8 @@ $productos = collect([
                                 </span>
 
                                 <input type="text"
+                                       name="q"
+                                       value="{{ request('q') }}"
                                        class="form-control"
                                        placeholder="Buscar productos...">
 
@@ -134,6 +65,7 @@ $productos = collect([
             </div>
 
         </div>
+
     </div>
 
 
@@ -150,6 +82,7 @@ $productos = collect([
                     <div class="store-filter-header">
 
                         <div>
+
                             <h5 class="store-filter-title mb-1">
                                 Filtros
                             </h5>
@@ -157,13 +90,20 @@ $productos = collect([
                             <p class="store-filter-subtitle mb-0">
                                 Refina tu búsqueda
                             </p>
+
                         </div>
 
                         <i class="bi bi-sliders"></i>
 
                     </div>
 
-                    <form>
+                    <form action="{{ route('tienda.productos.index') }}"
+                          method="GET">
+
+                        {{-- Mantener búsqueda --}}
+                        <input type="hidden"
+                               name="q"
+                               value="{{ request('q') }}">
 
                         {{-- Categoría --}}
                         <div class="store-filter-group">
@@ -172,12 +112,24 @@ $productos = collect([
                                 Categoría
                             </label>
 
-                            <select class="form-select store-filter-control">
-                                <option>Todas las categorías</option>
-                                <option>Tecnología</option>
-                                <option>Moda</option>
-                                <option>Gaming</option>
-                                <option>Tenis</option>
+                            <select name="categoria"
+                                    class="form-select store-filter-control">
+
+                                <option value="">
+                                    Todas las categorías
+                                </option>
+
+                                @foreach($categorias as $categoria)
+
+                                    <option value="{{ $categoria->id_categoria }}"
+                                        {{ request('categoria') == $categoria->id_categoria ? 'selected' : '' }}>
+
+                                        {{ $categoria->nombre }}
+
+                                    </option>
+
+                                @endforeach
+
                             </select>
 
                         </div>
@@ -189,12 +141,24 @@ $productos = collect([
                                 Marca
                             </label>
 
-                            <select class="form-select store-filter-control">
-                                <option>Todas las marcas</option>
-                                <option>Nike</option>
-                                <option>HP</option>
-                                <option>Samsung</option>
-                                <option>Sony</option>
+                            <select name="marca"
+                                    class="form-select store-filter-control">
+
+                                <option value="">
+                                    Todas las marcas
+                                </option>
+
+                                @foreach($marcas as $marca)
+
+                                    <option value="{{ $marca->id_marca }}"
+                                        {{ request('marca') == $marca->id_marca ? 'selected' : '' }}>
+
+                                        {{ $marca->nombre }}
+
+                                    </option>
+
+                                @endforeach
+
                             </select>
 
                         </div>
@@ -206,25 +170,50 @@ $productos = collect([
                                 Ordenar por
                             </label>
 
-                            <select class="form-select store-filter-control">
-                                <option>Más recientes</option>
-                                <option>Precio menor</option>
-                                <option>Precio mayor</option>
-                                <option>A-Z</option>
+                            <select name="orden"
+                                    class="form-select store-filter-control">
+
+                                <option value="recientes"
+                                    {{ request('orden') == 'recientes' ? 'selected' : '' }}>
+                                    Más recientes
+                                </option>
+
+                                <option value="precio_menor"
+                                    {{ request('orden') == 'precio_menor' ? 'selected' : '' }}>
+                                    Precio menor
+                                </option>
+
+                                <option value="precio_mayor"
+                                    {{ request('orden') == 'precio_mayor' ? 'selected' : '' }}>
+                                    Precio mayor
+                                </option>
+
+                                <option value="az"
+                                    {{ request('orden') == 'az' ? 'selected' : '' }}>
+                                    A-Z
+                                </option>
+
                             </select>
 
                         </div>
 
+                        {{-- BOTONES --}}
                         <div class="d-grid gap-2 mt-4">
 
                             <button class="btn btn-store-primary">
+
                                 <i class="bi bi-funnel me-1"></i>
+
                                 Aplicar filtros
+
                             </button>
 
-                            <button class="btn btn-store-outline">
+                            <a href="{{ route('tienda.productos.index') }}"
+                               class="btn btn-store-outline">
+
                                 Limpiar
-                            </button>
+
+                            </a>
 
                         </div>
 
@@ -242,19 +231,21 @@ $productos = collect([
                 <div class="store-products-toolbar">
 
                     <div>
+
                         <h5 class="store-toolbar-title mb-1">
                             Productos disponibles
                         </h5>
 
                         <p class="store-toolbar-subtitle mb-0">
-                            {{ $productos->count() }} productos encontrados
+                        {{ $productos->count() }} productos encontrados
                         </p>
+
                     </div>
 
-                    <a href="#"
-                       class="btn btn-store-outline d-none d-md-inline-flex">
-                        Ver categorías
-                    </a>
+               <a href="{{ route('tienda.categorias.index') }}"
+   class="btn btn-store-outline d-none d-md-inline-flex">
+    Ver categorías
+</a>
 
                 </div>
 
@@ -262,20 +253,29 @@ $productos = collect([
                 {{-- GRID --}}
                 <div class="row g-3 g-md-4">
 
-                    @foreach($productos as $producto)
+                    @forelse($productos as $producto)
+
+                        @php
+
+                            $imagen = $producto->imagenPrincipal
+                                ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                : asset('assets/img/no-image.png');
+
+                        @endphp
 
                         <div class="col-6 col-md-4 col-xl-3">
 
                             <div class="store-product-card">
 
                                 {{-- IMAGEN --}}
-                                <a href="#"
+                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                    class="store-product-image-wrap">
 
-                                    <img src="{{ $producto->imagen }}"
+                                    <img src="{{ $imagen }}"
                                          alt="{{ $producto->nombre }}"
                                          class="store-product-image">
 
+                                    {{-- FAVORITO --}}
                                     <button type="button"
                                             class="store-product-heart">
 
@@ -283,55 +283,65 @@ $productos = collect([
 
                                     </button>
 
-                                    @if($producto->stock <= 0)
+                                    {{-- BADGES --}}
+                                    @if($producto->stock_actual <= 0)
 
                                         <span class="store-product-badge store-product-badge-muted">
                                             Agotado
-                                        </span>
-
-                                    @elseif($producto->destacado)
-
-                                        <span class="store-product-badge">
-                                            Destacado
                                         </span>
 
                                     @endif
 
                                 </a>
 
+
                                 {{-- INFO --}}
                                 <div class="store-product-body">
 
+                                    {{-- MARCA --}}
                                     <div class="store-product-meta">
-                                        {{ $producto->marca->nombre }}
+
+                                        {{ $producto->marca?->nombre ?? 'Sin marca' }}
+
                                     </div>
 
-                                    <a href="#"
+                                    {{-- NOMBRE --}}
+                                    <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                        class="store-product-name">
 
                                         {{ $producto->nombre }}
 
                                     </a>
 
+                                    {{-- CATEGORÍA --}}
                                     <div class="store-product-category">
-                                        {{ $producto->categoriaPrincipal->nombre }}
+
+                                        {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+
                                     </div>
 
+                                    {{-- FOOTER --}}
                                     <div class="store-product-footer">
 
                                         <div>
 
                                             <div class="store-product-price">
+
                                                 ₡{{ number_format($producto->precio, 2) }}
+
                                             </div>
 
                                             <small class="store-product-stock">
-                                                Stock: {{ $producto->stock }}
+
+                                                Stock:
+                                                {{ $producto->stock_actual }}
+
                                             </small>
 
                                         </div>
 
-                                        <a href="#"
+                                        {{-- BOTÓN --}}
+                                        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                            class="store-product-action">
 
                                             <i class="bi bi-eye"></i>
@@ -346,9 +356,66 @@ $productos = collect([
 
                         </div>
 
-                    @endforeach
+                    @empty
+<div class="col-12">
+
+    <div class="store-empty-products">
+
+        <div class="store-empty-products-visual">
+
+            <div class="store-empty-products-icon">
+                <i class="bi bi-search"></i>
+            </div>
+
+            <div class="store-empty-products-glow"></div>
+
+        </div>
+
+        <span class="store-empty-products-badge">
+            Sin resultados
+        </span>
+
+        <h3 class="store-empty-products-title">
+            No encontramos productos
+        </h3>
+
+        <p class="store-empty-products-text">
+            No hay coincidencias con los filtros o términos de búsqueda
+            seleccionados. Puedes limpiar los filtros o explorar
+            todo el catálogo nuevamente.
+        </p>
+
+        <div class="store-empty-products-actions">
+
+            <a href="{{ route('tienda.productos.index') }}"
+               class="btn btn-store-primary">
+
+                <i class="bi bi-arrow-repeat me-2"></i>
+                Ver todos los productos
+
+            </a>
+
+            <button type="button"
+                    onclick="window.history.back()"
+                    class="btn btn-store-outline">
+
+                <i class="bi bi-arrow-left me-2"></i>
+                Regresar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+                    @endforelse
 
                 </div>
+
+
+         
 
             </div>
 
@@ -359,5 +426,3 @@ $productos = collect([
 </section>
 
 @endsection
-
-
