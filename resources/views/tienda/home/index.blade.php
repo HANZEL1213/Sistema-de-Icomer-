@@ -163,139 +163,334 @@
         </div>
     </section>
 
-    {{-- =========================================================
-        CATEGORÍAS DESTACADAS
-    ========================================================== --}}
-    <section class="store-section">
-        <div class="container">
-            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
-                <div>
-                    <div class="store-mini-label">Exploración</div>
-                    <h2 class="store-section-title mb-2">Categorías destacadas</h2>
-                    <p class="store-section-subtitle">
-                        Una entrada visual más moderna para guiar al usuario desde el inicio.
-                    </p>
+{{-- =========================================================
+    CATEGORÍAS DESTACADAS
+========================================================== --}}
+<section class="store-section">
+    <div class="container">
+
+        @php
+            $categoriasHome = collect([
+                (object)[
+                    'nombre' => 'Tecnología',
+                    'productos_count' => 24,
+                    'imagen' => 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop',
+                    'icono' => 'bi-cpu',
+                ],
+
+                (object)[
+                    'nombre' => 'Moda',
+                    'productos_count' => 18,
+                    'imagen' => 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop',
+                    'icono' => 'bi-bag',
+                ],
+
+                (object)[
+                    'nombre' => 'Gaming',
+                    'productos_count' => 15,
+                    'imagen' => 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1200&auto=format&fit=crop',
+                    'icono' => 'bi-controller',
+                ],
+
+                (object)[
+                    'nombre' => 'Tenis',
+                    'productos_count' => 32,
+                    'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
+                    'icono' => 'bi-lightning-charge',
+                ],
+            ]);
+        @endphp
+
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+
+            <div>
+                <div class="store-mini-label">
+                    Exploración
                 </div>
 
-                <a href="{{ route('tienda.categorias.index') }}" class="btn btn-store-outline px-4">
-                    Ver todas
-                </a>
+                <h2 class="store-section-title mb-2">
+                    Categorías destacadas
+                </h2>
+
+                <p class="store-section-subtitle">
+                    Explora rápidamente las categorías principales de la tienda
+                    con una presentación más moderna y consistente.
+                </p>
             </div>
 
-            <div class="row g-3 g-md-4">
-                @for ($i = 1; $i <= 4; $i++)
-                    <div class="col-6 col-lg-3">
-                        <a href="{{ route('tienda.categorias.show', 'categoria-demo-' . $i) }}" class="text-dark d-block h-100">
-                            <div class="store-card h-100 border-0 overflow-hidden"
-                                style="border-radius: 24px; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);">
-                                <div class="position-relative"
-                                    style="
-                                        height: 260px;
-                                        background:
-                                        linear-gradient(to top, rgba(17,24,39,0.55), rgba(17,24,39,0.08)),
-                                        url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=80') center/cover no-repeat;
-                                    ">
-                                    <div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4 text-white">
-                                        <span class="badge rounded-pill text-bg-light text-dark px-3 py-2 mb-2">
-                                            Colección
-                                        </span>
+            <a href="{{ route('tienda.categorias.index') }}"
+               class="btn btn-store-outline px-4">
+                Ver todas
+            </a>
 
-                                        <h5 class="fw-bold mb-1 text-white">Categoría {{ $i }}</h5>
-                                        <small class="text-white-50">Explorar productos</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                @endfor
-            </div>
         </div>
-    </section>
 
-  {{-- =========================================================
+        <div class="row g-3 g-md-4">
+
+            @foreach($categoriasHome as $index => $categoria)
+
+                <div class="col-6 col-lg-3">
+
+                    <a href="{{ route('tienda.categorias.show', 'categoria-demo-' . ($index + 1)) }}"
+                       class="store-category-card">
+
+                        <div class="store-category-image-wrap">
+
+                            <img src="{{ $categoria->imagen }}"
+                                 alt="{{ $categoria->nombre }}"
+                                 class="store-category-image">
+
+                            <div class="store-category-overlay"></div>
+
+                            <div class="store-category-icon">
+                                <i class="bi {{ $categoria->icono }}"></i>
+                            </div>
+
+                            <span class="store-category-badge">
+                                {{ $categoria->productos_count }} productos
+                            </span>
+
+                        </div>
+
+                        <div class="store-category-body">
+
+                            <div>
+                                <h3 class="store-category-title">
+                                    {{ $categoria->nombre }}
+                                </h3>
+
+                                <p class="store-category-text mb-0">
+                                    Explorar productos y descubrir nuevas opciones.
+                                </p>
+                            </div>
+
+                            <div class="store-category-footer mt-3">
+
+                                <span>
+                                    Explorar categoría
+                                </span>
+
+                                <i class="bi bi-arrow-right"></i>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+</section>
+
+{{-- =========================================================
     PRODUCTOS DESTACADOS
 ========================================================== --}}
 <section class="store-section store-products-minimal-section">
     <div class="container">
+
         @php
-            $imagenesProductos = [
-                'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
-                'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-                  'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-                'https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=900&q=80',
-                'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=900&q=80',
-                 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-                 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-                 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=80',
-            ];
+            $productosHome = collect([
+                (object)[
+                    'nombre' => 'Nike Air Max Urban',
+                    'precio' => 45990,
+                    'stock' => 12,
+                    'destacado' => true,
+                    'marca' => (object)['nombre' => 'Nike'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Tenis'],
+                    'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Audífonos Bluetooth Pro',
+                    'precio' => 32990,
+                    'stock' => 4,
+                    'destacado' => false,
+                    'marca' => (object)['nombre' => 'Sony'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Tecnología'],
+                    'imagen' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Smart Watch Active',
+                    'precio' => 68990,
+                    'stock' => 7,
+                    'destacado' => true,
+                    'marca' => (object)['nombre' => 'Samsung'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Wearables'],
+                    'imagen' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Mouse Gamer RGB',
+                    'precio' => 18990,
+                    'stock' => 0,
+                    'destacado' => false,
+                    'marca' => (object)['nombre' => 'Logitech'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Gaming'],
+                    'imagen' => 'https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Chaqueta Minimal Premium',
+                    'precio' => 52990,
+                    'stock' => 15,
+                    'destacado' => true,
+                    'marca' => (object)['nombre' => 'Zara'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Moda'],
+                    'imagen' => 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Laptop Ultra Slim',
+                    'precio' => 489990,
+                    'stock' => 2,
+                    'destacado' => false,
+                    'marca' => (object)['nombre' => 'HP'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Computadoras'],
+                    'imagen' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Consola Gamer Elite',
+                    'precio' => 289990,
+                    'stock' => 6,
+                    'destacado' => true,
+                    'marca' => (object)['nombre' => 'PlayStation'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Gaming'],
+                    'imagen' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Cámara Profesional X',
+                    'precio' => 359990,
+                    'stock' => 3,
+                    'destacado' => false,
+                    'marca' => (object)['nombre' => 'Canon'],
+                    'categoriaPrincipal' => (object)['nombre' => 'Fotografía'],
+                    'imagen' => 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1200&auto=format&fit=crop',
+                ],
+            ]);
         @endphp
 
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+
             <div>
-                <div class="store-mini-label">Selección</div>
-                <h2 class="store-section-title mb-2">Productos destacados</h2>
+                <div class="store-mini-label">
+                    Selección
+                </div>
+
+                <h2 class="store-section-title mb-2">
+                    Productos destacados
+                </h2>
+
                 <p class="store-section-subtitle">
-                    Una presentación más limpia, moderna y visual para el catálogo.
+                    Una presentación moderna, limpia y visualmente consistente
+                    con el catálogo principal.
                 </p>
             </div>
 
-            <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+            <a href="{{ route('tienda.productos.index') }}"
+               class="btn btn-store-outline px-4">
                 Ver catálogo
             </a>
+
         </div>
 
         <div class="row g-3 g-md-4">
-            @for ($i = 1; $i <= 8; $i++)
-                <div class="col-6 col-xl-3">
-                    <article class="store-product-minimal h-100">
-                        <a href="{{ route('tienda.productos.show', 'producto-demo-' . $i) }}"
-                            class="store-product-minimal-image-wrap">
 
-                            <div class="store-product-minimal-image"
-                                style="
-                                    background-image: url('{{ $imagenesProductos[$i - 1] }}');
-                                ">
-                            </div>
+            @foreach($productosHome as $producto)
 
-                            <button type="button" class="store-product-fav-btn" aria-label="Agregar a favoritos">
+                <div class="col-6 col-md-4 col-xl-3">
+
+                    <div class="store-product-card">
+
+                        {{-- IMAGEN --}}
+                        <a href="#"
+                           class="store-product-image-wrap">
+
+                            <img src="{{ $producto->imagen }}"
+                                 alt="{{ $producto->nombre }}"
+                                 class="store-product-image">
+
+                            <button type="button"
+                                    class="store-product-heart">
+
                                 <i class="bi bi-heart"></i>
+
                             </button>
 
-                            @if ($i == 2 || $i == 8)
-                                <span class="store-product-discount-badge">-30%</span>
-                            @endif
-                        </a>
+                            @if($producto->stock <= 0)
 
-                        <div class="store-product-minimal-body">
-                            <a href="{{ route('tienda.productos.show', 'producto-demo-' . $i) }}"
-                                class="store-product-minimal-title">
-                                Producto demo {{ $i }}
-                            </a>
-
-                            <div class="store-product-minimal-price-wrap">
-                                <span class="store-product-minimal-price">
-                                    ₡{{ number_format(12500 * $i, 2) }}
+                                <span class="store-product-badge store-product-badge-muted">
+                                    Agotado
                                 </span>
 
-                                @if ($i == 2 || $i == 8)
-                                    <span class="store-product-minimal-old-price">
-                                        ₡{{ number_format((12500 * $i) + 9000, 2) }}
-                                    </span>
-                                @endif
+                            @elseif($producto->destacado)
+
+                                <span class="store-product-badge">
+                                    Destacado
+                                </span>
+
+                            @endif
+
+                        </a>
+
+                        {{-- INFO --}}
+                        <div class="store-product-body">
+
+                            <div class="store-product-meta">
+                                {{ $producto->marca->nombre }}
                             </div>
 
-                            <div class="store-product-minimal-meta">
-                                Marca demo
+                            <a href="#"
+                               class="store-product-name">
+
+                                {{ $producto->nombre }}
+
+                            </a>
+
+                            <div class="store-product-category">
+                                {{ $producto->categoriaPrincipal->nombre }}
                             </div>
 
-                            <div class="store-product-minimal-submeta">
-                                {{ $i % 2 == 0 ? 'Running' : 'Casual' }}
+                            <div class="store-product-footer">
+
+                                <div>
+
+                                    <div class="store-product-price">
+                                        ₡{{ number_format($producto->precio, 2) }}
+                                    </div>
+
+                                    <small class="store-product-stock">
+                                        Stock: {{ $producto->stock }}
+                                    </small>
+
+                                </div>
+
+                                <a href="#"
+                                   class="store-product-action">
+
+                                    <i class="bi bi-eye"></i>
+
+                                </a>
+
                             </div>
+
                         </div>
-                    </article>
+
+                    </div>
+
                 </div>
-            @endfor
+
+            @endforeach
+
         </div>
+
     </div>
 </section>
 
@@ -356,57 +551,135 @@
         </div>
     </section>
 
-    {{-- =========================================================
-        MARCAS
-    ========================================================== --}}
-    <section class="store-section" style="background: linear-gradient(to bottom, #f8fafc 0%, #f3f4f6 100%);">
-        <div class="container">
-            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
-                <div>
-                    <div class="store-mini-label">Alianzas</div>
-                    <h2 class="store-section-title mb-2">Marcas</h2>
-                    <p class="store-section-subtitle">
-                        Una presentación más limpia para logos, marcas premium o aliados estratégicos.
-                    </p>
+{{-- =========================================================
+    MARCAS DESTACADAS
+========================================================== --}}
+<section class="store-section" style="background: linear-gradient(to bottom, #f8fafc 0%, #f3f4f6 100%);">
+    <div class="container">
+
+        @php
+            $marcasHome = collect([
+                (object)[
+                    'nombre' => 'Nike',
+                    'descripcion' => 'Moda urbana y deportiva premium.',
+                    'productos_count' => 32,
+                    'logo' => 'N',
+                    'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Sony',
+                    'descripcion' => 'Tecnología y experiencia de audio.',
+                    'productos_count' => 18,
+                    'logo' => 'S',
+                    'imagen' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Samsung',
+                    'descripcion' => 'Dispositivos inteligentes y premium.',
+                    'productos_count' => 21,
+                    'logo' => 'SA',
+                    'imagen' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop',
+                ],
+
+                (object)[
+                    'nombre' => 'Logitech',
+                    'descripcion' => 'Gaming y accesorios modernos.',
+                    'productos_count' => 14,
+                    'logo' => 'L',
+                    'imagen' => 'https://images.unsplash.com/photo-1527814050087-3793815479db?q=80&w=1200&auto=format&fit=crop',
+                ],
+            ]);
+        @endphp
+
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+
+            <div>
+                <div class="store-mini-label">
+                    Alianzas
                 </div>
 
-                <a href="{{ route('tienda.marcas.index') }}" class="btn btn-store-outline px-4">
-                    Ver marcas
-                </a>
+                <h2 class="store-section-title mb-2">
+                    Marcas destacadas
+                </h2>
+
+                <p class="store-section-subtitle">
+                    Una presentación más moderna y visualmente consistente
+                    para las principales marcas de la tienda.
+                </p>
             </div>
 
-            <div class="row g-3 g-md-4">
-                @for ($i = 1; $i <= 4; $i++)
-                    <div class="col-6 col-lg-3">
-                        <a href="{{ route('tienda.marcas.show', 'marca-demo-' . $i) }}" class="text-dark d-block h-100">
-                            <div class="store-card h-100 border-0"
-                                style="border-radius: 24px; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);">
-                                <div class="p-4 p-lg-4 text-center d-flex flex-column justify-content-center align-items-center"
-                                    style="min-height: 200px;">
-                                    <div class="d-flex align-items-center justify-content-center mb-3 rounded-circle"
-                                        style="
-                                            width: 82px;
-                                            height: 82px;
-                                            background: #f3f4f6;
-                                            font-size: 1.5rem;
-                                            font-weight: 800;
-                                            color: #111827;
-                                            box-shadow: inset 0 0 0 1px #e5e7eb;
-                                        ">
-                                        M{{ $i }}
-                                    </div>
+            <a href="{{ route('tienda.marcas.index') }}"
+               class="btn btn-store-outline px-4">
+                Ver marcas
+            </a>
 
-                                    <h6 class="fw-bold mb-1" style="font-size: 1rem;">Marca {{ $i }}</h6>
-                                    <small class="text-muted">Ver productos</small>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                @endfor
-            </div>
         </div>
-    </section>
 
+        <div class="row g-3 g-md-4">
+
+            @foreach($marcasHome as $index => $marca)
+
+                <div class="col-6 col-lg-3">
+
+                    <a href="{{ route('tienda.marcas.show', 'marca-demo-' . ($index + 1)) }}"
+                       class="store-brand-card">
+
+                        <div class="store-brand-image-wrap">
+
+                            <img src="{{ $marca->imagen }}"
+                                 alt="{{ $marca->nombre }}"
+                                 class="store-brand-image">
+
+                            <div class="store-brand-overlay"></div>
+
+                            <div class="store-brand-logo">
+                                {{ $marca->logo }}
+                            </div>
+
+                            <span class="store-brand-badge">
+                                {{ $marca->productos_count }} productos
+                            </span>
+
+                        </div>
+
+                        <div class="store-brand-body">
+
+                            <div>
+
+                                <h3 class="store-brand-title">
+                                    {{ $marca->nombre }}
+                                </h3>
+
+                                <p class="store-brand-text mb-0">
+                                    {{ $marca->descripcion }}
+                                </p>
+
+                            </div>
+
+                            <div class="store-brand-footer mt-3">
+
+                                <span>
+                                    Ver marca
+                                </span>
+
+                                <i class="bi bi-arrow-right"></i>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    </div>
+</section>
     {{-- =========================================================
         BENEFICIOS / CONFIANZA
     ========================================================== --}}

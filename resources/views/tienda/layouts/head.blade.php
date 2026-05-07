@@ -1,18 +1,21 @@
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="UTF-8">
 
-    <title>@yield('title', 'Tienda')</title>
-    <meta name="description" content="@yield('meta_description', 'Tienda en línea')">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 
-    {{-- Bootstrap / Icons / Fonts --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-     {{-- CSS GLOBAL de edit create --}}
-   <link rel="stylesheet" href="{{ asset('assets/css/tienda-forms.css') }}">
+<title>@yield('title', 'Tienda')</title>
+<meta name="description" content="@yield('meta_description', 'Tienda en línea')">
 
+{{-- Bootstrap / Icons --}}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
+{{-- CSS TIENDA --}}
+<link rel="stylesheet" href="{{ asset('assets/css/tienda.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tienda-forms.css') }}">
+
+@stack('styles')
