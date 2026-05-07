@@ -140,9 +140,7 @@
 
                             @if($producto->stock <= 0)
 
-                                <span class="store-product-badge store-product-badge-muted">
-                                    Agotado
-                                </span>
+                              
 
                             @elseif($producto->destacado)
 
