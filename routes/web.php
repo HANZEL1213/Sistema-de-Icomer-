@@ -97,9 +97,25 @@ Route::name('tienda.')->group(function () {
     | Carrito
     |--------------------------------------------------------------------------
     */
-    Route::prefix('carrito')->name('carrito.')->group(function () {
-        Route::get('/', [CarritoController::class, 'index'])->name('index');
+
+
+Route::prefix('carrito')
+    ->name('carrito.')
+    ->controller(CarritoController::class)
+    ->group(function () {
+
+        Route::get('/', 'index')->name('index');
+
+        Route::post('/agregar/{producto}', 'agregar')->name('agregar');
+
+        Route::patch('/actualizar/{producto}', 'actualizar')->name('actualizar');
+
+        Route::delete('/eliminar/{producto}', 'eliminar')->name('eliminar');
+
+        Route::delete('/vaciar', 'vaciar')->name('vaciar');
+
     });
+
 
     /*
     |--------------------------------------------------------------------------

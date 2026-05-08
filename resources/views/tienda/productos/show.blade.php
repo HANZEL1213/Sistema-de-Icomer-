@@ -129,36 +129,49 @@
                         @endif
                     </div>
 
-                    <div class="store-product-detail-actions">
+             <div class="store-product-detail-actions">
 
-                        <div class="store-qty-control">
+    <div class="store-qty-control">
 
-                            <button type="button" data-qty-action="minus">
-                                <i class="bi bi-dash"></i>
-                            </button>
+        <button type="button" data-qty-action="minus">
+            <i class="bi bi-dash"></i>
+        </button>
 
-                            <input type="number"
-                                   value="1"
-                                   min="1"
-                                   max="{{ max($stock, 1) }}"
-                                   id="storeProductQty">
+        <input type="number"
+               value="1"
+               min="1"
+               max="{{ max($stock, 1) }}"
+               id="storeProductQty">
 
-                            <button type="button" data-qty-action="plus">
-                                <i class="bi bi-plus"></i>
-                            </button>
+        <button type="button" data-qty-action="plus">
+            <i class="bi bi-plus"></i>
+        </button>
 
-                        </div>
+    </div>
 
-                        <button type="button"
-                                class="btn btn-store-primary store-add-cart-btn"
-                                {{ $stock <= 0 ? 'disabled' : '' }}>
+    <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
+          method="POST"
+          class="m-0 p-0">
 
-                            <i class="bi bi-cart3 me-1"></i>
-                            Agregar al carrito
+        @csrf
 
-                        </button>
+        <input type="hidden"
+               name="cantidad"
+               id="storeProductQtyHidden"
+               value="1">
 
-                    </div>
+        <button type="submit"
+                class="btn btn-store-primary store-add-cart-btn"
+                {{ $stock <= 0 ? 'disabled' : '' }}>
+
+            <i class="bi bi-cart3 me-1"></i>
+            Agregar al carrito
+
+        </button>
+
+    </form>
+
+</div>
 
                     <div class="store-product-detail-benefits">
 
@@ -354,5 +367,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+
+const qtyHidden = document.getElementById('storeProductQtyHidden');
+
+if (qtyInput && qtyHidden) {
+
+    qtyInput.addEventListener('input', function () {
+        qtyHidden.value = this.value;
+    });
+
+    qtyButtons.forEach((button) => {
+        button.addEventListener('click', function () {
+            qtyHidden.value = qtyInput.value;
+        });
+    });
+
+}
 </script>
 @endpush

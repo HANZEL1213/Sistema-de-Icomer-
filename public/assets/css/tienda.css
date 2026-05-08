@@ -2279,7 +2279,6 @@
     }
 }
 
-
 /* =========================================================
    CARRITO
 ========================================================== */
@@ -2295,12 +2294,7 @@
     gap: 1rem;
     padding: 2rem;
     border-radius: 32px;
-    background:
-        linear-gradient(
-            135deg,
-            var(--store-primary) 0%,
-            var(--store-primary-soft) 100%
-        );
+    background: linear-gradient(135deg, var(--store-primary) 0%, var(--store-primary-soft) 100%);
     color: #fff;
 }
 
@@ -2424,6 +2418,15 @@
     margin-bottom: 0.45rem;
 }
 
+.store-cart-item-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.store-cart-item-title a:hover {
+    color: var(--store-primary);
+}
+
 .store-cart-item-stock {
     display: inline-flex;
     align-items: center;
@@ -2453,6 +2456,18 @@
     font-weight: 700;
 }
 
+.store-cart-qty-form {
+    margin: 0;
+    padding: 0;
+    display: contents;
+}
+
+.store-cart-remove-form {
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+}
+
 .store-cart-qty-control {
     display: grid;
     grid-template-columns: 38px 52px 38px;
@@ -2476,6 +2491,15 @@
     font-weight: 900;
     color: var(--store-primary);
     outline: none;
+}
+
+.store-cart-update-btn {
+    border: 0;
+    background: transparent;
+    color: var(--store-primary);
+    font-size: 0.78rem;
+    font-weight: 900;
+    padding: 0;
 }
 
 .store-cart-line-total {
@@ -2661,11 +2685,86 @@
 }
 
 /* =========================================================
+   BOTÓN ACTUALIZAR
+========================================================== */
+
+.store-cart-update-btn {
+    appearance: none;
+    border: none !important;
+
+    background: linear-gradient(
+        135deg,
+        #111827 0%,
+        #1f2937 100%
+    ) !important;
+
+    color: #ffffff !important;
+
+    min-height: 38px;
+    padding: 0 1rem;
+
+    border-radius: 12px;
+
+    font-size: 0.78rem;
+    font-weight: 800;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+
+    transition: all 0.2s ease;
+
+    box-shadow:
+        0 8px 18px rgba(0,0,0,0.10),
+        0 2px 4px rgba(0,0,0,0.06);
+
+    white-space: nowrap;
+
+    text-decoration: none !important;
+}
+
+.store-cart-update-btn:hover {
+    transform: translateY(-2px);
+
+    background: linear-gradient(
+        135deg,
+        #000000 0%,
+        #111827 100%
+    ) !important;
+
+    color: #ffffff !important;
+
+    box-shadow:
+        0 12px 24px rgba(0,0,0,0.14),
+        0 4px 8px rgba(0,0,0,0.08);
+}
+
+.store-cart-update-btn:active {
+    transform: scale(0.97);
+}
+
+.store-cart-update-btn i {
+    font-size: 0.82rem;
+    color: #ffffff !important;
+}
+
+@media (max-width: 575.98px) {
+
+    .store-cart-update-btn {
+        min-height: 34px;
+        padding: 0 0.85rem;
+        border-radius: 10px;
+        font-size: 0.72rem;
+    }
+
+}
+
+/* =========================================================
    RESPONSIVE CARRITO
 ========================================================== */
 
 @media (max-width: 1199.98px) {
-
     .store-cart-item {
         grid-template-columns: 100px 1fr 220px;
     }
@@ -2677,7 +2776,6 @@
 }
 
 @media (max-width: 991.98px) {
-
     .store-cart-hero {
         padding: 1.5rem;
         border-radius: 26px;
@@ -2706,7 +2804,6 @@
 }
 
 @media (max-width: 575.98px) {
-
     .store-cart-page .container {
         padding-left: 0.85rem;
         padding-right: 0.85rem;
@@ -2799,9 +2896,6 @@
         padding: 1rem;
     }
 }
-
-
-
 /* =========================================================
    MIS PEDIDOS
 ========================================================== */
