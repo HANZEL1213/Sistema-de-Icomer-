@@ -116,17 +116,30 @@ Route::prefix('carrito')
 
     });
 
+/*
+|--------------------------------------------------------------------------
+| Checkout
+|--------------------------------------------------------------------------
+*/
+Route::prefix('checkout')->name('checkout.')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Checkout
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('checkout')->name('checkout.')->group(function () {
-        Route::get('/', [CheckoutController::class, 'index'])->name('index');
-        Route::get('confirmacion', [CheckoutController::class, 'confirmacion'])->name('confirmacion');
-    });
+    Route::get('/', [CheckoutController::class, 'index'])
+        ->name('index');
 
+    Route::post('/confirmar', [CheckoutController::class, 'confirmar'])
+        ->name('confirmar');
+
+    Route::get('/cantones/{id_provincia}', [CheckoutController::class, 'cantonesDisponibles'])
+        ->name('cantones');
+
+    Route::get('/distritos/{id_canton}', [CheckoutController::class, 'distritosDisponibles'])
+        ->name('distritos');
+
+    Route::get('/confirmacion/{pedido}', [CheckoutController::class, 'confirmacion'])
+        ->name('confirmacion');
+
+});
+  
     /*
     |--------------------------------------------------------------------------
     | Pedidos del cliente
