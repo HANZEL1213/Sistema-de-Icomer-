@@ -98,7 +98,6 @@ Route::name('tienda.')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-
 Route::prefix('carrito')
     ->name('carrito.')
     ->controller(CarritoController::class)
@@ -113,6 +112,18 @@ Route::prefix('carrito')
         Route::delete('/eliminar/{producto}', 'eliminar')->name('eliminar');
 
         Route::delete('/vaciar', 'vaciar')->name('vaciar');
+
+        /*
+        |--------------------------------------------------------------------------
+        | CUPONES
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post('/cupon/aplicar', 'aplicarCupon')
+            ->name('cupon.aplicar');
+
+        Route::delete('/cupon/eliminar', 'eliminarCupon')
+            ->name('cupon.eliminar');
 
     });
 
@@ -138,8 +149,9 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/confirmacion/{pedido}', [CheckoutController::class, 'confirmacion'])
         ->name('confirmacion');
 
+        Route::get('/costo-envio/{id_distrito}', [CheckoutController::class, 'costoEnvio'])
+    ->name('costo.envio');
 });
-  
     /*
     |--------------------------------------------------------------------------
     | Pedidos del cliente

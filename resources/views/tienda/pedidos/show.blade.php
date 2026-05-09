@@ -1,70 +1,4 @@
 {{-- resources/views/tienda/pedidos/show.blade.php --}}
-
-@php
-    $pedido = (object)[
-        'numero_pedido' => 'PED-10003',
-        'estado' => 'enviado',
-        'estado_label' => 'Enviado',
-        'cliente' => 'Cliente Demo 3',
-        'telefono' => '88888803',
-        'correo' => 'demo3@mail.com',
-        'tipo_entrega' => 'Envío a domicilio',
-        'provincia' => 'San José',
-        'canton' => 'Santa Ana',
-        'distrito' => 'Pozos',
-        'direccion' => 'Dirección 3',
-        'referencia' => 'Casa color blanco, portón negro.',
-        'fecha' => '12/04/2026 19:46',
-        'subtotal' => 20000,
-        'envio' => 2500,
-        'descuento' => 0,
-        'total' => 22500,
-        'metodo_pago' => 'SINPE Móvil',
-        'estado_pago' => 'verificado',
-        'estado_pago_label' => 'Pago verificado',
-        'numero_comprobante' => '12',
-        'monto_reportado' => 22500,
-        'verificado_en' => '12/04/2026 19:52',
-        'notas' => 'Pedido generado correctamente desde tienda online.',
-    ];
-
-    $items = collect([
-        (object)[
-            'nombre' => 'Tenis de Running Runfalcon 5 TR',
-            'sku' => 'SKU-DEMO-001',
-            'precio' => 45000,
-            'cantidad' => 1,
-            'total' => 45000,
-            'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-        ],
-        (object)[
-            'nombre' => 'GORRA DNA AUDI REVOLUT F1 TEAM',
-            'sku' => 'SKU-DEMO-002',
-            'precio' => 10000,
-            'cantidad' => 1,
-            'total' => 10000,
-            'imagen' => 'https://images.unsplash.com/photo-1521369909029-2afed882baee?q=80&w=1200&auto=format&fit=crop',
-        ],
-    ]);
-
-    $estadoClass = [
-        'pendiente_pago' => 'is-warning',
-        'en_revision' => 'is-info',
-        'pagado_verificado' => 'is-success',
-        'preparando' => 'is-primary',
-        'enviado' => 'is-primary',
-        'entregado' => 'is-success',
-        'rechazado' => 'is-danger',
-        'cancelado' => 'is-muted',
-    ];
-
-    $pagoClass = [
-        'enviado' => 'is-info',
-        'verificado' => 'is-success',
-        'rechazado' => 'is-danger',
-    ];
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', 'Detalle del pedido | Tienda')
@@ -72,216 +6,355 @@
 
 @section('content')
 
-<section class="store-order-show-page">
+    @php
 
-    <div class="container py-4 py-lg-5">
+        $estadoClass = [
+            'pendiente_pago' => 'is-warning',
+            'en_revision' => 'is-info',
+            'pagado_verificado' => 'is-success',
+            'preparando' => 'is-primary',
+            'enviado' => 'is-primary',
+            'entregado' => 'is-success',
+            'rechazado' => 'is-danger',
+            'cancelado' => 'is-muted',
+        ];
 
-        {{-- BREADCRUMB --}}
-        <div class="store-detail-breadcrumb mb-4">
-            <a href="{{ route('tienda.home') }}">Inicio</a>
-            <i class="bi bi-chevron-right"></i>
-            <a href="{{ route('tienda.pedidos.mis') }}">Mis pedidos</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>{{ $pedido->numero_pedido }}</span>
-        </div>
+        $estadoLabel = [
+            'pendiente_pago' => 'Pendiente de pago',
+            'en_revision' => 'Pago en revisión',
+            'pagado_verificado' => 'Pago verificado',
+            'preparando' => 'Preparando',
+            'enviado' => 'Enviado',
+            'entregado' => 'Entregado',
+            'rechazado' => 'Rechazado',
+            'cancelado' => 'Cancelado',
+        ];
 
+        $pagoClass = [
+            'enviado' => 'is-info',
+            'verificado' => 'is-success',
+            'rechazado' => 'is-danger',
+        ];
 
-        {{-- HERO --}}
-        <div class="store-order-show-hero mb-4 mb-lg-5">
+        $estadoPedido = $estadoLabel[$pedido->estado] ?? ucfirst($pedido->estado);
 
-            <div>
-                <span class="store-section-eyebrow">
-                    Detalle del pedido
-                </span>
+        $pago = $pedido->pagoUltimo;
 
-                <h1 class="store-order-show-title">
+        $estadoPago = $pago?->estado ?? 'pendiente';
+
+        $estadoPagoLabel = match ($estadoPago) {
+            'enviado' => 'Comprobante enviado',
+            'verificado' => 'Pago verificado',
+            'rechazado' => 'Pago rechazado',
+            default => 'Pendiente de pago',
+        };
+
+    @endphp
+
+    <section class="store-order-show-page">
+
+        <div class="container py-4 py-lg-5">
+
+            {{-- BREADCRUMB --}}
+            <div class="store-detail-breadcrumb mb-4">
+                <a href="{{ route('tienda.home') }}">Inicio</a>
+
+                <i class="bi bi-chevron-right"></i>
+
+                <a href="{{ route('tienda.pedidos.mis') }}">
+                    Mis pedidos
+                </a>
+
+                <i class="bi bi-chevron-right"></i>
+
+                <span>
                     {{ $pedido->numero_pedido }}
-                </h1>
-
-                <p class="store-order-show-subtitle mb-0">
-                    Revisa los productos comprados, datos de entrega, estado del pago
-                    y el resumen completo de tu pedido.
-                </p>
+                </span>
             </div>
 
-            <div class="store-order-show-hero-status">
-                <span>Estado actual</span>
-                <strong>{{ $pedido->estado_label }}</strong>
-            </div>
 
-        </div>
+            {{-- HERO --}}
+            <div class="store-order-show-hero mb-4 mb-lg-5">
 
+                <div>
 
-        <div class="row g-4 g-xl-5 align-items-start">
+                    <span class="store-section-eyebrow">
+                        Detalle del pedido
+                    </span>
 
-            {{-- CONTENIDO PRINCIPAL --}}
-            <div class="col-12 col-lg-8">
+                    <h1 class="store-order-show-title">
+                        {{ $pedido->numero_pedido }}
+                    </h1>
 
-                {{-- ESTADO --}}
-                <div class="store-order-show-status-card mb-4">
-
-                    <div class="store-order-show-status-icon {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
-
-                    <div>
-                        <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
-                            {{ $pedido->estado_label }}
-                        </span>
-
-                        <h2>
-                            Pedido {{ strtolower($pedido->estado_label) }}
-                        </h2>
-
-                        <p>
-                            Este pedido fue creado el <strong>{{ $pedido->fecha }}</strong>.
-                            Puedes revisar el proceso completo desde la vista de seguimiento.
-                        </p>
-                    </div>
+                    <p class="store-order-show-subtitle mb-0">
+                        Revisa los productos comprados, datos de entrega,
+                        estado del pago y el resumen completo de tu pedido.
+                    </p>
 
                 </div>
 
+                <div class="store-order-show-hero-status">
 
-                {{-- PRODUCTOS --}}
-                <div class="store-order-show-card mb-4">
+                    <span>Estado actual</span>
 
-                    <div class="store-order-show-card-header">
-                        <h2>
-                            <i class="bi bi-bag-check"></i>
-                            Productos del pedido
-                        </h2>
+                    <strong>
+                        {{ $estadoPedido }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="row g-4 g-xl-5 align-items-start">
+
+                {{-- CONTENIDO --}}
+                <div class="col-12 col-lg-8">
+
+                    {{-- ESTADO --}}
+                    <div class="store-order-show-status-card mb-4">
+
+                        <div class="store-order-show-status-icon {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
+                                {{ $estadoPedido }}
+                            </span>
+
+                            <h2>
+                                Pedido {{ strtolower($estadoPedido) }}
+                            </h2>
+
+                            <p>
+                                Este pedido fue creado el
+                                <strong>
+                                    {{ $pedido->created_at?->format('d/m/Y h:i A') }}
+                                </strong>.
+                            </p>
+
+                        </div>
+
                     </div>
 
-                    <div class="store-order-show-products">
 
-                        @foreach($items as $item)
+                    {{-- PRODUCTOS --}}
+                    <div class="store-order-show-card mb-4">
 
-                            <article class="store-order-show-product">
+                        <div class="store-order-show-card-header">
 
-                                <div class="store-order-show-product-image">
-                                    <img src="{{ $item->imagen }}" alt="{{ $item->nombre }}">
-                                </div>
+                            <h2>
+                                <i class="bi bi-bag-check"></i>
+                                Productos del pedido
+                            </h2>
 
-                                <div class="store-order-show-product-info">
-                                    <span>{{ $item->sku }}</span>
+                        </div>
 
-                                    <h3>
-                                        {{ $item->nombre }}
-                                    </h3>
+                        <div class="store-order-show-products">
 
-                                    <p>
-                                        Cantidad: {{ $item->cantidad }} · Precio unitario:
-                                        ₡{{ number_format($item->precio, 2) }}
-                                    </p>
-                                </div>
+                            @foreach ($pedido->detalle as $detalle)
+                                @php
+                                    $producto = $detalle->producto;
 
-                                <div class="store-order-show-product-total">
-                                    <span>Total línea</span>
+                                    $imagen = $producto?->imagenPrincipal?->ruta
+                                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                        : asset('assets/img/no-image.png');
+                                @endphp
+
+                                <article class="store-order-show-product">
+
+                                    <div class="store-order-show-product-image">
+                                        <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
+                                    </div>
+
+                                    <div class="store-order-show-product-info">
+
+                                        @if ($producto?->sku)
+                                            <span>
+                                                {{ $producto->sku }}
+                                            </span>
+                                        @endif
+
+                                        <h3>
+                                            {{ $detalle->nombre_producto }}
+                                        </h3>
+
+                                        <p>
+                                            Cantidad:
+                                            {{ $detalle->cantidad }}
+
+                                            · Precio unitario:
+
+                                            ₡{{ number_format($detalle->precio_unitario, 2) }}
+                                        </p>
+
+                                    </div>
+
+                                    <div class="store-order-show-product-total">
+
+                                        <span>Total línea</span>
+
+                                        <strong>
+                                            ₡{{ number_format($detalle->subtotal, 2) }}
+                                        </strong>
+
+                                    </div>
+
+                                </article>
+                            @endforeach
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ENTREGA --}}
+                    <div class="store-order-show-card mb-4">
+
+                        <div class="store-order-show-card-header">
+
+                            <h2>
+                                <i class="bi bi-truck"></i>
+                                Información de entrega
+                            </h2>
+
+                        </div>
+
+                        <div class="store-order-show-card-body">
+
+                            <div class="store-order-show-info-grid">
+
+                                <div class="store-order-show-info-item">
+                                    <span>Tipo de entrega</span>
+
                                     <strong>
-                                        ₡{{ number_format($item->total, 2) }}
+                                        {{ $pedido->tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda' }}
                                     </strong>
                                 </div>
 
-                            </article>
+                                <div class="store-order-show-info-item">
+                                    <span>Provincia</span>
 
-                        @endforeach
+                                    <strong>
+                                        {{ $pedido->provincia_envio ?? 'No definido' }}
+                                    </strong>
+                                </div>
 
-                    </div>
+                                <div class="store-order-show-info-item">
+                                    <span>Cantón</span>
 
-                </div>
+                                    <strong>
+                                        {{ $pedido->canton_envio ?? 'No definido' }}
+                                    </strong>
+                                </div>
 
+                                <div class="store-order-show-info-item">
+                                    <span>Distrito</span>
 
-                {{-- ENTREGA --}}
-                <div class="store-order-show-card mb-4">
+                                    <strong>
+                                        {{ $pedido->distrito_envio ?? 'No definido' }}
+                                    </strong>
+                                </div>
 
-                    <div class="store-order-show-card-header">
-                        <h2>
-                            <i class="bi bi-truck"></i>
-                            Información de entrega
-                        </h2>
-                    </div>
-
-                    <div class="store-order-show-card-body">
-
-                        <div class="store-order-show-info-grid">
-
-                            <div class="store-order-show-info-item">
-                                <span>Tipo de entrega</span>
-                                <strong>{{ $pedido->tipo_entrega }}</strong>
                             </div>
 
-                            <div class="store-order-show-info-item">
-                                <span>Provincia</span>
-                                <strong>{{ $pedido->provincia }}</strong>
-                            </div>
+                            <div class="store-order-show-address-box mt-3">
 
-                            <div class="store-order-show-info-item">
-                                <span>Cantón</span>
-                                <strong>{{ $pedido->canton }}</strong>
-                            </div>
+                                <span>Dirección exacta</span>
 
-                            <div class="store-order-show-info-item">
-                                <span>Distrito</span>
-                                <strong>{{ $pedido->distrito }}</strong>
+                                <strong>
+                                    {{ $pedido->direccion_envio ?? 'No registrada' }}
+                                </strong>
+
+                                @if ($pedido->referencia_envio)
+                                    <p>
+                                        {{ $pedido->referencia_envio }}
+                                    </p>
+                                @endif
+
                             </div>
 
                         </div>
+                    </div>
 
-                        <div class="store-order-show-address-box mt-3">
-                            <span>Dirección exacta</span>
-                            <strong>{{ $pedido->direccion }}</strong>
 
-                            @if($pedido->referencia)
-                                <p>{{ $pedido->referencia }}</p>
-                            @endif
+                    {{-- PAGO --}}
+                    <div class="store-order-show-card">
+
+                        <div class="store-order-show-card-header">
+
+                            <h2>
+                                <i class="bi bi-credit-card"></i>
+                                Información de pago
+                            </h2>
+
                         </div>
 
-                    </div>
+                        <div class="store-order-show-card-body">
 
-                </div>
+                            <div class="store-order-payment-detail">
 
+                                <div class="store-order-payment-icon {{ $pagoClass[$estadoPago] ?? 'is-muted' }}">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
 
-                {{-- PAGO --}}
-                <div class="store-order-show-card">
+                                <div class="store-order-payment-content">
 
-                    <div class="store-order-show-card-header">
-                        <h2>
-                            <i class="bi bi-credit-card"></i>
-                            Información de pago
-                        </h2>
-                    </div>
+                                    <span class="store-order-status {{ $pagoClass[$estadoPago] ?? 'is-muted' }}">
+                                        {{ $estadoPagoLabel }}
+                                    </span>
 
-                    <div class="store-order-show-card-body">
+                                    <h3>
+                                        {{ strtoupper($pago?->metodo ?? 'Pendiente') }}
+                                    </h3>
 
-                        <div class="store-order-payment-detail">
+                                    <div class="store-order-payment-data">
 
-                            <div class="store-order-payment-icon {{ $pagoClass[$pedido->estado_pago] ?? 'is-muted' }}">
-                                <i class="bi bi-receipt"></i>
-                            </div>
+                                        <div>
+                                            <span>Comprobante</span>
 
-                            <div class="store-order-payment-content">
+                                            <strong>
+                                                {{ $pago?->numero_comprobante ?? 'Pendiente' }}
+                                            </strong>
+                                        </div>
 
-                                <span class="store-order-status {{ $pagoClass[$pedido->estado_pago] ?? 'is-muted' }}">
-                                    {{ $pedido->estado_pago_label }}
-                                </span>
+                                        <div>
+                                            <span>Monto reportado</span>
 
-                                <h3>{{ $pedido->metodo_pago }}</h3>
+                                            <strong>
+                                                ₡{{ number_format($pago?->monto_reportado ?? 0, 2) }}
+                                            </strong>
+                                        </div>
 
-                                <div class="store-order-payment-data">
-                                    <div>
-                                        <span>Comprobante</span>
-                                        <strong>{{ $pedido->numero_comprobante ?? 'Pendiente' }}</strong>
+                                        <div>
+                                            <span>Verificado en</span>
+
+                                            <strong>
+                                                {{ $pago?->verificado_en?->format('d/m/Y h:i A') ?? 'Pendiente' }}
+                                            </strong>
+                                        </div>
+
                                     </div>
 
-                                    <div>
-                                        <span>Monto reportado</span>
-                                        <strong>₡{{ number_format($pedido->monto_reportado, 2) }}</strong>
-                                    </div>
+                                    @if ($pago?->ruta_comprobante)
+                                        <div class="store-order-payment-proof mt-4">
 
-                                    <div>
-                                        <span>Verificado en</span>
-                                        <strong>{{ $pedido->verificado_en ?? 'Pendiente' }}</strong>
-                                    </div>
+                                            <span class="d-block mb-2 fw-semibold">
+                                                Imagen del comprobante
+                                            </span>
+
+                                            <div class="bg-light rounded p-3">
+
+                                                <img src="{{ asset('storage/' . $pago->ruta_comprobante) }}"
+                                                    alt="Comprobante de pago" class="img-fluid rounded-4 border">
+
+                                            </div>
+
+                                        </div>
+                                    @endif
+
                                 </div>
 
                             </div>
@@ -292,98 +365,189 @@
 
                 </div>
 
-            </div>
 
+                {{-- SIDEBAR --}}
+                <div class="col-12 col-lg-4">
 
-            {{-- RESUMEN --}}
-            <div class="col-12 col-lg-4">
+                    <aside class="store-order-show-summary-card">
 
-                <aside class="store-order-show-summary-card">
+                        <div class="store-order-show-summary-header">
 
-                    <div class="store-order-show-summary-header">
-                        <h2>Resumen</h2>
+                            <h2>
+                                Resumen
+                            </h2>
 
-                        <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
-                            {{ $pedido->estado_label }}
-                        </span>
-                    </div>
+                            <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
+                                {{ $estadoPedido }}
+                            </span>
 
-                    <ul class="store-confirmation-list">
-                        <li>
-                            <span>Cliente</span>
-                            <strong>{{ $pedido->cliente }}</strong>
-                        </li>
-
-                        <li>
-                            <span>Teléfono</span>
-                            <strong>{{ $pedido->telefono }}</strong>
-                        </li>
-
-                        <li>
-                            <span>Correo</span>
-                            <strong>{{ $pedido->correo }}</strong>
-                        </li>
-
-                        <li>
-                            <span>Fecha</span>
-                            <strong>{{ $pedido->fecha }}</strong>
-                        </li>
-                    </ul>
-
-                    <div class="store-order-show-total-box">
-
-                        <div>
-                            <span>Subtotal</span>
-                            <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
                         </div>
 
-                        <div>
-                            <span>Envío</span>
-                            <strong>₡{{ number_format($pedido->envio, 2) }}</strong>
+                        <ul class="store-confirmation-list">
+
+                            <li>
+                                <span>Cliente</span>
+
+                                <strong>
+                                    {{ $pedido->nombre_cliente }}
+                                </strong>
+                            </li>
+
+                            <li>
+                                <span>Teléfono</span>
+
+                                <strong>
+                                    {{ $pedido->telefono_cliente }}
+                                </strong>
+                            </li>
+
+                            <li>
+                                <span>Correo</span>
+
+                                <strong>
+                                    {{ $pedido->correo_cliente }}
+                                </strong>
+                            </li>
+
+                            <li>
+                                <span>Fecha</span>
+
+                                <strong>
+                                    {{ $pedido->created_at?->format('d/m/Y h:i A') }}
+                                </strong>
+                            </li>
+
+                        </ul>
+
+                        {{-- CUPÓN APLICADO --}}
+                        @if ($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
+
+                            <div class="store-cart-coupon-box mt-3 mb-3">
+
+                                <label class="store-form-label">
+                                    Cupón de descuento
+                                </label>
+
+                                <div class="bg-light rounded-4 p-3 border">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div>
+
+                                            <span class="badge bg-success mb-2">
+                                                Cupón aplicado
+                                            </span>
+
+                                            <h6 class="fw-bold mb-1">
+                                                {{ $pedido->codigo_cupon ?? ($pedido->cupon?->codigo ?? 'Cupón aplicado') }}
+                                            </h6>
+
+                                            <small class="text-muted d-block">
+                                                Descuento aplicado:
+                                                ₡{{ number_format($pedido->descuento, 2) }}
+                                            </small>
+
+                                            @if ($pedido->cupon?->tipo === 'porcentaje')
+                                                <small class="text-success">
+                                                    {{ number_format($pedido->cupon->valor, 0) }}% OFF
+                                                </small>
+                                            @elseif($pedido->cupon?->tipo === 'monto_fijo')
+                                                <small class="text-success">
+                                                    ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
+                                                </small>
+                                            @endif
+
+                                        </div>
+
+                                        <div class="text-success fs-5">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+                        <div class="store-order-show-total-box">
+
+                            <div>
+                                <span>Subtotal</span>
+
+                                <strong>
+                                    ₡{{ number_format($pedido->subtotal, 2) }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Envío</span>
+
+                                <strong>
+                                    ₡{{ number_format($pedido->costo_envio ?? 0, 2) }}
+                                </strong>
+                            </div>
+
+                            <div>
+                                <span>Descuento</span>
+
+                                <strong>
+                                    -₡{{ number_format($pedido->descuento ?? 0, 2) }}
+                                </strong>
+                            </div>
+
+                            <div class="total">
+
+                                <span>Total</span>
+
+                                <strong>
+                                    ₡{{ number_format($pedido->total, 2) }}
+                                </strong>
+
+                            </div>
+
                         </div>
 
-                        <div>
-                            <span>Descuento</span>
-                            <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
+                        @if ($pedido->notas)
+                            <div class="store-order-show-note">
+
+                                <i class="bi bi-info-circle"></i>
+
+                                <span>
+                                    {{ $pedido->notas }}
+                                </span>
+
+                            </div>
+                        @endif
+
+                        <div class="d-grid gap-2">
+
+                            <a href="{{ route('tienda.pedidos.seguimiento', ['codigo' => $pedido->numero_pedido]) }}"
+                                class="btn btn-store-primary">
+
+                                <i class="bi bi-search me-1"></i>
+
+                                Ver seguimiento
+
+                            </a>
+
+                            <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-outline">
+
+                                Volver a mis pedidos
+
+                            </a>
+
                         </div>
 
-                        <div class="total">
-                            <span>Total</span>
-                            <strong>₡{{ number_format($pedido->total, 2) }}</strong>
-                        </div>
+                    </aside>
 
-                    </div>
-
-                    @if($pedido->notas)
-                        <div class="store-order-show-note">
-                            <i class="bi bi-info-circle"></i>
-                            <span>{{ $pedido->notas }}</span>
-                        </div>
-                    @endif
-
-                    <div class="d-grid gap-2">
-
-                        <a href="{{ route('tienda.pedidos.seguimiento', ['codigo' => $pedido->numero_pedido]) }}"
-                           class="btn btn-store-primary">
-                            <i class="bi bi-search me-1"></i>
-                            Ver seguimiento
-                        </a>
-
-                        <a href="{{ route('tienda.pedidos.mis') }}"
-                           class="btn btn-store-outline">
-                            Volver a mis pedidos
-                        </a>
-
-                    </div>
-
-                </aside>
+                </div>
 
             </div>
 
         </div>
 
-    </div>
-
-</section>
+    </section>
 
 @endsection

@@ -9,445 +9,470 @@ use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Models\PagoPedido;
+use App\Models\Cupon;
+use App\Models\UsoCupon;
 
 class CheckoutController extends Controller
 {
-    public function index()
-    {
-        $carrito = collect(session('carrito', []));
 
-        if ($carrito->isEmpty()) {
-            return redirect()
-                ->route('tienda.carrito.index')
-                ->with('error', 'Tu carrito está vacío.');
+
+
+public function index()
+{
+    $carrito = collect(session('carrito', []));
+
+    if ($carrito->isEmpty()) {
+        return redirect()
+            ->route('tienda.carrito.index')
+            ->with('error', 'Tu carrito está vacío.');
+    }
+
+    $subtotal = $carrito->sum(
+        fn ($item) => $item['precio'] * $item['cantidad']
+    );
+
+    $envio = 0;
+    $descuento = 0;
+    $cuponAplicado = session('cupon');
+
+    /*
+    |--------------------------------------------------------------------------
+    | CUPÓN APLICADO DESDE EL CARRITO
+    |--------------------------------------------------------------------------
+    */
+    if ($cuponAplicado) {
+        $cupon = Cupon::where('codigo', $cuponAplicado['codigo'])->first();
+
+        if ($cupon) {
+            $validacion = $this->validarCupon($cupon, $subtotal);
+
+            if ($validacion === true) {
+                $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
+            } else {
+                session()->forget('cupon');
+                $cuponAplicado = null;
+            }
+        } else {
+            session()->forget('cupon');
+            $cuponAplicado = null;
+        }
+    }
+
+    $subtotalConDescuento = max($subtotal - $descuento, 0);
+    $total = $subtotalConDescuento + $envio;
+
+    /*
+    |--------------------------------------------------------------------------
+    | SOLO PROVINCIAS CON ENVÍOS ACTIVOS
+    |--------------------------------------------------------------------------
+    */
+    $provincias = DB::table('provincias')
+        ->join(
+            'zonas_envio',
+            'provincias.id_provincia',
+            '=',
+            'zonas_envio.id_provincia'
+        )
+        ->where('zonas_envio.activo', 1)
+        ->select(
+            'provincias.id_provincia',
+            'provincias.nombre'
+        )
+        ->distinct()
+        ->orderBy('provincias.nombre')
+        ->get();
+
+    return view('tienda.checkout.index', compact(
+        'carrito',
+        'subtotal',
+        'envio',
+        'descuento',
+        'subtotalConDescuento',
+        'total',
+        'provincias',
+        'cuponAplicado'
+    ));
+}
+
+/*
+|--------------------------------------------------------------------------
+| CANTONES DISPONIBLES
+|--------------------------------------------------------------------------
+*/
+public function cantonesDisponibles($id_provincia)
+{
+    $cantones = DB::table('cantones')
+        ->join(
+            'zonas_envio',
+            'cantones.id_canton',
+            '=',
+            'zonas_envio.id_canton'
+        )
+        ->where(
+            'zonas_envio.id_provincia',
+            $id_provincia
+        )
+        ->where('zonas_envio.activo', 1)
+        ->select(
+            'cantones.id_canton',
+            'cantones.nombre'
+        )
+        ->distinct()
+        ->orderBy('cantones.nombre')
+        ->get();
+
+    return response()->json($cantones);
+}
+
+/*
+|--------------------------------------------------------------------------
+| DISTRITOS DISPONIBLES
+|--------------------------------------------------------------------------
+*/
+public function distritosDisponibles($id_canton)
+{
+    $distritos = DB::table('distritos')
+        ->join(
+            'zonas_envio',
+            'distritos.id_distrito',
+            '=',
+            'zonas_envio.id_distrito'
+        )
+        ->where(
+            'zonas_envio.id_canton',
+            $id_canton
+        )
+        ->where('zonas_envio.activo', 1)
+        ->select(
+            'distritos.id_distrito',
+            'distritos.nombre'
+        )
+        ->distinct()
+        ->orderBy('distritos.nombre')
+        ->get();
+
+    return response()->json($distritos);
+}
+
+
+    
+public function confirmar(Request $request)
+{
+    $carrito = collect(session('carrito', []));
+
+    if ($carrito->isEmpty()) {
+        return redirect()
+            ->route('tienda.carrito.index')
+            ->with('error', 'Tu carrito está vacío.');
+    }
+
+    $request->validate([
+        'nombre_cliente' => ['required', 'string', 'max:120'],
+        'telefono_cliente' => ['required', 'string', 'max:30'],
+        'correo_cliente' => ['nullable', 'email', 'max:190'],
+
+        'tipo_entrega' => ['required', 'in:envio,retiro'],
+
+        'id_provincia' => ['required_if:tipo_entrega,envio', 'nullable', 'integer', 'exists:provincias,id_provincia'],
+        'id_canton'   => ['required_if:tipo_entrega,envio', 'nullable', 'integer', 'exists:cantones,id_canton'],
+        'id_distrito' => ['required_if:tipo_entrega,envio', 'nullable', 'integer', 'exists:distritos,id_distrito'],
+
+        'direccion_envio'  => ['required_if:tipo_entrega,envio', 'nullable', 'string', 'max:255'],
+        'referencia_envio' => ['nullable', 'string', 'max:255'],
+        'link_google_maps' => ['nullable', 'url', 'max:255'],
+        'notas'            => ['nullable', 'string', 'max:255'],
+
+        'metodo_pago' => ['required', 'in:sinpe'],
+        'numero_comprobante' => [
+            'nullable',
+            'string',
+            'max:80',
+            'required_without:comprobante_pago',
+        ],
+        'comprobante_pago' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:4096',
+            'required_without:numero_comprobante',
+        ],
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $subtotal = 0;
+
+        foreach ($carrito as $item) {
+            $producto = Producto::where('id_producto', $item['id_producto'])
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (!$producto->activo || $item['cantidad'] > $producto->stock_actual) {
+                DB::rollBack();
+
+                return back()
+                    ->withInput()
+                    ->with('error', "Stock insuficiente para {$producto->nombre}.");
+            }
+
+            $subtotal += $producto->precio * $item['cantidad'];
         }
 
-        $subtotal = $carrito->sum(
-            fn ($item) => $item['precio'] * $item['cantidad']
-        );
-
+        // === Lógica de envío ===
+        $provinciaNombre = null;
+        $cantonNombre = null;
+        $distritoNombre = null;
         $envio = 0;
-        $descuento = 0;
 
-        $subtotalConDescuento = $subtotal - $descuento;
-        $total = $subtotalConDescuento + $envio;
+        if ($request->tipo_entrega === 'envio') {
+            $zonaEnvio = DB::table('zonas_envio')
+                ->where('id_provincia', $request->id_provincia)
+                ->where('id_canton', $request->id_canton)
+                ->where('id_distrito', $request->id_distrito)
+                ->where('activo', 1)
+                ->first();
+
+            if (!$zonaEnvio) {
+                DB::rollBack();
+
+                return back()
+                    ->withInput()
+                    ->with('error', 'La zona seleccionada no está disponible para envío.');
+            }
+
+            $provinciaNombre = DB::table('provincias')
+                ->where('id_provincia', $request->id_provincia)
+                ->value('nombre');
+
+            $cantonNombre = DB::table('cantones')
+                ->where('id_canton', $request->id_canton)
+                ->value('nombre');
+
+            $distritoNombre = DB::table('distritos')
+                ->where('id_distrito', $request->id_distrito)
+                ->value('nombre');
+
+            $envio = $zonaEnvio->costo;
+        }
 
         /*
         |--------------------------------------------------------------------------
-        | SOLO PROVINCIAS CON ENVÍOS ACTIVOS
+        | CUPÓN APLICADO
         |--------------------------------------------------------------------------
         */
-        $provincias = DB::table('provincias')
-            ->join(
-                'zonas_envio',
-                'provincias.id_provincia',
-                '=',
-                'zonas_envio.id_provincia'
-            )
-            ->where('zonas_envio.activo', 1)
-            ->select(
-                'provincias.id_provincia',
-                'provincias.nombre'
-            )
-            ->distinct()
-            ->orderBy('provincias.nombre')
-            ->get();
+        $descuento = 0;
+        $idCupon = null;
+        $codigoCupon = null;
 
-        return view('tienda.checkout.index', compact(
-            'carrito',
-            'subtotal',
-            'envio',
-            'descuento',
-            'subtotalConDescuento',
-            'total',
-            'provincias'
-        ));
-    }
+        $cuponAplicado = session('cupon');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CANTONES DISPONIBLES
-    |--------------------------------------------------------------------------
-    */
-    public function cantonesDisponibles($id_provincia)
-    {
-        $cantones = DB::table('cantones')
-            ->join(
-                'zonas_envio',
-                'cantones.id_canton',
-                '=',
-                'zonas_envio.id_canton'
-            )
-            ->where(
-                'zonas_envio.id_provincia',
-                $id_provincia
-            )
-            ->where('zonas_envio.activo', 1)
-            ->select(
-                'cantones.id_canton',
-                'cantones.nombre'
-            )
-            ->distinct()
-            ->orderBy('cantones.nombre')
-            ->get();
+        if ($cuponAplicado) {
+            $cupon = Cupon::where('codigo', $cuponAplicado['codigo'])
+                ->lockForUpdate()
+                ->first();
 
-        return response()->json($cantones);
-    }
+            if ($cupon) {
+                $validacion = $this->validarCupon($cupon, $subtotal);
 
-    /*
-    |--------------------------------------------------------------------------
-    | DISTRITOS DISPONIBLES
-    |--------------------------------------------------------------------------
-    */
-    public function distritosDisponibles($id_canton)
-    {
-        $distritos = DB::table('distritos')
-            ->join(
-                'zonas_envio',
-                'distritos.id_distrito',
-                '=',
-                'zonas_envio.id_distrito'
-            )
-            ->where(
-                'zonas_envio.id_canton',
-                $id_canton
-            )
-            ->where('zonas_envio.activo', 1)
-            ->select(
-                'distritos.id_distrito',
-                'distritos.nombre'
-            )
-            ->distinct()
-            ->orderBy('distritos.nombre')
-            ->get();
+                if ($validacion !== true) {
+                    DB::rollBack();
 
-        return response()->json($distritos);
-    }
+                    session()->forget('cupon');
 
-    public function confirmar(Request $request)
-    {
-        $carrito = collect(session('carrito', []));
+                    return redirect()
+                        ->route('tienda.carrito.index')
+                        ->with('error', $validacion);
+                }
 
-        if ($carrito->isEmpty()) {
-            return redirect()
-                ->route('tienda.carrito.index')
-                ->with('error', 'Tu carrito está vacío.');
+                $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
+                $idCupon = $cupon->id_cupon;
+                $codigoCupon = $cupon->codigo;
+            } else {
+                session()->forget('cupon');
+            }
         }
 
-        $request->validate([
+        $subtotalConDescuento = max($subtotal - $descuento, 0);
+        $total = $subtotalConDescuento + $envio;
 
-            'nombre_cliente' => [
-                'required',
-                'string',
-                'max:120'
-            ],
+        // === Crear Pedido ===
+        $pedido = Pedido::create([
+            'numero_pedido' => 'PED-' . now()->format('YmdHis'),
+            'estado' => 'pendiente_pago',
 
-            'telefono_cliente' => [
-                'required',
-                'string',
-                'max:30'
-            ],
+            'id_usuario' => null,
+            'nombre_cliente' => $request->nombre_cliente,
+            'telefono_cliente' => $request->telefono_cliente,
+            'correo_cliente' => $request->correo_cliente,
 
-            'correo_cliente' => [
-                'nullable',
-                'email',
-                'max:190'
-            ],
+            'tipo_entrega' => $request->tipo_entrega,
+            'provincia_envio' => $provinciaNombre,
+            'canton_envio' => $cantonNombre,
+            'distrito_envio' => $distritoNombre,
+            'direccion_envio' => $request->direccion_envio,
+            'referencia_envio' => $request->referencia_envio,
+            'link_google_maps' => $request->link_google_maps,
 
-            'tipo_entrega' => [
-                'required',
-                'in:envio,retiro'
-            ],
+            'costo_envio' => $envio,
+            'id_cupon' => $idCupon,
+            'codigo_cupon' => $codigoCupon,
+            'descuento' => $descuento,
+            'subtotal' => $subtotal,
+            'subtotal_con_descuento' => $subtotalConDescuento,
+            'total' => $total,
 
-            'id_provincia' => [
-                'required_if:tipo_entrega,envio',
-                'nullable',
-                'integer',
-                'exists:provincias,id_provincia'
-            ],
-
-            'id_canton' => [
-                'required_if:tipo_entrega,envio',
-                'nullable',
-                'integer',
-                'exists:cantones,id_canton'
-            ],
-
-            'id_distrito' => [
-                'required_if:tipo_entrega,envio',
-                'nullable',
-                'integer',
-                'exists:distritos,id_distrito'
-            ],
-
-            'direccion_envio' => [
-                'required_if:tipo_entrega,envio',
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'referencia_envio' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'link_google_maps' => [
-                'nullable',
-                'url',
-                'max:255'
-            ],
-
-            'notas' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
+            'notas' => $request->notas,
+            'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
         ]);
 
-        try {
+        // === Registrar uso del cupón ===
+        if ($idCupon) {
+    UsoCupon::create([
+    'id_cupon' => $idCupon,
+    'id_pedido' => $pedido->id_pedido,
+    'id_usuario' => null,
+    'correo_invitado' => $request->correo_cliente,
+    'monto_descuento' => $descuento,
+]);
+        }
 
-            DB::beginTransaction();
+        // === Crear detalles del pedido y descontar stock ===
+        foreach ($carrito as $item) {
+            $producto = Producto::findOrFail($item['id_producto']);
 
-            $subtotal = 0;
-
-            foreach ($carrito as $item) {
-
-                $producto = Producto::where(
-                    'id_producto',
-                    $item['id_producto']
-                )
-                    ->lockForUpdate()
-                    ->firstOrFail();
-
-                if (
-                    !$producto->activo ||
-                    $item['cantidad'] > $producto->stock_actual
-                ) {
-
-                    DB::rollBack();
-
-                    return back()
-                        ->withInput()
-                        ->with(
-                            'error',
-                            "Stock insuficiente para {$producto->nombre}."
-                        );
-                }
-
-                $subtotal += (
-                    $producto->precio * $item['cantidad']
-                );
-            }
-
-            $provinciaNombre = null;
-            $cantonNombre = null;
-            $distritoNombre = null;
-
-            $envio = 0;
-
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDAR ZONA ACTIVA
-            |--------------------------------------------------------------------------
-            */
-            if ($request->tipo_entrega === 'envio') {
-
-                $zonaEnvio = DB::table('zonas_envio')
-                    ->where(
-                        'id_provincia',
-                        $request->id_provincia
-                    )
-                    ->where(
-                        'id_canton',
-                        $request->id_canton
-                    )
-                    ->where(
-                        'id_distrito',
-                        $request->id_distrito
-                    )
-                    ->where('activo', 1)
-                    ->first();
-
-                /*
-                |--------------------------------------------------------------------------
-                | SOLO ZONAS DISPONIBLES
-                |--------------------------------------------------------------------------
-                */
-                if (!$zonaEnvio) {
-
-                    DB::rollBack();
-
-                    return back()
-                        ->withInput()
-                        ->with(
-                            'error',
-                            'La zona seleccionada no está disponible para envío.'
-                        );
-                }
-
-                $provinciaNombre = DB::table('provincias')
-                    ->where(
-                        'id_provincia',
-                        $request->id_provincia
-                    )
-                    ->value('nombre');
-
-                $cantonNombre = DB::table('cantones')
-                    ->where(
-                        'id_canton',
-                        $request->id_canton
-                    )
-                    ->value('nombre');
-
-                $distritoNombre = DB::table('distritos')
-                    ->where(
-                        'id_distrito',
-                        $request->id_distrito
-                    )
-                    ->value('nombre');
-
-                /*
-                |--------------------------------------------------------------------------
-                | COSTO ENVÍO
-                |--------------------------------------------------------------------------
-                */
-                $envio = $zonaEnvio->costo;
-            }
-
-            $descuento = 0;
-
-            $subtotalConDescuento = (
-                $subtotal - $descuento
-            );
-
-            $total = (
-                $subtotalConDescuento + $envio
-            );
-
-            $pedido = Pedido::create([
-
-                'numero_pedido' => (
-                    'PED-' . now()->format('YmdHis')
-                ),
-
-                'estado' => 'pendiente_pago',
-
-                'id_usuario' => null,
-
-                'nombre_cliente' => $request->nombre_cliente,
-
-                'telefono_cliente' => $request->telefono_cliente,
-
-                'correo_cliente' => $request->correo_cliente,
-
-                'tipo_entrega' => $request->tipo_entrega,
-
-                'provincia_envio' => $provinciaNombre,
-
-                'canton_envio' => $cantonNombre,
-
-                'distrito_envio' => $distritoNombre,
-
-                'direccion_envio' => $request->direccion_envio,
-
-                'referencia_envio' => $request->referencia_envio,
-
-                'link_google_maps' => $request->link_google_maps,
-
-                'costo_envio' => $envio,
-
-                'id_cupon' => null,
-
-                'codigo_cupon' => null,
-
-                'descuento' => $descuento,
-
-                'subtotal' => $subtotal,
-
-                'subtotal_con_descuento' => $subtotalConDescuento,
-
-                'total' => $total,
-
-                'notas' => $request->notas,
-
-                'codigo_seguimiento_publico' => Str::upper(
-                    Str::random(16)
-                ),
-
+            DetallePedido::create([
+                'id_pedido' => $pedido->id_pedido,
+                'id_producto' => $producto->id_producto,
+                'nombre_producto' => $producto->nombre,
+                'sku_snapshot' => $producto->sku,
+                'precio_unitario' => $producto->precio,
+                'cantidad' => $item['cantidad'],
+                'total_linea' => $producto->precio * $item['cantidad'],
             ]);
 
-            foreach ($carrito as $item) {
-
-                $producto = Producto::findOrFail(
-                    $item['id_producto']
-                );
-
-                DetallePedido::create([
-
-                    'id_pedido' => $pedido->id_pedido,
-
-                    'id_producto' => $producto->id_producto,
-
-                    'nombre_producto' => $producto->nombre,
-
-                    'sku_snapshot' => $producto->sku,
-
-                    'precio_unitario' => $producto->precio,
-
-                    'cantidad' => $item['cantidad'],
-
-                    'total_linea' => (
-                        $producto->precio * $item['cantidad']
-                    ),
-
-                ]);
-
-                $producto->decrement(
-                    'stock_actual',
-                    $item['cantidad']
-                );
-            }
-
-            DB::commit();
-
-            session()->forget('carrito');
-
-         return redirect()
-    ->route(
-        'tienda.checkout.confirmacion',
-        $pedido->id_pedido
-    )
-    ->with(
-        'success',
-        'Pedido creado correctamente.'
-    );
-
-        } catch (\Throwable $th) {
-
-            DB::rollBack();
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Ocurrió un error al procesar el pedido.'
-                );
+            $producto->decrement('stock_actual', $item['cantidad']);
         }
-    }
 
-    public function confirmacion(Pedido $pedido)
-    {
-        $pedido->load([
-            'detalle',
-            'pagoUltimo'
+        // === Lógica de pago ===
+        $rutaComprobante = null;
+
+        if ($request->hasFile('comprobante_pago')) {
+            $rutaComprobante = $request->file('comprobante_pago')
+                ->store('comprobantes/pedidos', 'public');
+        }
+
+        PagoPedido::create([
+            'id_pedido' => $pedido->id_pedido,
+            'metodo' => $request->metodo_pago,
+            'intento' => 1,
+            'es_ultimo' => true,
+            'ruta_comprobante' => $rutaComprobante,
+            'numero_comprobante' => $request->numero_comprobante,
+            'monto_reportado' => $pedido->total,
+            'moneda' => 'CRC',
+            'estado' => 'enviado',
+            'enviado_en' => now(),
         ]);
 
-        return view(
-            'tienda.checkout.confirmacion',
-            compact('pedido')
-        );
+        $pedido->update([
+            'estado' => 'en_revision',
+        ]);
+
+        DB::commit();
+
+        session()->forget([
+            'carrito',
+            'cupon',
+        ]);
+
+        return redirect()
+            ->route('tienda.checkout.confirmacion', $pedido->id_pedido)
+            ->with('success', 'Pedido creado correctamente.');
+
+    } catch (\Throwable $th) {
+        DB::rollBack();
+
+        return back()
+            ->withInput()
+            ->with('error', 'Ocurrió un error al procesar el pedido.');
     }
 }
+
+public function confirmacion(Pedido $pedido)
+{
+  $pedido->load([
+    'detalle.producto.imagenPrincipal',
+    'pagoUltimo',
+    'cupon',
+    'usoCupon',
+]);
+
+    return view(
+        'tienda.checkout.confirmacion',
+        compact('pedido')
+    );
+}
+
+
+public function costoEnvio($id_distrito)
+{
+    $zona = DB::table('zonas_envio')
+        ->where('id_distrito', $id_distrito)
+        ->where('activo', 1)
+        ->first();
+
+    if (!$zona) {
+        return response()->json([
+            'success' => false,
+            'costo' => 0,
+        ]);
+    }
+
+    return response()->json([
+        'success' => true,
+        'costo' => (float) $zona->costo,
+    ]);
+}
+
+
+private function validarCupon(Cupon $cupon, float $subtotal): bool|string
+{
+    $ahora = now();
+
+    if (!$cupon->activo) {
+        return 'Este cupón no está activo.';
+    }
+
+    if ($cupon->inicia_en && $ahora->lt($cupon->inicia_en)) {
+        return 'Este cupón aún no está disponible.';
+    }
+
+    if ($cupon->termina_en && $ahora->gt($cupon->termina_en)) {
+        return 'Este cupón ya venció.';
+    }
+
+    if ($subtotal < (float) $cupon->minimo_subtotal) {
+        return 'El subtotal mínimo para usar este cupón es ₡' . number_format($cupon->minimo_subtotal, 2) . '.';
+    }
+
+    if ($cupon->max_usos_total && $cupon->usos()->count() >= $cupon->max_usos_total) {
+        return 'Este cupón ya alcanzó el máximo de usos.';
+    }
+
+    return true;
+}
+
+private function calcularDescuentoCupon(Cupon $cupon, float $subtotal): float
+{
+    if ($cupon->tipo === 'porcentaje') {
+        $descuento = $subtotal * ((float) $cupon->valor / 100);
+    } else {
+        $descuento = (float) $cupon->valor;
+    }
+
+    return min($descuento, $subtotal);
+}
+}
+

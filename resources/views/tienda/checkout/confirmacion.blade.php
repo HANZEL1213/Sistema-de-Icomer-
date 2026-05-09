@@ -1,36 +1,4 @@
 {{-- resources/views/tienda/checkout/confirmacion.blade.php --}}
-
-@php
-
-$pedido = (object)[
-    'numero_pedido' => 'PED-2026-00018',
-    'estado' => 'Pendiente de pago',
-    'total' => 117480,
-    'metodo_pago' => 'SINPE Móvil',
-    'cliente' => 'Cliente Demo',
-    'telefono' => '8888-8888',
-    'correo' => 'cliente@email.com',
-    'direccion' => 'San José, Costa Rica',
-    'fecha' => now()->format('d/m/Y H:i'),
-];
-
-$items = collect([
-    (object)[
-        'nombre' => 'Nike Air Max Urban',
-        'precio' => 45990,
-        'cantidad' => 1,
-        'imagen' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop',
-    ],
-    (object)[
-        'nombre' => 'Smart Watch Active',
-        'precio' => 68990,
-        'cantidad' => 1,
-        'imagen' => 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop',
-    ],
-]);
-
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', 'Pedido confirmado | Tienda')
@@ -38,91 +6,221 @@ $items = collect([
 
 @section('content')
 
-<section class="store-confirmation-page">
+    @php
+        $pago = $pedido->pagoUltimo;
 
-    <div class="container py-4 py-lg-5">
+        $estadoTexto =
+            [
+                'pendiente_pago' => 'Pendiente de pago',
+                'en_revision' => 'En revisión',
+                'pagado_verificado' => 'Pago verificado',
+                'preparando' => 'Preparando',
+                'enviado' => 'Enviado',
+                'entregado' => 'Entregado',
+                'rechazado' => 'Rechazado',
+                'cancelado' => 'Cancelado',
+            ][$pedido->estado] ?? ucfirst($pedido->estado);
 
-        {{-- BREADCRUMB --}}
-        <div class="store-detail-breadcrumb mb-4">
-            <a href="{{ route('tienda.home') }}">Inicio</a>
-            <i class="bi bi-chevron-right"></i>
-            <a href="{{ route('tienda.checkout.index') }}">Checkout</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>Confirmación</span>
-        </div>
+        $direccion =
+            $pedido->tipo_entrega === 'envio'
+                ? collect([
+                    $pedido->provincia_envio,
+                    $pedido->canton_envio,
+                    $pedido->distrito_envio,
+                    $pedido->direccion_envio,
+                ])
+                    ->filter()
+                    ->implode(', ')
+                : 'Retiro en tienda';
+    @endphp
 
+    <section class="store-confirmation-page">
 
-        {{-- HERO CONFIRMACIÓN --}}
-        <div class="store-confirmation-hero mb-4 mb-lg-5">
+        <div class="container py-4 py-lg-5">
 
-            <div class="store-confirmation-icon">
-                <i class="bi bi-check2"></i>
+            <div class="store-detail-breadcrumb mb-4">
+                <a href="{{ route('tienda.home') }}">Inicio</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ route('tienda.checkout.index') }}">Checkout</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Confirmación</span>
             </div>
 
-            <span class="store-section-eyebrow">
-                Pedido creado
-            </span>
+            <div class="store-confirmation-hero mb-4 mb-lg-5">
 
-            <h1 class="store-confirmation-title">
-                ¡Tu pedido fue recibido correctamente!
-            </h1>
+                <div class="store-confirmation-icon">
+                    <i class="bi bi-check2"></i>
+                </div>
 
-            <p class="store-confirmation-subtitle">
-                Hemos registrado tu solicitud. Ahora puedes completar el pago y dar seguimiento
-                al estado del pedido desde la sección de pedidos.
-            </p>
+                <span class="store-section-eyebrow">
+                    Pedido recibido
+                </span>
 
-            <div class="store-confirmation-actions">
-                <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-primary">
-                    <i class="bi bi-box-seam me-1"></i>
-                    Ver mis pedidos
-                </a>
+                <h1 class="store-confirmation-title">
+                    ¡Tu pedido fue enviado correctamente!
+                </h1>
 
-                <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline">
-                    Seguir comprando
-                </a>
+                <p class="store-confirmation-subtitle">
+                    Recibimos tu pedido y el comprobante de pago. Ahora será revisado por la tienda
+                    antes de continuar con la preparación.
+                </p>
+
+                <div class="store-confirmation-actions">
+                    <a href="{{ route('tienda.pedidos.seguimiento', $pedido->numero_pedido) }}"
+                        class="btn btn-store-primary">
+                        <i class="bi bi-search me-1"></i>
+                        Dar seguimiento
+                    </a>
+
+                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline">
+                        Seguir comprando
+                    </a>
+                </div>
+
             </div>
 
-        </div>
+            <div class="row g-4 g-xl-5 align-items-start">
 
+                <div class="col-12 col-lg-7">
 
-        <div class="row g-4 g-xl-5 align-items-start">
+                    <div class="store-confirmation-card mb-4">
 
-            {{-- DETALLE DEL PEDIDO --}}
-            <div class="col-12 col-lg-7">
+                        <div class="store-confirmation-card-header">
+                            <h2>
+                                <i class="bi bi-receipt"></i>
+                                Detalle del pedido
+                            </h2>
+                        </div>
 
-                <div class="store-confirmation-card mb-4">
+                        <div class="store-confirmation-card-body">
 
-                    <div class="store-confirmation-card-header">
-                        <h2>
-                            <i class="bi bi-receipt"></i>
-                            Detalle del pedido
-                        </h2>
+                            <div class="store-confirmation-info-grid">
+
+                                <div class="store-confirmation-info-item">
+                                    <span>Número de pedido</span>
+                                    <strong>{{ $pedido->numero_pedido }}</strong>
+                                </div>
+
+                                <div class="store-confirmation-info-item">
+                                    <span>Estado</span>
+                                    <strong>{{ $estadoTexto }}</strong>
+                                </div>
+
+                                <div class="store-confirmation-info-item">
+                                    <span>Fecha</span>
+                                    <strong>{{ $pedido->created_at?->format('d/m/Y H:i') }}</strong>
+                                </div>
+
+                                <div class="store-confirmation-info-item">
+                                    <span>Método de pago</span>
+                                    <strong>{{ strtoupper($pago?->metodo ?? 'SINPE') }}</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    <div class="store-confirmation-card-body">
+                    <div class="store-confirmation-card mb-4">
 
-                        <div class="store-confirmation-info-grid">
+                        <div class="store-confirmation-card-header">
+                            <h2>
+                                <i class="bi bi-credit-card"></i>
+                                Comprobante de pago
+                            </h2>
+                        </div>
 
-                            <div class="store-confirmation-info-item">
-                                <span>Número de pedido</span>
-                                <strong>{{ $pedido->numero_pedido }}</strong>
-                            </div>
+                        <div class="store-confirmation-card-body">
 
-                            <div class="store-confirmation-info-item">
-                                <span>Estado</span>
-                                <strong>{{ $pedido->estado }}</strong>
-                            </div>
+                            <ul class="store-confirmation-list">
 
-                            <div class="store-confirmation-info-item">
-                                <span>Fecha</span>
-                                <strong>{{ $pedido->fecha }}</strong>
-                            </div>
+                                <li>
+                                    <span>Estado del pago</span>
+                                    <strong>
+                                        {{ $pago ? 'Enviado para revisión' : 'No registrado' }}
+                                    </strong>
+                                </li>
 
-                            <div class="store-confirmation-info-item">
-                                <span>Método de pago</span>
-                                <strong>{{ $pedido->metodo_pago }}</strong>
-                            </div>
+                                <li>
+                                    <span>Número de comprobante</span>
+                                    <strong>
+                                        {{ $pago?->numero_comprobante ?: 'No indicado' }}
+                                    </strong>
+                                </li>
+
+                                <li>
+                                    <span>Monto reportado</span>
+                                    <strong>
+                                        ₡{{ number_format($pago?->monto_reportado ?? $pedido->total, 2) }}
+                                    </strong>
+                                </li>
+
+                                <li>
+                                    <span>Enviado en</span>
+                                    <strong>
+                                        {{ $pago?->enviado_en?->format('d/m/Y H:i') ?? 'No disponible' }}
+                                    </strong>
+                                </li>
+
+                            </ul>
+
+                            @if ($pago?->ruta_comprobante)
+                                <div class="mt-4">
+                                    <label class="store-form-label">
+                                        Imagen enviada
+                                    </label>
+
+                                    <div class="bg-light rounded p-3">
+                                        <img src="{{ asset('storage/' . $pago->ruta_comprobante) }}"
+                                            alt="Comprobante de pago" class="img-fluid rounded-4 border">
+                                    </div>
+                                </div>
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                    <div class="store-confirmation-card">
+
+                        <div class="store-confirmation-card-header">
+                            <h2>
+                                <i class="bi bi-person-lines-fill"></i>
+                                Información del cliente
+                            </h2>
+                        </div>
+
+                        <div class="store-confirmation-card-body">
+
+                            <ul class="store-confirmation-list">
+                                <li>
+                                    <span>Cliente</span>
+                                    <strong>{{ $pedido->nombre_cliente }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Teléfono</span>
+                                    <strong>{{ $pedido->telefono_cliente }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Correo</span>
+                                    <strong>{{ $pedido->correo_cliente ?: 'No indicado' }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Entrega</span>
+                                    <strong>
+                                        {{ $pedido->tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda' }}
+                                    </strong>
+                                </li>
+
+                                <li>
+                                    <span>Dirección</span>
+                                    <strong>{{ $direccion }}</strong>
+                                </li>
+                            </ul>
 
                         </div>
 
@@ -130,138 +228,160 @@ $items = collect([
 
                 </div>
 
+                <div class="col-12 col-lg-5">
 
-                <div class="store-confirmation-card">
+                    <div class="store-confirmation-summary-card">
 
-                    <div class="store-confirmation-card-header">
-                        <h2>
-                            <i class="bi bi-person-lines-fill"></i>
-                            Información del cliente
-                        </h2>
-                    </div>
+                     <div class="store-confirmation-summary-card">
 
-                    <div class="store-confirmation-card-body">
+    <div class="store-confirmation-summary-header">
+        <h2>Resumen</h2>
 
-                        <ul class="store-confirmation-list">
-                            <li>
-                                <span>Cliente</span>
-                                <strong>{{ $pedido->cliente }}</strong>
-                            </li>
+        <span class="store-confirmation-status">
+            {{ $estadoTexto }}
+        </span>
+    </div>
 
-                            <li>
-                                <span>Teléfono</span>
-                                <strong>{{ $pedido->telefono }}</strong>
-                            </li>
+    <div class="store-checkout-products">
 
-                            <li>
-                                <span>Correo</span>
-                                <strong>{{ $pedido->correo }}</strong>
-                            </li>
+        @foreach ($pedido->detalle as $item)
+            @php
+                $imagenProducto = $item->producto?->imagenPrincipal?->ruta
+                    ? asset('storage/' . $item->producto->imagenPrincipal->ruta)
+                    : asset('assets/img/no-image.png');
+            @endphp
 
-                            <li>
-                                <span>Dirección</span>
-                                <strong>{{ $pedido->direccion }}</strong>
-                            </li>
-                        </ul>
+            <div class="store-checkout-product">
 
-                    </div>
+                <div class="store-checkout-product-image">
+                    <img src="{{ $imagenProducto }}" alt="{{ $item->nombre_producto }}">
+                </div>
 
+                <div class="store-checkout-product-info">
+                    <h5>{{ $item->nombre_producto }}</h5>
+                    <span>Cantidad: {{ $item->cantidad }}</span>
+                </div>
+
+                <div class="store-checkout-product-price">
+                    ₡{{ number_format($item->total_linea, 2) }}
                 </div>
 
             </div>
+        @endforeach
 
+    </div>
 
-            {{-- RESUMEN / PAGO --}}
-            <div class="col-12 col-lg-5">
+    {{-- CUPÓN APLICADO --}}
+    @if($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
+        <div class="store-cart-coupon-box mt-3 mb-3">
 
-                <div class="store-confirmation-summary-card">
+            <label class="store-form-label">
+                Cupón de descuento
+            </label>
 
-                    <div class="store-confirmation-summary-header">
-                        <h2>Resumen</h2>
+            <div class="bg-light rounded-4 p-3 border">
 
-                        <span class="store-confirmation-status">
-                            {{ $pedido->estado }}
+                <div class="d-flex justify-content-between align-items-start gap-3">
+
+                    <div>
+                        <span class="badge bg-success mb-2">
+                            Cupón aplicado
                         </span>
+
+                        <h6 class="fw-bold mb-1">
+                            {{ $pedido->codigo_cupon ?? $pedido->cupon?->codigo ?? 'Cupón aplicado' }}
+                        </h6>
+
+                        <small class="text-muted d-block">
+                            Descuento aplicado:
+                            ₡{{ number_format($pedido->descuento, 2) }}
+                        </small>
+
+                        @if($pedido->cupon?->tipo === 'porcentaje')
+                            <small class="text-success">
+                                {{ number_format($pedido->cupon->valor, 0) }}% OFF
+                            </small>
+                        @elseif($pedido->cupon?->tipo === 'monto_fijo')
+                            <small class="text-success">
+                                ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
+                            </small>
+                        @endif
                     </div>
 
-
-                    <div class="store-checkout-products">
-
-                        @foreach($items as $item)
-
-                            <div class="store-checkout-product">
-
-                                <div class="store-checkout-product-image">
-                                    <img src="{{ $item->imagen }}"
-                                         alt="{{ $item->nombre }}">
-                                </div>
-
-                                <div class="store-checkout-product-info">
-                                    <h5>{{ $item->nombre }}</h5>
-                                    <span>Cantidad: {{ $item->cantidad }}</span>
-                                </div>
-
-                                <div class="store-checkout-product-price">
-                                    ₡{{ number_format($item->precio * $item->cantidad, 2) }}
-                                </div>
-
-                            </div>
-
-                        @endforeach
-
-                    </div>
-
-
-                    <div class="store-confirmation-total-box">
-
-                        <span>Total del pedido</span>
-
-                        <strong>
-                            ₡{{ number_format($pedido->total, 2) }}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="store-confirmation-payment-box">
-
-                        <div class="store-confirmation-payment-icon">
-                            <i class="bi bi-phone"></i>
-                        </div>
-
-                        <div>
-                            <h5>Pago pendiente por SINPE</h5>
-
-                            <p>
-                                Realiza el pago al número indicado por la tienda y conserva el comprobante.
-                                Luego podrás enviarlo para revisión.
-                            </p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="d-grid gap-2">
-
-                     <a href="{{ route('tienda.pedidos.seguimiento', $pedido->numero_pedido) }}" class="btn btn-store-primary">
-                            <i class="bi bi-search me-1"></i>
-                            Dar seguimiento
-                        </a>
-
-                        <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
-                            Volver al inicio
-                        </a>
-
+                    <div class="text-success fs-5">
+                        <i class="bi bi-check-circle-fill"></i>
                     </div>
 
                 </div>
 
             </div>
 
+        </div>
+    @endif
+
+    <div class="store-checkout-totals mt-4">
+
+        <div class="store-checkout-total-row">
+            <span>Subtotal</span>
+            <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
+        </div>
+
+        <div class="store-checkout-total-row">
+            <span>Envío</span>
+            <strong>₡{{ number_format($pedido->costo_envio, 2) }}</strong>
+        </div>
+
+        <div class="store-checkout-total-row text-success">
+            <span>Descuento</span>
+            <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
+        </div>
+
+        <div class="store-checkout-total-row total">
+            <span>Total</span>
+            <strong>₡{{ number_format($pedido->total, 2) }}</strong>
         </div>
 
     </div>
 
-</section>
+    <div class="store-confirmation-payment-box mt-4">
+
+        <div class="store-confirmation-payment-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+
+        <div>
+            <h5>Pago en revisión</h5>
+
+            <p>
+                La tienda revisará tu comprobante. Cuando sea aprobado,
+                el pedido continuará con el proceso de preparación.
+            </p>
+        </div>
+
+    </div>
+
+    <div class="d-grid gap-2 mt-4">
+
+        <a href="{{ route('tienda.pedidos.seguimiento', $pedido->numero_pedido) }}"
+            class="btn btn-store-primary">
+            <i class="bi bi-search me-1"></i>
+            Dar seguimiento
+        </a>
+
+        <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
+            Volver al inicio
+        </a>
+
+    </div>
+
+</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 @endsection

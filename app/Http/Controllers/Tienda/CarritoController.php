@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cupon;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 
@@ -16,14 +17,45 @@ class CarritoController extends Controller
 
         $envio = 0;
         $descuento = 0;
-        $total = $subtotal + $envio - $descuento;
+        $cuponAplicado = session('cupon');
+
+        if ($cuponAplicado) {
+            $cupon = Cupon::where('codigo', $cuponAplicado['codigo'])->first();
+
+            if ($cupon) {
+                $validacion = $this->validarCupon($cupon, $subtotal);
+
+                if ($validacion === true) {
+                    $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
+
+                    session([
+                        'cupon' => [
+                            'id_cupon' => $cupon->id_cupon,
+                            'codigo' => $cupon->codigo,
+                            'tipo' => $cupon->tipo,
+                            'valor' => $cupon->valor,
+                            'descuento' => $descuento,
+                        ],
+                    ]);
+                } else {
+                    session()->forget('cupon');
+                    $cuponAplicado = null;
+                }
+            } else {
+                session()->forget('cupon');
+                $cuponAplicado = null;
+            }
+        }
+
+        $total = max(($subtotal + $envio) - $descuento, 0);
 
         return view('tienda.carrito.index', compact(
             'carrito',
             'subtotal',
             'envio',
             'descuento',
-            'total'
+            'total',
+            'cuponAplicado'
         ));
     }
 
@@ -107,15 +139,110 @@ class CarritoController extends Controller
 
         session(['carrito' => $carrito]);
 
+        if (empty($carrito)) {
+            session()->forget('cupon');
+        }
+
         return back()->with('success', 'Producto eliminado del carrito.');
     }
 
     public function vaciar()
     {
-        session()->forget('carrito');
+        session()->forget([
+            'carrito',
+            'cupon',
+        ]);
 
         return redirect()
             ->route('tienda.carrito.index')
             ->with('success', 'Carrito vaciado correctamente.');
+    }
+
+    public function aplicarCupon(Request $request)
+    {
+        $request->validate([
+            'codigo_cupon' => ['required', 'string', 'max:60'],
+        ]);
+
+        $codigo = strtoupper(trim($request->codigo_cupon));
+
+        $carrito = collect(session('carrito', []));
+
+        if ($carrito->isEmpty()) {
+            return back()->with('error', 'No puedes aplicar un cupón con el carrito vacío.');
+        }
+
+        $subtotal = $carrito->sum(fn ($item) => $item['precio'] * $item['cantidad']);
+
+        $cupon = Cupon::where('codigo', $codigo)->first();
+
+        if (!$cupon) {
+            return back()->with('error', 'El cupón ingresado no existe.');
+        }
+
+        $validacion = $this->validarCupon($cupon, $subtotal);
+
+        if ($validacion !== true) {
+            return back()->with('error', $validacion);
+        }
+
+        $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
+
+        session([
+            'cupon' => [
+                'id_cupon' => $cupon->id_cupon,
+                'codigo' => $cupon->codigo,
+                'tipo' => $cupon->tipo,
+                'valor' => $cupon->valor,
+                'descuento' => $descuento,
+            ],
+        ]);
+
+        return back()->with('success', 'Cupón aplicado correctamente.');
+    }
+
+    public function eliminarCupon()
+    {
+        session()->forget('cupon');
+
+        return back()->with('success', 'Cupón eliminado correctamente.');
+    }
+
+    private function validarCupon(Cupon $cupon, float $subtotal): bool|string
+    {
+        $ahora = now();
+
+        if (!$cupon->activo) {
+            return 'Este cupón no está activo.';
+        }
+
+        if ($cupon->inicia_en && $ahora->lt($cupon->inicia_en)) {
+            return 'Este cupón aún no está disponible.';
+        }
+
+        if ($cupon->termina_en && $ahora->gt($cupon->termina_en)) {
+            return 'Este cupón ya venció.';
+        }
+
+        if ($subtotal < (float) $cupon->minimo_subtotal) {
+            return 'El subtotal mínimo para usar este cupón es ₡' . number_format($cupon->minimo_subtotal, 2) . '.';
+        }
+
+        if ($cupon->max_usos_total && $cupon->usos()->count() >= $cupon->max_usos_total) {
+            return 'Este cupón ya alcanzó el máximo de usos.';
+        }
+
+        return true;
+    }
+
+    private function calcularDescuentoCupon(Cupon $cupon, float $subtotal): float
+    {
+        if ($cupon->tipo === 'porcentaje') {
+            $descuento = $subtotal * ((float) $cupon->valor / 100);
+        } else {
+            $descuento = (float) $cupon->valor;
+        }
+
+        return min($descuento, $subtotal);
     }
 }

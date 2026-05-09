@@ -1,73 +1,4 @@
 {{-- resources/views/tienda/pedidos/mis_pedidos.blade.php --}}
-
-@php
-
-$pedidos = collect([
-    (object)[
-        'numero_pedido' => 'PED-2026-00018',
-        'estado' => 'pendiente_pago',
-        'estado_label' => 'Pendiente de pago',
-        'fecha' => '07/05/2026',
-        'total' => 117480,
-        'metodo_pago' => 'SINPE Móvil',
-        'cantidad_productos' => 3,
-        'items' => [
-            'Nike Air Max Urban',
-            'Smart Watch Active',
-            'Audífonos Bluetooth Pro',
-        ],
-    ],
-    (object)[
-        'numero_pedido' => 'PED-2026-00017',
-        'estado' => 'en_revision',
-        'estado_label' => 'Pago en revisión',
-        'fecha' => '05/05/2026',
-        'total' => 68990,
-        'metodo_pago' => 'Transferencia',
-        'cantidad_productos' => 1,
-        'items' => [
-            'Smart Watch Active',
-        ],
-    ],
-    (object)[
-        'numero_pedido' => 'PED-2026-00016',
-        'estado' => 'preparando',
-        'estado_label' => 'Preparando',
-        'fecha' => '02/05/2026',
-        'total' => 45990,
-        'metodo_pago' => 'SINPE Móvil',
-        'cantidad_productos' => 1,
-        'items' => [
-            'Nike Air Max Urban',
-        ],
-    ],
-    (object)[
-        'numero_pedido' => 'PED-2026-00015',
-        'estado' => 'entregado',
-        'estado_label' => 'Entregado',
-        'fecha' => '28/04/2026',
-        'total' => 32990,
-        'metodo_pago' => 'Pago contra entrega',
-        'cantidad_productos' => 1,
-        'items' => [
-            'Audífonos Bluetooth Pro',
-        ],
-    ],
-]);
-
-$estadoClass = [
-    'pendiente_pago' => 'is-warning',
-    'en_revision' => 'is-info',
-    'pagado_verificado' => 'is-success',
-    'preparando' => 'is-primary',
-    'enviado' => 'is-primary',
-    'entregado' => 'is-success',
-    'rechazado' => 'is-danger',
-    'cancelado' => 'is-muted',
-];
-
-@endphp
-
 @extends('tienda.layouts.app')
 
 @section('title', 'Mis pedidos | Tienda')
@@ -75,19 +6,40 @@ $estadoClass = [
 
 @section('content')
 
+@php
+    $estadoClass = [
+        'pendiente_pago' => 'is-warning',
+        'en_revision' => 'is-info',
+        'pagado_verificado' => 'is-success',
+        'preparando' => 'is-primary',
+        'enviado' => 'is-primary',
+        'entregado' => 'is-success',
+        'rechazado' => 'is-danger',
+        'cancelado' => 'is-muted',
+    ];
+
+    $estadoLabel = [
+        'pendiente_pago' => 'Pendiente de pago',
+        'en_revision' => 'Pago en revisión',
+        'pagado_verificado' => 'Pago verificado',
+        'preparando' => 'Preparando',
+        'enviado' => 'Enviado',
+        'entregado' => 'Entregado',
+        'rechazado' => 'Rechazado',
+        'cancelado' => 'Cancelado',
+    ];
+@endphp
+
 <section class="store-orders-page">
 
     <div class="container py-4 py-lg-5">
 
-        {{-- BREADCRUMB --}}
         <div class="store-detail-breadcrumb mb-4">
             <a href="{{ route('tienda.home') }}">Inicio</a>
             <i class="bi bi-chevron-right"></i>
             <span>Mis pedidos</span>
         </div>
 
-
-        {{-- HERO --}}
         <div class="store-orders-hero mb-4 mb-lg-5">
 
             <div>
@@ -112,8 +64,6 @@ $estadoClass = [
 
         </div>
 
-
-        {{-- BUSCADOR / FILTROS --}}
         <div class="store-orders-filter-card mb-4">
 
             <div class="row g-3 align-items-end">
@@ -129,12 +79,9 @@ $estadoClass = [
                         </span>
 
                         <input type="text"
+                               id="storeOrdersSearch"
                                class="form-control"
-                               placeholder="Ej: PED-2026-00018">
-
-                        <button class="btn btn-store-primary">
-                            Buscar
-                        </button>
+                               placeholder="Ej: PED-20260509">
                     </div>
                 </div>
 
@@ -143,13 +90,16 @@ $estadoClass = [
                         Estado
                     </label>
 
-                    <select class="form-select store-filter-control">
-                        <option>Todos</option>
-                        <option>Pendiente de pago</option>
-                        <option>En revisión</option>
-                        <option>Preparando</option>
-                        <option>Enviado</option>
-                        <option>Entregado</option>
+                    <select class="form-select store-filter-control" id="storeOrdersStatus">
+                        <option value="">Todos</option>
+                        <option value="pendiente_pago">Pendiente de pago</option>
+                        <option value="en_revision">En revisión</option>
+                        <option value="pagado_verificado">Pago verificado</option>
+                        <option value="preparando">Preparando</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="entregado">Entregado</option>
+                        <option value="rechazado">Rechazado</option>
+                        <option value="cancelado">Cancelado</option>
                     </select>
                 </div>
 
@@ -164,15 +114,40 @@ $estadoClass = [
 
         </div>
 
-
-        {{-- LISTADO --}}
         @if($pedidos->count())
 
-            <div class="store-orders-list">
+            <div class="store-orders-list" id="storeOrdersList">
 
                 @foreach($pedidos as $pedido)
 
-                    <article class="store-order-card">
+                    @php
+                        $pago = $pedido->pagoUltimo;
+
+                        $label = $estadoLabel[$pedido->estado] ?? ucfirst($pedido->estado);
+
+                        $metodoPago = $pago?->metodo
+                            ? strtoupper($pago->metodo)
+                            : 'No registrado';
+
+                        $cantidadProductos = $pedido->detalle->sum('cantidad');
+
+                        $items = $pedido->detalle
+                            ->pluck('nombre_producto')
+                            ->filter()
+                            ->take(3);
+
+                        $busqueda = strtolower(
+                            $pedido->numero_pedido . ' ' .
+                            $pedido->nombre_cliente . ' ' .
+                            $pedido->telefono_cliente . ' ' .
+                            $label
+                        );
+                    @endphp
+
+                    <article class="store-order-card"
+                             data-order-card
+                             data-status="{{ $pedido->estado }}"
+                             data-search="{{ $busqueda }}">
 
                         <div class="store-order-main">
 
@@ -188,37 +163,42 @@ $estadoClass = [
                                     </h2>
 
                                     <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
-                                        {{ $pedido->estado_label }}
+                                        {{ $label }}
                                     </span>
                                 </div>
 
                                 <div class="store-order-meta">
                                     <span>
                                         <i class="bi bi-calendar3"></i>
-                                        {{ $pedido->fecha }}
+                                        {{ $pedido->created_at?->format('d/m/Y') }}
                                     </span>
 
                                     <span>
                                         <i class="bi bi-credit-card"></i>
-                                        {{ $pedido->metodo_pago }}
+                                        {{ $metodoPago }}
                                     </span>
 
                                     <span>
                                         <i class="bi bi-bag"></i>
-                                        {{ $pedido->cantidad_productos }} producto(s)
+                                        {{ $cantidadProductos }} producto(s)
                                     </span>
                                 </div>
 
                                 <div class="store-order-products">
-                                    @foreach($pedido->items as $item)
+                                    @forelse($items as $item)
                                         <span>{{ $item }}</span>
-                                    @endforeach
+                                    @empty
+                                        <span>Sin productos registrados</span>
+                                    @endforelse
+
+                                    @if($pedido->detalle->count() > 3)
+                                        <span>+{{ $pedido->detalle->count() - 3 }} más</span>
+                                    @endif
                                 </div>
 
                             </div>
 
                         </div>
-
 
                         <div class="store-order-side">
 
@@ -251,6 +231,20 @@ $estadoClass = [
 
             </div>
 
+            <div class="store-orders-empty-card d-none" id="storeOrdersNoResults">
+
+                <div class="store-orders-empty-icon">
+                    <i class="bi bi-search"></i>
+                </div>
+
+                <h2>No encontramos pedidos</h2>
+
+                <p>
+                    Intenta cambiar el texto de búsqueda o seleccionar otro estado.
+                </p>
+
+            </div>
+
         @else
 
             <div class="store-orders-empty-card">
@@ -279,3 +273,45 @@ $estadoClass = [
 </section>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const searchInput = document.getElementById('storeOrdersSearch');
+    const statusSelect = document.getElementById('storeOrdersStatus');
+    const cards = document.querySelectorAll('[data-order-card]');
+    const noResults = document.getElementById('storeOrdersNoResults');
+
+    function filterOrders() {
+        const search = (searchInput?.value || '').toLowerCase().trim();
+        const status = statusSelect?.value || '';
+
+        let visible = 0;
+
+        cards.forEach(card => {
+            const cardSearch = card.dataset.search || '';
+            const cardStatus = card.dataset.status || '';
+
+            const matchesSearch = !search || cardSearch.includes(search);
+            const matchesStatus = !status || cardStatus === status;
+
+            if (matchesSearch && matchesStatus) {
+                card.classList.remove('d-none');
+                visible++;
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+
+        if (noResults) {
+            noResults.classList.toggle('d-none', visible > 0);
+        }
+    }
+
+    searchInput?.addEventListener('input', filterOrders);
+    statusSelect?.addEventListener('change', filterOrders);
+
+});
+</script>
+@endpush
