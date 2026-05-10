@@ -18,4 +18,6 @@
 <link rel="stylesheet" href="{{ asset('assets/css/tienda.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/tienda-forms.css') }}">
 
+{{-- Swiper --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 @stack('styles')
