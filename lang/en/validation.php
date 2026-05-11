@@ -196,7 +196,7 @@ return [
         'slug' => 'slug',
         'correo' => 'correo',
         'telefono' => 'teléfono',
-        'contrasena' => 'contraseña',
+        'password' => 'contraseña',
     ],
 
 ];

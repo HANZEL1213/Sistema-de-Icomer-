@@ -15,7 +15,8 @@ use App\Http\Controllers\Tienda\{
     CarritoController,
     CheckoutController,
     PedidoController,
-    PagoPedidoController
+    PagoPedidoController,
+    TiendaAuthController
 };
 
 /*
@@ -24,6 +25,7 @@ use App\Http\Controllers\Tienda\{
 |--------------------------------------------------------------------------
 */
 use App\Http\Controllers\Admin\{
+    AuthController,
     DashboardController,
     CarruselItemsController,
     CategoriasController,
@@ -44,6 +46,19 @@ use App\Http\Controllers\Admin\{
     VentasController,
     UsosCuponesController
 };
+
+/*
+|--------------------------------------------------------------------------
+| AUTH TIENDA
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('auth')->name('tienda.auth.')->group(function () {
+
+    Route::get('/login', [TiendaAuthController::class, 'showLogin'])
+        ->name('login');
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -183,6 +198,15 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 */
 Route::prefix('admin')->name('admin.')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Login
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
     /*
     |--------------------------------------------------------------------------
     | Dashboard

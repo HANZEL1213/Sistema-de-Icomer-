@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Usuario extends Model
+class Usuario extends Authenticatable
 {
+    use Notifiable;
+
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
 
@@ -13,14 +17,14 @@ class Usuario extends Model
         'nombre',
         'correo',
         'telefono',
-        'contrasena',
+        'password',
         'id_rol',
         'activo',
         'correo_verificado_en',
     ];
 
     protected $hidden = [
-        'contrasena',
+        'password',
     ];
 
     protected $casts = [

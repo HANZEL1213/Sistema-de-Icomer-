@@ -114,7 +114,7 @@
                             <li><a href="{{ route('tienda.carrito.index') }}">Carrito</a></li>
                             <li><a href="{{ route('tienda.checkout.index') }}">Checkout</a></li>
                             <li><a href="{{ route('tienda.pedidos.mis') }}">Mis pedidos</a></li>
-                            <li><a href="#">Mi cuenta</a></li>
+                            <li><a href="{{ route('tienda.auth.login') }}">Mi cuenta</a></li>
                         </ul>
                     </div>
                 </div>

@@ -39,7 +39,7 @@ class UsuariosController extends Controller
             'nombre' => 'required|string|max:120',
             'correo' => 'required|email|max:190|unique:usuarios,correo',
             'telefono' => 'nullable|string|max:30',
-            'contrasena' => 'required|string|min:8|max:255',
+            'password' => 'required|string|min:8|max:255',
             'id_rol' => 'required|exists:roles,id_rol',
             'activo' => 'nullable|boolean',
             'correo_verificado_en' => 'nullable|date',
@@ -50,7 +50,7 @@ class UsuariosController extends Controller
                 'nombre' => $request->nombre,
                 'correo' => $request->correo,
                 'telefono' => $request->telefono,
-                'contrasena' => Hash::make($request->contrasena),
+                'password' => Hash::make($request->password),
                 'id_rol' => $request->id_rol,
                 'activo' => $request->has('activo') ? 1 : 0,
                 'correo_verificado_en' => $request->correo_verificado_en,
@@ -95,7 +95,7 @@ class UsuariosController extends Controller
             'nombre' => 'required|string|max:120',
             'correo' => 'required|email|max:190|unique:usuarios,correo,' . $id . ',id_usuario',
             'telefono' => 'nullable|string|max:30',
-            'contrasena' => 'nullable|string|min:8|max:255',
+            'password' => 'nullable|string|min:8|max:255',
             'id_rol' => 'required|exists:roles,id_rol',
             'activo' => 'nullable|boolean',
             'correo_verificado_en' => 'nullable|date',
@@ -113,8 +113,8 @@ class UsuariosController extends Controller
                 'correo_verificado_en' => $request->correo_verificado_en,
             ];
 
-            if ($request->filled('contrasena')) {
-                $data['contrasena'] = Hash::make($request->contrasena);
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
             }
 
             $item->update($data);

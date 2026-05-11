@@ -25,7 +25,7 @@
                         Mis pedidos
                     </a>
 
-                    <a href="#" class="store-topbar-link">
+                    <a href="{{ route('tienda.auth.login') }}" class="store-topbar-link">
                         Mi cuenta
                     </a>
                 </div>
@@ -89,7 +89,7 @@
                         <i class="bi bi-box-seam fs-5"></i>
                     </a>
 
-                    <a href="#"
+                    <a href="{{ route('tienda.auth.login') }}"
                         class="store-icon-btn d-none d-md-inline-flex"
                         aria-label="Mi cuenta">
                         <i class="bi bi-person fs-5"></i>
@@ -222,7 +222,7 @@
                     <i class="bi bi-box-seam"></i>
                 </a>
 
-                <a href="#" class="store-offcanvas-link" data-store-close-offcanvas="true">
+                <a href="{{ route('tienda.auth.login') }}" class="store-offcanvas-link" data-store-close-offcanvas="true">
                     <span>Mi cuenta</span>
                     <i class="bi bi-person"></i>
                 </a>

@@ -139,11 +139,11 @@
                                         <span class="input-group-text">
                                             <i class="bx bx-lock"></i>
                                         </span>
-                                        <input type="password" name="contrasena"
-                                            class="form-control @error('contrasena') is-invalid @enderror"
+                                        <input type="password" name="password"
+                                            class="form-control @error('password') is-invalid @enderror"
                                             placeholder="••••••••" required>
                                     </div>
-                                    @error('contrasena')
+                                    @error('password')
                                         <small class="text-danger">{{ $message }}</small>
                                     @else
                                         <small class="text-muted">Obligatoria. Mínimo 8 caracteres.</small>
