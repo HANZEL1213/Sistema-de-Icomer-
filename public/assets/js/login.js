@@ -1,3 +1,7 @@
+/* ==========================================================
+   LOGIN ADMIN
+========================================================== */
+
 document.addEventListener('DOMContentLoaded', function () {
 
     const loginForm = document.getElementById('storeLoginForm');
@@ -53,4 +57,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+
+/* ==========================================================
+   ALERT LOGIN
+========================================================== */
+
+const adminAlert = document.getElementById('adminAlert');
+const closeAdminAlert = document.getElementById('closeAdminAlert');
+
+if (closeAdminAlert) {
+
+    closeAdminAlert.addEventListener('click', () => {
+        adminAlert.remove();
+    });
+
+    setTimeout(() => {
+
+        if (adminAlert) {
+            adminAlert.remove();
+        }
+
+    }, 4000);
+
+}
+
 });
+
+/* ==========================================================
+   LOGIN TIENDA
+========================================================== */

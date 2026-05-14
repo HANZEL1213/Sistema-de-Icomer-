@@ -136,7 +136,23 @@
 					<li><div class="dropdown-divider mb-0"></div></li>
 
 					{{-- Cuando luego tengas auth, aquí pones tu ruta logout --}}
-					<li><a class="dropdown-item" href="#"><i class='bx bx-log-out-circle'></i><span>Logout</span></a></li>
+					<li>
+
+						<form action="{{ route('admin.logout') }}" method="POST">
+							@csrf
+
+							<button type="submit" class="dropdown-item">
+
+								<i class="bx bx-log-out-circle"></i>
+
+								<span>
+									Logout
+								</span>
+								
+							</button>
+
+						</form>
+					</li>
 				</ul>
 			</div>
 

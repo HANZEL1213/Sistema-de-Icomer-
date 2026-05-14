@@ -188,6 +188,23 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
     });
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| LOGIN ADMIN (PÚBLICO)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/login', function () {
+    return redirect()->route('admin.login');
+})->name('login');
+
+Route::prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');    
+});
+
 /*
 |--------------------------------------------------------------------------
 | RUTAS PRIVADAS - ADMIN
@@ -196,17 +213,16 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 | dashboard, CRUDs, pedidos, ventas, inventario, usuarios, etc.
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->name('admin.')->group(function () {
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Login
+    | LOGOUT
     |--------------------------------------------------------------------------
     */
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    
+
     /*
     |--------------------------------------------------------------------------
     | Dashboard

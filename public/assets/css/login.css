@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* ==========================================================
+   VARIABLES
+========================================================== */
+
 :root {
     --auth-primary: #dca117;
     --auth-dark: #151515;
@@ -9,6 +13,9 @@
     --auth-white: #fff;
 }
 
+/* ==========================================================
+   RESET
+========================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -21,6 +28,10 @@ body {
     background: var(--auth-bg);
     color: var(--auth-dark);
 }
+
+/* ==========================================================
+   LOGIN TIENDA
+========================================================== */
 
 .store-auth-page {
     /* min-height: 100vh; */
@@ -258,7 +269,9 @@ body {
     }
 }
 
-/* REGITRO */
+/* ==========================================================
+   REGISTRO TIENDA
+========================================================== */
 
 .store-auth-form {
     display: none;
@@ -497,12 +510,32 @@ body {
 
 }
 
+/* ==========================================================
+   ALERT VALIDACIÓN
+========================================================== */
+
 .admin-auth-alert {
     background: rgba(220, 53, 69, .12);
     border: 1px solid rgba(220, 53, 69, .25);
     color: #ffb3b3;
+
+    padding: 14px 16px;
+
     border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 13px;
+
     margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    font-size: 13px;
+}
+
+.admin-auth-alert button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
 }
