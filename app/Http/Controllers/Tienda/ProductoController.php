@@ -36,7 +36,17 @@ class ProductoController extends Controller
                 $query->where(function ($q) use ($busqueda) {
 
                     $q->where('nombre', 'LIKE', "%{$busqueda}%")
-                      ->orWhere('descripcion', 'LIKE', "%{$busqueda}%");
+                        ->orWhere('descripcion', 'LIKE', "%{$busqueda}%")
+                        ->orWhereHas('marca', function ($marca) use ($busqueda) {
+
+                            $marca->where('nombre', 'LIKE', "%{$busqueda}%");
+
+                        })
+                        ->orWhereHas('categoriaPrincipal', function ($categoria) use ($busqueda) {
+
+                            $categoria->where('nombre', 'LIKE', "%{$busqueda}%");
+
+                        });
 
                 });
 
@@ -121,7 +131,6 @@ class ProductoController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // 🔥 Productos relacionados
         $relacionados = $producto->relacionados()
             ->with([
                 'marca',
@@ -133,7 +142,6 @@ class ProductoController extends Controller
             ->limit(4)
             ->get();
 
-        // 📂 Fallback por categoría
         if ($relacionados->isEmpty() && $producto->id_categoria_principal) {
 
             $relacionados = Producto::with([
@@ -161,4 +169,63 @@ class ProductoController extends Controller
             'relacionados'
         ));
     }
+
+public function sugerencias(Request $request)
+{
+    $q = trim($request->q);
+
+    if (!$q) {
+        return response()->json([]);
+    }
+
+    $productos = Producto::query()
+        ->with([
+            'marca',
+            'imagenPrincipal',
+        ])
+        ->where('activo', 1)
+        ->where(function ($query) use ($q) {
+
+            $query->where(
+                'nombre',
+                'LIKE',
+                "%{$q}%"
+            );
+
+        })
+        ->limit(6)
+        ->get()
+        ->map(function ($producto) {
+
+            return [
+
+                'nombre' => $producto->nombre,
+
+                'slug' => $producto->slug,
+
+                'precio' => number_format(
+                    $producto->precio,
+                    2
+                ),
+
+                'marca' => $producto->marca?->nombre,
+
+                'imagen' => $producto->imagenPrincipal?->ruta
+                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                    : asset('assets/img/no-image.png'),
+
+                'url' => route(
+                    'tienda.productos.show',
+                    $producto->slug
+                ),
+
+            ];
+
+        });
+
+    return response()->json($productos);
+}
+
+
+
 }

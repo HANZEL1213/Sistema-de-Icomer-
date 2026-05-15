@@ -82,9 +82,20 @@ Route::name('tienda.')->group(function () {
     | Productos
     |--------------------------------------------------------------------------
     */
-    Route::prefix('productos')->name('productos.')->group(function () {
-        Route::get('/', [ProductoController::class, 'index'])->name('index');
-        Route::get('{slug}', [ProductoController::class, 'show'])->name('show');
+ Route::prefix('productos')
+    ->name('productos.')
+    ->group(function () {
+
+        Route::get('/', [ProductoController::class, 'index'])
+            ->name('index');
+
+        // 🔍 SUGERENCIAS
+        Route::get('/buscar/sugerencias', [ProductoController::class, 'sugerencias'])
+            ->name('sugerencias');
+
+        Route::get('/{slug}', [ProductoController::class, 'show'])
+            ->name('show');
+
     });
 
     /*
@@ -187,6 +198,7 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
         Route::get('{pedido}/pago', [PagoPedidoController::class, 'index'])->name('index');
     });
 });
+
 
 
 /*
@@ -329,4 +341,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         // Aquí luego podés agregar relacionados, variantes, etc.
         // Route::get('relacionados', [ProductosRelacionadosController::class, 'index'])->name('relacionados.index');
     });
+
+
+
 });

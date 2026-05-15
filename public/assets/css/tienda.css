@@ -4514,13 +4514,131 @@
 
 
 
+/* Buscador */
+.store-header-search-wrap {
+    position: relative;
+}
+
+.store-search-suggestions {
+    position: absolute;
+
+    top: calc(100% + 10px);
+    left: 0;
+
+    width: 100%;
+
+    background: white;
+
+    border-radius: 22px;
+
+    box-shadow: 0 24px 60px rgba(15,23,42,.12);
+
+    border: 1px solid rgba(15,23,42,.06);
+
+    overflow: hidden;
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateY(8px);
+
+    transition: .25s ease;
+
+    z-index: 50;
+}
+
+.store-search-suggestions.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.store-search-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 14px 18px;
+
+    text-decoration: none;
+
+    color: inherit;
+
+    transition: .2s ease;
+}
+
+.store-search-item:hover {
+    background: #f8fafc;
+}
+
+.store-search-item img {
+    width: 56px;
+    height: 56px;
+
+    object-fit: cover;
+
+    border-radius: 14px;
+}
+
+.store-search-item-title {
+    font-weight: 700;
+}
+
+.store-search-item-meta {
+    font-size: .85rem;
+    color: #64748b;
+}
+
+.store-search-item-price {
+    margin-left: auto;
+
+    font-weight: 800;
+
+    color: var(--color-primary);
+}
 
 
 
+.store-search-item.active {
+    background: #f1f5f9;
+}
 
+.store-search-empty {
+    padding: 18px;
 
+    text-align: center;
 
+    color: #64748b;
 
+    font-size: .92rem;
+}
+
+.store-search-suggestions {
+    max-height: 420px;
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: rgba(220, 161, 23, .55) transparent;
+}
+
+.store-search-suggestions::-webkit-scrollbar {
+    width: 6px;
+}
+
+.store-search-suggestions::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.store-search-suggestions::-webkit-scrollbar-thumb {
+    background: rgba(220, 161, 23, .55);
+
+    border-radius: 999px;
+}
+
+.store-search-suggestions::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 161, 23, .8);
+}
 
 
 

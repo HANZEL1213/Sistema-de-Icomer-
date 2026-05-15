@@ -102,9 +102,8 @@ class CarritoController extends Controller
 
         session(['carrito' => $carrito]);
 
-        return redirect()
-            ->route('tienda.carrito.index')
-            ->with('success', 'Producto agregado al carrito.');
+      return back()
+    ->with('success', 'Producto agregado al carrito.');
     }
 
     public function actualizar(Request $request, Producto $producto)
