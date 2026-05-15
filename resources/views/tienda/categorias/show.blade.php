@@ -131,12 +131,14 @@
                                 class="store-product-image"
                             >
 
-                            <button type="button"
-                                    class="store-product-heart">
+                          <button type="button"
+        class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+        data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}"
+        aria-label="Agregar a favoritos">
 
-                                <i class="bi bi-heart"></i>
+    <i class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
 
-                            </button>
+</button>
 
                             @if($producto->stock <= 0)
 

@@ -1,5 +1,15 @@
 @php
+    use App\Models\Favorito;
+
     $cantidadCarrito = collect(session('carrito', []))->sum('cantidad');
+
+    $cantidadFavoritos = Favorito::where(function ($query) {
+        if (auth()->check()) {
+            $query->where('id_usuario', auth()->id());
+        } else {
+            $query->where('session_id', session()->getId());
+        }
+    })->count();
 @endphp
 
 <header>
@@ -90,19 +100,7 @@
 
                 {{-- DERECHA --}}
                 <div class="d-flex align-items-center gap-2 gap-md-3">
-                    <div class="store-header-quick-links d-none d-xl-flex">
-                        <a href="{{ route('tienda.productos.index') }}" class="store-header-quick-link">
-                            Productos
-                        </a>
-
-                        <a href="{{ route('tienda.marcas.index') }}" class="store-header-quick-link">
-                            Marcas
-                        </a>
-
-                        <a href="{{ route('tienda.categorias.index') }}" class="store-header-quick-link">
-                            Categorías
-                        </a>
-                    </div>
+                  
 
                     <a href="{{ route('tienda.pedidos.mis') }}" class="store-icon-btn d-none d-md-inline-flex"
                         aria-label="Mis pedidos">
@@ -114,22 +112,31 @@
                         <i class="bi bi-person fs-5"></i>
                     </a>
 
-                    <a href="{{ route('tienda.carrito.index') }}"
-                        class="btn btn-store-primary store-cart-btn d-inline-flex align-items-center gap-2 position-relative"
-                        aria-label="Carrito">
+                    <a href="{{ route('tienda.favoritos.index') }}"
+                        class="store-icon-btn d-none d-md-inline-flex position-relative" aria-label="Favoritos">
+                        <i class="bi bi-heart fs-5"></i>
 
-                        <i class="bi bi-cart3 fs-5"></i>
-
-                        <span class="d-none d-sm-inline">
-                            Carrito
-                        </span>
-
-                        @if ($cantidadCarrito > 0)
-                            <span class="store-cart-badge">
-                                {{ $cantidadCarrito }}
-                            </span>
-                        @endif
+                      <span class="store-cart-badge js-favorites-count"
+      style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+    {{ $cantidadFavoritos }}
+</span>
                     </a>
+
+                {{-- FAVORITOS MOBILE --}}
+<a href="{{ route('tienda.favoritos.index') }}"
+   class="store-icon-btn d-inline-flex d-md-none position-relative"
+   aria-label="Favoritos">
+
+    <i class="bi bi-heart fs-5"></i>
+
+    <span class="store-cart-badge js-favorites-count"
+          style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+
+        {{ $cantidadFavoritos }}
+
+    </span>
+
+</a>
                 </div>
             </div>
 
@@ -266,6 +273,28 @@
                     <i class="bi bi-bookmark-star"></i>
                 </a>
 
+                <a href="{{ route('tienda.favoritos.index') }}"
+   class="store-offcanvas-link"
+   data-store-close-offcanvas="true">
+
+    <span>
+        Favoritos
+    </span>
+
+    <span class="d-inline-flex align-items-center gap-2">
+
+        <span class="store-offcanvas-count js-favorites-count"
+              style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+
+            {{ $cantidadFavoritos }}
+
+        </span>
+
+        <i class="bi bi-heart"></i>
+
+    </span>
+
+</a>
                 <a href="{{ route('tienda.checkout.index') }}" class="store-offcanvas-link"
                     data-store-close-offcanvas="true">
                     <span>Checkout</span>
@@ -307,43 +336,81 @@
     </div>
 
     {{-- BOTTOM NAV MOBILE --}}
-    <div class="store-mobile-bottom-nav d-lg-none">
-        <div class="container px-2">
-            <div class="store-mobile-bottom-nav-wrap">
-                <a href="{{ route('tienda.home') }}" class="store-mobile-bottom-link active">
-                    <i class="bi bi-house-door"></i>
-                    <span>Inicio</span>
-                </a>
+ <div class="store-mobile-bottom-nav d-lg-none">
+    <div class="container px-2">
 
-                <a href="{{ route('tienda.categorias.index') }}" class="store-mobile-bottom-link">
-                    <i class="bi bi-grid"></i>
-                    <span>Categorías</span>
-                </a>
+        <div class="store-mobile-bottom-nav-wrap">
 
-                <a href="{{ route('tienda.carrito.index') }}"
-                    class="store-mobile-bottom-link store-mobile-cart-center">
+            {{-- INICIO --}}
+            <a href="{{ route('tienda.home') }}"
+               class="store-mobile-bottom-link active">
 
-                    <span class="store-mobile-cart-pill">
-                        <i class="bi bi-cart3"></i>
+                <i class="bi bi-house-door"></i>
+
+                <span>
+                    Inicio
+                </span>
+
+            </a>
+
+            {{-- PRODUCTOS --}}
+            <a href="{{ route('tienda.productos.index') }}"
+               class="store-mobile-bottom-link">
+
+                <i class="bi bi-grid"></i>
+
+                <span>
+                    Productos
+                </span>
+
+            </a>
+
+            {{-- CARRITO CENTRO --}}
+            <a href="{{ route('tienda.carrito.index') }}"
+               class="store-mobile-bottom-link store-mobile-cart-center">
+
+                <span class="store-mobile-cart-pill">
+
+                    <i class="bi bi-cart3"></i>
+
+                </span>
+
+                @if ($cantidadCarrito > 0)
+
+                    <span class="store-mobile-bottom-badge">
+                        {{ $cantidadCarrito }}
                     </span>
 
-                    @if ($cantidadCarrito > 0)
-                        <span class="store-mobile-bottom-badge">
-                            {{ $cantidadCarrito }}
-                        </span>
-                    @endif
-                </a>
+                @endif
 
-                <a href="{{ route('tienda.marcas.index') }}" class="store-mobile-bottom-link">
-                    <i class="bi bi-bookmark-star"></i>
-                    <span>Marcas</span>
-                </a>
+            </a>
 
-                <a href="{{ route('tienda.pedidos.mis') }}" class="store-mobile-bottom-link">
-                    <i class="bi bi-box-seam"></i>
-                    <span>Pedidos</span>
-                </a>
-            </div>
+            {{-- CATEGORÍAS --}}
+            <a href="{{ route('tienda.categorias.index') }}"
+               class="store-mobile-bottom-link">
+
+                <i class="bi bi-collection"></i>
+
+                <span>
+                    Categorías
+                </span>
+
+            </a>
+
+            {{-- PEDIDOS --}}
+            <a href="{{ route('tienda.pedidos.mis') }}"
+               class="store-mobile-bottom-link">
+
+                <i class="bi bi-box-seam"></i>
+
+                <span>
+                    Pedidos
+                </span>
+
+            </a>
+
         </div>
+
     </div>
+</div>
 </header>

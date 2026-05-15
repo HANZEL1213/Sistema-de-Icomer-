@@ -7,6 +7,7 @@ use App\Models\Categoria;
 use App\Models\Marca;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use App\Models\Favorito;
 
 class ProductoController extends Controller
 {
@@ -99,10 +100,22 @@ class ProductoController extends Controller
             // 🔥 Scroll continuo
             ->get();
 
+        // ✅ Favoritos (para que el corazón sepa qué productos están guardados)
+        $favoritosIds = Favorito::where(function ($query) {
+            if (auth()->check()) {
+                $query->where('id_usuario', auth()->id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+        })
+        ->pluck('id_producto')
+        ->toArray();
+
         return view('tienda.productos.index', compact(
             'productos',
             'categorias',
-            'marcas'
+            'marcas',
+            'favoritosIds'          // ← Agregado
         ));
     }
 
@@ -164,68 +177,77 @@ class ProductoController extends Controller
                 ->get();
         }
 
+        // ✅ Favoritos en la vista de detalle
+        $favoritosIds = Favorito::where(function ($query) {
+            if (auth()->check()) {
+                $query->where('id_usuario', auth()->id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+        })
+        ->pluck('id_producto')
+        ->toArray();
+
         return view('tienda.productos.show', compact(
             'producto',
-            'relacionados'
+            'relacionados',
+            'favoritosIds'           // ← Agregado
         ));
     }
 
-public function sugerencias(Request $request)
-{
-    $q = trim($request->q);
+    public function sugerencias(Request $request)
+    {
+        $q = trim($request->q);
 
-    if (!$q) {
-        return response()->json([]);
+        if (!$q) {
+            return response()->json([]);
+        }
+
+        $productos = Producto::query()
+            ->with([
+                'marca',
+                'imagenPrincipal',
+            ])
+            ->where('activo', 1)
+            ->where(function ($query) use ($q) {
+
+                $query->where(
+                    'nombre',
+                    'LIKE',
+                    "%{$q}%"
+                );
+
+            })
+            ->limit(6)
+            ->get()
+            ->map(function ($producto) {
+
+                return [
+
+                    'nombre' => $producto->nombre,
+
+                    'slug' => $producto->slug,
+
+                    'precio' => number_format(
+                        $producto->precio,
+                        2
+                    ),
+
+                    'marca' => $producto->marca?->nombre,
+
+                    'imagen' => $producto->imagenPrincipal?->ruta
+                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                        : asset('assets/img/no-image.png'),
+
+                    'url' => route(
+                        'tienda.productos.show',
+                        $producto->slug
+                    ),
+
+                ];
+
+            });
+
+        return response()->json($productos);
     }
-
-    $productos = Producto::query()
-        ->with([
-            'marca',
-            'imagenPrincipal',
-        ])
-        ->where('activo', 1)
-        ->where(function ($query) use ($q) {
-
-            $query->where(
-                'nombre',
-                'LIKE',
-                "%{$q}%"
-            );
-
-        })
-        ->limit(6)
-        ->get()
-        ->map(function ($producto) {
-
-            return [
-
-                'nombre' => $producto->nombre,
-
-                'slug' => $producto->slug,
-
-                'precio' => number_format(
-                    $producto->precio,
-                    2
-                ),
-
-                'marca' => $producto->marca?->nombre,
-
-                'imagen' => $producto->imagenPrincipal?->ruta
-                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                    : asset('assets/img/no-image.png'),
-
-                'url' => route(
-                    'tienda.productos.show',
-                    $producto->slug
-                ),
-
-            ];
-
-        });
-
-    return response()->json($productos);
-}
-
-
-
 }

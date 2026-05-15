@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Marca;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use App\Models\Favorito;           // ← Agregado
 
 class MarcaController extends Controller
 {
@@ -53,9 +54,21 @@ class MarcaController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // ✅ Favoritos (para que funcione el corazón)
+        $favoritosIds = Favorito::where(function ($query) {
+            if (auth()->check()) {
+                $query->where('id_usuario', auth()->id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+        })
+        ->pluck('id_producto')
+        ->toArray();
+
         return view('tienda.marcas.show', compact(
             'marca',
-            'productos'
+            'productos',
+            'favoritosIds'           // ← Agregado
         ));
     }
 }

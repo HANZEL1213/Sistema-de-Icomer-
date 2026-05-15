@@ -7,381 +7,368 @@
 
 @section('content')
 
-@php
-    $imagenes = $producto->imagenes->count()
-        ? $producto->imagenes
-        : collect();
+    @php
+        $imagenes = $producto->imagenes->count() ? $producto->imagenes : collect();
 
-    $imagenPrincipal = $producto->imagenPrincipal
-        ? asset('storage/' . $producto->imagenPrincipal->ruta)
-        : ($imagenes->first()
-            ? asset('storage/' . $imagenes->first()->ruta)
-            : asset('assets/img/no-image.png'));
+        $imagenPrincipal = $producto->imagenPrincipal
+            ? asset('storage/' . $producto->imagenPrincipal->ruta)
+            : ($imagenes->first()
+                ? asset('storage/' . $imagenes->first()->ruta)
+                : asset('assets/img/no-image.png'));
 
-    $stock = $producto->stock_actual ?? 0;
-@endphp
+        $stock = $producto->stock_actual ?? 0;
+    @endphp
 
-<section class="store-product-detail-page">
+    <section class="store-product-detail-page">
 
-    <div class="container py-4 py-lg-5">
+        <div class="container py-4 py-lg-5">
 
-        {{-- BREADCRUMB --}}
-        <div class="store-detail-breadcrumb mb-3 mb-lg-4">
-            <a href="{{ route('tienda.home') }}">Inicio</a>
-            <i class="bi bi-chevron-right"></i>
-            <a href="{{ route('tienda.productos.index') }}">Productos</a>
-            <i class="bi bi-chevron-right"></i>
-            <span>{{ $producto->nombre }}</span>
-        </div>
+            {{-- BREADCRUMB --}}
+            <div class="store-detail-breadcrumb mb-3 mb-lg-4">
+                <a href="{{ route('tienda.home') }}">Inicio</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ route('tienda.productos.index') }}">Productos</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>{{ $producto->nombre }}</span>
+            </div>
 
 
-        {{-- DETALLE PRINCIPAL --}}
-        <div class="row g-4 g-lg-5 align-items-start">
+            {{-- DETALLE PRINCIPAL --}}
+            <div class="row g-4 g-lg-5 align-items-start">
 
-            {{-- GALERÍA --}}
-            <div class="col-12 col-lg-6">
+                {{-- GALERÍA --}}
+                <div class="col-12 col-lg-6">
 
-                <div class="store-product-gallery-card">
+                    <div class="store-product-gallery-card">
 
-                    <div class="store-product-main-image-wrap">
+                        <div class="store-product-main-image-wrap">
 
-                        <img src="{{ $imagenPrincipal }}"
-                             alt="{{ $producto->nombre }}"
-                             class="store-product-main-image"
-                             id="storeProductMainImage">
+                            <img src="{{ $imagenPrincipal }}" alt="{{ $producto->nombre }}" class="store-product-main-image"
+                                id="storeProductMainImage">
 
-                        @if($stock <= 0)
-                            <span class="store-product-detail-badge">
-                                Agotado
-                            </span>
-                        @endif
+                            @if ($stock <= 0)
+                                <span class="store-product-detail-badge">
+                                    Agotado
+                                </span>
+                            @endif
 
-                        <button type="button"
-                                class="store-product-detail-heart"
+                            <button type="button"
+                                class="store-product-detail-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}"
                                 aria-label="Agregar a favoritos">
-                            <i class="bi bi-heart"></i>
-                        </button>
+
+                                <i
+                                    class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+
+                            </button>
+                        </div>
+
+                        @if ($imagenes->count())
+
+                            <div class="store-product-thumbs">
+
+                                @foreach ($imagenes as $imagen)
+                                    @php
+                                        $rutaImagen = asset('storage/' . $imagen->ruta);
+                                    @endphp
+
+                                    <button type="button" class="store-product-thumb {{ $loop->first ? 'active' : '' }}"
+                                        data-product-image="{{ $rutaImagen }}">
+
+                                        <img src="{{ $rutaImagen }}" alt="{{ $producto->nombre }}">
+
+                                    </button>
+                                @endforeach
+
+                            </div>
+
+                        @endif
 
                     </div>
 
-                    @if($imagenes->count())
+                </div>
 
-                        <div class="store-product-thumbs">
 
-                            @foreach($imagenes as $imagen)
+                {{-- INFO --}}
+                <div class="col-12 col-lg-6">
 
-                                @php
-                                    $rutaImagen = asset('storage/' . $imagen->ruta);
-                                @endphp
+                    <div class="store-product-info-card">
 
-                                <button type="button"
-                                        class="store-product-thumb {{ $loop->first ? 'active' : '' }}"
-                                        data-product-image="{{ $rutaImagen }}">
+                        <div class="store-product-detail-meta">
+                            <span>{{ $producto->marca?->nombre ?? 'Sin marca' }}</span>
+                            <span>•</span>
+                            <span>{{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}</span>
+                        </div>
 
-                                    <img src="{{ $rutaImagen }}"
-                                         alt="{{ $producto->nombre }}">
+                        <h1 class="store-product-detail-title">
+                            {{ $producto->nombre }}
+                        </h1>
+
+                        @if ($producto->descripcion)
+                            <p class="store-product-detail-description">
+                                {{ $producto->descripcion }}
+                            </p>
+                        @endif
+
+                        <div class="store-product-detail-price">
+                            ₡{{ number_format($producto->precio, 2) }}
+                        </div>
+
+                        <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
+                            <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
+
+                            @if ($stock > 0)
+                                Disponible · {{ $stock }} unidades
+                            @else
+                                Producto agotado
+                            @endif
+                        </div>
+
+                        <div class="store-product-detail-actions">
+
+                            <div class="store-qty-control">
+
+                                <button type="button" data-qty-action="minus">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+
+                                <input type="number" value="1" min="1" max="{{ max($stock, 1) }}"
+                                    id="storeProductQty">
+
+                                <button type="button" data-qty-action="plus">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+
+                            </div>
+
+                            <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}" method="POST"
+                                class="m-0 p-0">
+
+                                @csrf
+
+                                <input type="hidden" name="cantidad" id="storeProductQtyHidden" value="1">
+
+                                <button type="submit" class="btn btn-store-primary store-add-cart-btn"
+                                    {{ $stock <= 0 ? 'disabled' : '' }}>
+
+                                    <i class="bi bi-cart3 me-1"></i>
+                                    Agregar al carrito
 
                                 </button>
 
-                            @endforeach
+                            </form>
 
                         </div>
 
-                    @endif
+                        <div class="store-product-detail-benefits">
+
+                            <div class="store-product-benefit">
+                                <i class="bi bi-truck"></i>
+                                <span>Envíos disponibles</span>
+                            </div>
+
+                            <div class="store-product-benefit">
+                                <i class="bi bi-shield-check"></i>
+                                <span>Compra segura</span>
+                            </div>
+
+                            <div class="store-product-benefit">
+                                <i class="bi bi-arrow-repeat"></i>
+                                <span>Proceso ágil</span>
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
 
                 </div>
 
             </div>
 
 
-            {{-- INFO --}}
-            <div class="col-12 col-lg-6">
+            {{-- PRODUCTOS RELACIONADOS --}}
+            @if ($relacionados->count())
 
-                <div class="store-product-info-card">
+                <section class="store-section px-0 pb-0">
 
-                    <div class="store-product-detail-meta">
-                        <span>{{ $producto->marca?->nombre ?? 'Sin marca' }}</span>
-                        <span>•</span>
-                        <span>{{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}</span>
-                    </div>
+                    <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
 
-                    <h1 class="store-product-detail-title">
-                        {{ $producto->nombre }}
-                    </h1>
+                        <div>
 
-                    @if($producto->descripcion)
-                        <p class="store-product-detail-description">
-                            {{ $producto->descripcion }}
-                        </p>
-                    @endif
+                            <div class="store-mini-label">
+                                También te puede gustar
+                            </div>
 
-                    <div class="store-product-detail-price">
-                        ₡{{ number_format($producto->precio, 2) }}
-                    </div>
+                            <h2 class="store-section-title mb-2">
+                                Productos relacionados
+                            </h2>
 
-                    <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
-                        <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
+                            <p class="store-section-subtitle">
+                                Más opciones con la misma línea visual del catálogo.
+                            </p>
 
-                        @if($stock > 0)
-                            Disponible · {{ $stock }} unidades
-                        @else
-                            Producto agotado
-                        @endif
-                    </div>
-
-             <div class="store-product-detail-actions">
-
-    <div class="store-qty-control">
-
-        <button type="button" data-qty-action="minus">
-            <i class="bi bi-dash"></i>
-        </button>
-
-        <input type="number"
-               value="1"
-               min="1"
-               max="{{ max($stock, 1) }}"
-               id="storeProductQty">
-
-        <button type="button" data-qty-action="plus">
-            <i class="bi bi-plus"></i>
-        </button>
-
-    </div>
-
-    <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
-          method="POST"
-          class="m-0 p-0">
-
-        @csrf
-
-        <input type="hidden"
-               name="cantidad"
-               id="storeProductQtyHidden"
-               value="1">
-
-        <button type="submit"
-                class="btn btn-store-primary store-add-cart-btn"
-                {{ $stock <= 0 ? 'disabled' : '' }}>
-
-            <i class="bi bi-cart3 me-1"></i>
-            Agregar al carrito
-
-        </button>
-
-    </form>
-
-</div>
-
-                    <div class="store-product-detail-benefits">
-
-                        <div class="store-product-benefit">
-                            <i class="bi bi-truck"></i>
-                            <span>Envíos disponibles</span>
                         </div>
 
-                        <div class="store-product-benefit">
-                            <i class="bi bi-shield-check"></i>
-                            <span>Compra segura</span>
-                        </div>
-
-                        <div class="store-product-benefit">
-                            <i class="bi bi-arrow-repeat"></i>
-                            <span>Proceso ágil</span>
-                        </div>
+                        <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+                            Ver catálogo
+                        </a>
 
                     </div>
 
-                 
+                    <div class="row g-3 g-md-4">
 
-                </div>
+                        @foreach ($relacionados as $item)
+                            @php
+                                $imagenRelacionado = $item->imagenPrincipal
+                                    ? asset('storage/' . $item->imagenPrincipal->ruta)
+                                    : asset('assets/img/no-image.png');
 
-            </div>
+                                $stockRelacionado = $item->stock_actual ?? 0;
+                            @endphp
 
-        </div>
+                            <div class="col-6 col-md-4 col-xl-3">
 
-
-        {{-- PRODUCTOS RELACIONADOS --}}
-        @if($relacionados->count())
-
-            <section class="store-section px-0 pb-0">
-
-                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
-
-                    <div>
-
-                        <div class="store-mini-label">
-                            También te puede gustar
-                        </div>
-
-                        <h2 class="store-section-title mb-2">
-                            Productos relacionados
-                        </h2>
-
-                        <p class="store-section-subtitle">
-                            Más opciones con la misma línea visual del catálogo.
-                        </p>
-
-                    </div>
-
-                    <a href="{{ route('tienda.productos.index') }}"
-                       class="btn btn-store-outline px-4">
-                        Ver catálogo
-                    </a>
-
-                </div>
-
-                <div class="row g-3 g-md-4">
-
-                    @foreach($relacionados as $item)
-
-                        @php
-                            $imagenRelacionado = $item->imagenPrincipal
-                                ? asset('storage/' . $item->imagenPrincipal->ruta)
-                                : asset('assets/img/no-image.png');
-
-                            $stockRelacionado = $item->stock_actual ?? 0;
-                        @endphp
-
-                        <div class="col-6 col-md-4 col-xl-3">
-
-                            <div class="store-product-card">
-
-                                <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                   class="store-product-image-wrap">
-
-                                    <img src="{{ $imagenRelacionado }}"
-                                         alt="{{ $item->nombre }}"
-                                         class="store-product-image">
-
-                                    <button type="button"
-                                            class="store-product-heart"
-                                            aria-label="Agregar a favoritos">
-                                        <i class="bi bi-heart"></i>
-                                    </button>
-
-                                    @if($stockRelacionado <= 0)
-                                        <span class="store-product-badge store-product-badge-muted">
-                                            Agotado
-                                        </span>
-                                    @endif
-
-                                </a>
-
-                                <div class="store-product-body">
-
-                                    <div class="store-product-meta">
-                                        {{ $item->marca?->nombre ?? 'Sin marca' }}
-                                    </div>
+                                <div class="store-product-card">
 
                                     <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                       class="store-product-name">
-                                        {{ $item->nombre }}
+                                        class="store-product-image-wrap">
+
+                                        <img src="{{ $imagenRelacionado }}" alt="{{ $item->nombre }}"
+                                            class="store-product-image">
+
+                                        <button type="button"
+                                            class="store-product-heart js-favorite-btn {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                            data-url="{{ route('tienda.favoritos.toggle', $item->id_producto) }}"
+                                            aria-label="Agregar a favoritos">
+
+                                            <i
+                                                class="bi {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+
+                                        </button>
+
+                                        @if ($stockRelacionado <= 0)
+                                            <span class="store-product-badge store-product-badge-muted">
+                                                Agotado
+                                            </span>
+                                        @endif
+
                                     </a>
 
-                                    <div class="store-product-category">
-                                        {{ $item->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
-                                    </div>
+                                    <div class="store-product-body">
 
-                                    <div class="store-product-footer">
-
-                                        <div>
-                                            <div class="store-product-price">
-                                                ₡{{ number_format($item->precio, 2) }}
-                                            </div>
-
-                                            <small class="store-product-stock">
-                                                Stock: {{ $stockRelacionado }}
-                                            </small>
+                                        <div class="store-product-meta">
+                                            {{ $item->marca?->nombre ?? 'Sin marca' }}
                                         </div>
 
                                         <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                           class="store-product-action">
-                                            <i class="bi bi-eye"></i>
+                                            class="store-product-name">
+                                            {{ $item->nombre }}
                                         </a>
+
+                                        <div class="store-product-category">
+                                            {{ $item->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+                                        </div>
+
+                                        <div class="store-product-footer">
+
+                                            <div>
+                                                <div class="store-product-price">
+                                                    ₡{{ number_format($item->precio, 2) }}
+                                                </div>
+
+                                                <small class="store-product-stock">
+                                                    Stock: {{ $stockRelacionado }}
+                                                </small>
+                                            </div>
+
+                                            <a href="{{ route('tienda.productos.show', $item->slug) }}"
+                                                class="store-product-action">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                        </div>
 
                                     </div>
 
                                 </div>
 
                             </div>
+                        @endforeach
 
-                        </div>
+                    </div>
 
-                    @endforeach
+                </section>
 
-                </div>
+            @endif
 
-            </section>
+        </div>
 
-        @endif
-
-    </div>
-
-</section>
+    </section>
 
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    const mainImage = document.getElementById('storeProductMainImage');
-    const thumbs = document.querySelectorAll('.store-product-thumb');
+            const mainImage = document.getElementById('storeProductMainImage');
+            const thumbs = document.querySelectorAll('.store-product-thumb');
 
-    thumbs.forEach((thumb) => {
-        thumb.addEventListener('click', function () {
-            const image = this.dataset.productImage;
+            thumbs.forEach((thumb) => {
+                thumb.addEventListener('click', function() {
+                    const image = this.dataset.productImage;
 
-            if (mainImage && image) {
-                mainImage.src = image;
-            }
+                    if (mainImage && image) {
+                        mainImage.src = image;
+                    }
 
-            thumbs.forEach((item) => item.classList.remove('active'));
-            this.classList.add('active');
+                    thumbs.forEach((item) => item.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            const qtyInput = document.getElementById('storeProductQty');
+            const qtyButtons = document.querySelectorAll('[data-qty-action]');
+
+            qtyButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    if (!qtyInput) return;
+
+                    const action = this.dataset.qtyAction;
+                    const min = parseInt(qtyInput.min || 1);
+                    const max = parseInt(qtyInput.max || 999);
+                    let value = parseInt(qtyInput.value || 1);
+
+                    if (action === 'minus') {
+                        value = Math.max(min, value - 1);
+                    }
+
+                    if (action === 'plus') {
+                        value = Math.min(max, value + 1);
+                    }
+
+                    qtyInput.value = value;
+                });
+            });
+
         });
-    });
 
-    const qtyInput = document.getElementById('storeProductQty');
-    const qtyButtons = document.querySelectorAll('[data-qty-action]');
+        const qtyHidden = document.getElementById('storeProductQtyHidden');
 
-    qtyButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            if (!qtyInput) return;
+        if (qtyInput && qtyHidden) {
 
-            const action = this.dataset.qtyAction;
-            const min = parseInt(qtyInput.min || 1);
-            const max = parseInt(qtyInput.max || 999);
-            let value = parseInt(qtyInput.value || 1);
+            qtyInput.addEventListener('input', function() {
+                qtyHidden.value = this.value;
+            });
 
-            if (action === 'minus') {
-                value = Math.max(min, value - 1);
-            }
+            qtyButtons.forEach((button) => {
+                button.addEventListener('click', function() {
+                    qtyHidden.value = qtyInput.value;
+                });
+            });
 
-            if (action === 'plus') {
-                value = Math.min(max, value + 1);
-            }
-
-            qtyInput.value = value;
-        });
-    });
-
-});
-
-const qtyHidden = document.getElementById('storeProductQtyHidden');
-
-if (qtyInput && qtyHidden) {
-
-    qtyInput.addEventListener('input', function () {
-        qtyHidden.value = this.value;
-    });
-
-    qtyButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            qtyHidden.value = qtyInput.value;
-        });
-    });
-
-}
-</script>
+        }
+    </script>
 @endpush

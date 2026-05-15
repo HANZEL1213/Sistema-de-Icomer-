@@ -4641,5 +4641,33 @@
 }
 
 
+/* ==========================================================
+   FAVORITOS / CORAZONES
+========================================================== */
 
+.store-product-heart {
+    transition: all .25s ease;
+}
+
+.store-product-heart:hover {
+    transform: scale(1.08);
+}
+
+.store-product-heart.is-active {
+    background: #fff;
+    color: #dc3545;
+}
+
+.store-product-heart.is-active i {
+    color: #dc3545;
+}
+
+.store-product-heart.is-loading {
+    opacity: .65;
+    pointer-events: none;
+}
+
+.store-product-heart.is-active:hover {
+    background: #fff5f6;
+}
 

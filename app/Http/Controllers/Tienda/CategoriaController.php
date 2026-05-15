@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Categoria;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use App\Models\Favorito;          // ← Agregado
 
 class CategoriaController extends Controller
 {
@@ -55,9 +56,21 @@ class CategoriaController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // ✅ Favoritos (para que funcione el corazón en esta vista)
+        $favoritosIds = Favorito::where(function ($query) {
+            if (auth()->check()) {
+                $query->where('id_usuario', auth()->id());
+            } else {
+                $query->where('session_id', session()->getId());
+            }
+        })
+        ->pluck('id_producto')
+        ->toArray();
+
         return view('tienda.categorias.show', compact(
             'categoria',
-            'productos'
+            'productos',
+            'favoritosIds'           // ← Agregado
         ));
     }
 }

@@ -198,3 +198,99 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
+/* ==========================================================
+   FAVORITOS / CORAZONES
+========================================================== */
+
+document.addEventListener('click', async function (event) {
+
+    const button = event.target.closest('.js-favorite-btn');
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const url = button.dataset.url;
+    const icon = button.querySelector('i');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    if (!url || !csrfToken || !icon) return;
+
+    button.disabled = true;
+    button.classList.add('is-loading');
+
+    try {
+
+        const response = await fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) return;
+
+        if (data.favorito) {
+
+            button.classList.add('is-active');
+            icon.classList.remove('bi-heart');
+            icon.classList.add('bi-heart-fill');
+
+        } else {
+
+            button.classList.remove('is-active');
+            icon.classList.remove('bi-heart-fill');
+            icon.classList.add('bi-heart');
+
+            const favoritosPage = document.querySelector('.store-favorites-page');
+
+            if (favoritosPage) {
+
+                const card = button.closest('.col-6, .col-md-4, .col-xl-3');
+
+                if (card) {
+                    card.remove();
+                }
+
+            }
+
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ACTUALIZAR CONTADORES FAVORITOS
+        |--------------------------------------------------------------------------
+        */
+
+        const counters = document.querySelectorAll('.js-favorites-count');
+
+        counters.forEach(function (counter) {
+
+            counter.textContent = data.cantidadFavoritos;
+
+            if (data.cantidadFavoritos > 0) {
+                counter.style.display = 'inline-flex';
+            } else {
+                counter.style.display = 'none';
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error('Error al actualizar favorito:', error);
+
+    } finally {
+
+        button.disabled = false;
+        button.classList.remove('is-loading');
+
+    }
+
+});

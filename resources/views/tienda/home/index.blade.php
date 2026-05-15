@@ -14,19 +14,17 @@
     <section class="store-section pt-3 pt-lg-4">
         <div class="container-fluid px-0">
 
-            @if($carruselItems->isNotEmpty())
+            @if ($carruselItems->isNotEmpty())
 
                 <div id="storeHeroCarousel" class="carousel slide store-hero-carousel" data-bs-ride="carousel">
 
-                    @if($carruselItems->count() > 1)
+                    @if ($carruselItems->count() > 1)
                         <div class="carousel-indicators store-hero-indicators">
-                            @foreach($carruselItems as $index => $item)
-                                <button type="button"
-                                        data-bs-target="#storeHeroCarousel"
-                                        data-bs-slide-to="{{ $index }}"
-                                        class="{{ $index === 0 ? 'active' : '' }}"
-                                        @if($index === 0) aria-current="true" @endif
-                                        aria-label="Slide {{ $index + 1 }}">
+                            @foreach ($carruselItems as $index => $item)
+                                <button type="button" data-bs-target="#storeHeroCarousel"
+                                    data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}"
+                                    @if ($index === 0) aria-current="true" @endif
+                                    aria-label="Slide {{ $index + 1 }}">
                                 </button>
                             @endforeach
                         </div>
@@ -34,12 +32,11 @@
 
                     <div class="carousel-inner">
 
-                        @foreach($carruselItems as $index => $item)
-
+                        @foreach ($carruselItems as $index => $item)
                             <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
 
                                 <div class="store-hero-slide"
-                                     style="
+                                    style="
                                         background:
                                         linear-gradient(90deg, rgba(17,24,39,0.88) 0%, rgba(17,24,39,0.58) 42%, rgba(17,24,39,0.22) 100%),
                                         url('{{ asset('storage/' . $item->ruta_imagen) }}') center/cover no-repeat;
@@ -63,12 +60,12 @@
 
                                             <div class="d-flex flex-wrap gap-3">
                                                 <a href="{{ $item->destino_url ?? route('tienda.productos.index') }}"
-                                                   class="btn btn-store-primary px-4">
+                                                    class="btn btn-store-primary px-4">
                                                     {{ $item->texto_boton ?? 'Ver productos' }}
                                                 </a>
 
                                                 <a href="{{ route('tienda.categorias.index') }}"
-                                                   class="btn btn-light fw-semibold rounded-4 px-4">
+                                                    class="btn btn-light fw-semibold rounded-4 px-4">
                                                     Explorar categorías
                                                 </a>
                                             </div>
@@ -79,35 +76,28 @@
                                 </div>
 
                             </div>
-
                         @endforeach
 
                     </div>
 
-                    @if($carruselItems->count() > 1)
-                        <button class="carousel-control-prev store-hero-control"
-                                type="button"
-                                data-bs-target="#storeHeroCarousel"
-                                data-bs-slide="prev">
+                    @if ($carruselItems->count() > 1)
+                        <button class="carousel-control-prev store-hero-control" type="button"
+                            data-bs-target="#storeHeroCarousel" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon"></span>
                             <span class="visually-hidden">Anterior</span>
                         </button>
 
-                        <button class="carousel-control-next store-hero-control"
-                                type="button"
-                                data-bs-target="#storeHeroCarousel"
-                                data-bs-slide="next">
+                        <button class="carousel-control-next store-hero-control" type="button"
+                            data-bs-target="#storeHeroCarousel" data-bs-slide="next">
                             <span class="carousel-control-next-icon"></span>
                             <span class="visually-hidden">Siguiente</span>
                         </button>
                     @endif
 
                 </div>
-
             @else
-
                 <div class="store-hero-slide"
-                     style="
+                    style="
                         background:
                         linear-gradient(90deg, rgba(17,24,39,0.90) 0%, rgba(17,24,39,0.70) 50%, rgba(17,24,39,0.45) 100%);
                      ">
@@ -131,7 +121,8 @@
                                     Ver productos
                                 </a>
 
-                                <a href="{{ route('tienda.categorias.index') }}" class="btn btn-light fw-semibold rounded-4 px-4">
+                                <a href="{{ route('tienda.categorias.index') }}"
+                                    class="btn btn-light fw-semibold rounded-4 px-4">
                                     Explorar categorías
                                 </a>
                             </div>
@@ -147,7 +138,7 @@
     {{-- =========================================================
         CATEGORÍAS DESTACADAS DINÁMICAS
     ========================================================== --}}
-    @if($categoriasHome->isNotEmpty())
+    @if ($categoriasHome->isNotEmpty())
 
         <section class="store-section">
             <div class="container">
@@ -168,8 +159,7 @@
                         </p>
                     </div>
 
-                    <a href="{{ route('tienda.categorias.index') }}"
-                       class="btn btn-store-outline px-4">
+                    <a href="{{ route('tienda.categorias.index') }}" class="btn btn-store-outline px-4">
                         Ver todas
                     </a>
 
@@ -177,8 +167,7 @@
 
                 <div class="row g-3 g-md-4">
 
-                    @foreach($categoriasHome as $categoria)
-
+                    @foreach ($categoriasHome as $categoria)
                         @php
                             $categoriaImagen = $categoria->imagen
                                 ? asset('storage/' . $categoria->imagen)
@@ -187,14 +176,12 @@
 
                         <div class="col-6 col-lg-3">
 
-                            <a href="{{ route('tienda.categorias.show', $categoria->slug) }}"
-                               class="store-category-card">
+                            <a href="{{ route('tienda.categorias.show', $categoria->slug) }}" class="store-category-card">
 
                                 <div class="store-category-image-wrap">
 
-                                    <img src="{{ $categoriaImagen }}"
-                                         alt="{{ $categoria->nombre }}"
-                                         class="store-category-image">
+                                    <img src="{{ $categoriaImagen }}" alt="{{ $categoria->nombre }}"
+                                        class="store-category-image">
 
                                     <div class="store-category-overlay"></div>
 
@@ -233,7 +220,6 @@
                             </a>
 
                         </div>
-
                     @endforeach
 
                 </div>
@@ -246,7 +232,7 @@
     {{-- =========================================================
         PRODUCTOS DESTACADOS DINÁMICOS
     ========================================================== --}}
-    @if($productosHome->isNotEmpty())
+    @if ($productosHome->isNotEmpty())
 
         <section class="store-section store-products-minimal-section">
             <div class="container">
@@ -267,8 +253,7 @@
                         </p>
                     </div>
 
-                    <a href="{{ route('tienda.productos.index') }}"
-                       class="btn btn-store-outline px-4">
+                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
                         Ver catálogo
                     </a>
 
@@ -276,8 +261,7 @@
 
                 <div class="row g-3 g-md-4">
 
-                    @foreach($productosHome as $producto)
-
+                    @foreach ($productosHome as $producto)
                         @php
                             $productoImagen = $producto->imagenPrincipal?->ruta
                                 ? asset('storage/' . $producto->imagenPrincipal->ruta)
@@ -290,28 +274,25 @@
 
                                 {{-- IMAGEN --}}
                                 <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                   class="store-product-image-wrap">
+                                    class="store-product-image-wrap">
 
-                                    <img src="{{ $productoImagen }}"
-                                         alt="{{ $producto->nombre }}"
-                                         class="store-product-image">
+                                    <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
+                                        class="store-product-image">
 
                                     <button type="button"
-                                            class="store-product-heart">
+                                        class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                        data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
 
-                                        <i class="bi bi-heart"></i>
+                                        <i
+                                            class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
 
                                     </button>
 
-                                    @if($producto->stock_actual <= 0)
-
+                                    @if ($producto->stock_actual <= 0)
                                         <span class="store-product-badge store-product-badge-muted">
                                             Agotado
                                         </span>
-
                                     @else
-
-                                    
                                     @endif
 
                                 </a>
@@ -324,7 +305,7 @@
                                     </div>
 
                                     <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                       class="store-product-name">
+                                        class="store-product-name">
 
                                         {{ $producto->nombre }}
 
@@ -347,7 +328,7 @@
                                         </div>
 
                                         <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                           class="store-product-action">
+                                            class="store-product-action">
 
                                             <i class="bi bi-eye"></i>
 
@@ -360,7 +341,6 @@
                             </div>
 
                         </div>
-
                     @endforeach
 
                 </div>
@@ -376,7 +356,7 @@
     <section class="store-section">
         <div class="container">
             <div class="store-card border-0 overflow-hidden"
-                 style="
+                style="
                     border-radius: 30px;
                     background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
                     box-shadow: 0 26px 60px rgba(15, 23, 42, 0.16);
@@ -407,7 +387,7 @@
                                 </a>
 
                                 <a href="{{ route('tienda.marcas.index') }}"
-                                   class="btn btn-light fw-semibold rounded-4 px-4">
+                                    class="btn btn-light fw-semibold rounded-4 px-4">
                                     Ver marcas
                                 </a>
                             </div>
@@ -444,7 +424,7 @@
     {{-- =========================================================
         MARCAS DESTACADAS DINÁMICAS
     ========================================================== --}}
-    @if($marcasHome->isNotEmpty())
+    @if ($marcasHome->isNotEmpty())
 
         <section class="store-section" style="background: linear-gradient(to bottom, #f8fafc 0%, #f3f4f6 100%);">
             <div class="container">
@@ -465,8 +445,7 @@
                         </p>
                     </div>
 
-                    <a href="{{ route('tienda.marcas.index') }}"
-                       class="btn btn-store-outline px-4">
+                    <a href="{{ route('tienda.marcas.index') }}" class="btn btn-store-outline px-4">
                         Ver marcas
                     </a>
 
@@ -474,26 +453,21 @@
 
                 <div class="row g-3 g-md-4">
 
-                    @foreach($marcasHome as $marca)
-
+                    @foreach ($marcasHome as $marca)
                         @php
-                            $marcaImagen = $marca->imagen
-                                ? asset('storage/' . $marca->imagen)
-                                : $placeholder;
+                            $marcaImagen = $marca->imagen ? asset('storage/' . $marca->imagen) : $placeholder;
 
                             $marcaLogo = strtoupper(mb_substr($marca->nombre, 0, 2));
                         @endphp
 
                         <div class="col-6 col-lg-3">
 
-                            <a href="{{ route('tienda.marcas.show', $marca->slug) }}"
-                               class="store-brand-card">
+                            <a href="{{ route('tienda.marcas.show', $marca->slug) }}" class="store-brand-card">
 
                                 <div class="store-brand-image-wrap">
 
-                                    <img src="{{ $marcaImagen }}"
-                                         alt="{{ $marca->nombre }}"
-                                         class="store-brand-image">
+                                    <img src="{{ $marcaImagen }}" alt="{{ $marca->nombre }}"
+                                        class="store-brand-image">
 
                                     <div class="store-brand-overlay"></div>
 
@@ -532,7 +506,6 @@
                             </a>
 
                         </div>
-
                     @endforeach
 
                 </div>
@@ -566,11 +539,11 @@
 
                 <div class="col-md-4">
                     <div class="store-card h-100 border-0"
-                         style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
+                        style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
                         <div class="p-4 p-lg-4 text-center">
 
                             <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                                 style="width: 74px; height: 74px; background: #fff7e0; color: #dca116; font-size: 1.55rem;">
+                                style="width: 74px; height: 74px; background: #fff7e0; color: #dca116; font-size: 1.55rem;">
                                 <i class="bi bi-truck"></i>
                             </div>
 
@@ -588,11 +561,11 @@
 
                 <div class="col-md-4">
                     <div class="store-card h-100 border-0"
-                         style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
+                        style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
                         <div class="p-4 p-lg-4 text-center">
 
                             <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                                 style="width: 74px; height: 74px; background: #eef6ff; color: #2563eb; font-size: 1.55rem;">
+                                style="width: 74px; height: 74px; background: #eef6ff; color: #2563eb; font-size: 1.55rem;">
                                 <i class="bi bi-shield-lock"></i>
                             </div>
 
@@ -610,11 +583,11 @@
 
                 <div class="col-md-4">
                     <div class="store-card h-100 border-0"
-                         style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
+                        style="border-radius: 24px; box-shadow: 0 16px 38px rgba(15, 23, 42, 0.05);">
                         <div class="p-4 p-lg-4 text-center">
 
                             <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
-                                 style="width: 74px; height: 74px; background: #eefbf3; color: #16a34a; font-size: 1.55rem;">
+                                style="width: 74px; height: 74px; background: #eefbf3; color: #16a34a; font-size: 1.55rem;">
                                 <i class="bi bi-grid"></i>
                             </div>
 

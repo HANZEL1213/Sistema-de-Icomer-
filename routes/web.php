@@ -14,6 +14,7 @@ use App\Http\Controllers\Tienda\{
     MarcaController,
     CarritoController,
     CheckoutController,
+    FavoritoController,
     PedidoController,
     PagoPedidoController,
     TiendaAuthController
@@ -76,6 +77,33 @@ Route::name('tienda.')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/', [HomeController::class, 'index'])->name('home');
+
+
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FAVORITOS
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('favoritos')
+            ->name('favoritos.')
+            ->group(function () {
+
+                Route::get(
+                    '/',
+                    [FavoritoController::class, 'index']
+                )->name('index');
+
+                Route::post(
+                    '/toggle/{id}',
+                    [FavoritoController::class, 'toggle']
+                )->name('toggle');
+
+            });
+
+
 
     /*
     |--------------------------------------------------------------------------
