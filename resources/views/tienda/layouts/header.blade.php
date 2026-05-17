@@ -100,7 +100,7 @@
 
                 {{-- DERECHA --}}
                 <div class="d-flex align-items-center gap-2 gap-md-3">
-                  
+
 
                     <a href="{{ route('tienda.pedidos.mis') }}" class="store-icon-btn d-none d-md-inline-flex"
                         aria-label="Mis pedidos">
@@ -116,27 +116,40 @@
                         class="store-icon-btn d-none d-md-inline-flex position-relative" aria-label="Favoritos">
                         <i class="bi bi-heart fs-5"></i>
 
-                      <span class="store-cart-badge js-favorites-count"
-      style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
-    {{ $cantidadFavoritos }}
-</span>
+                        <span class="store-cart-badge js-favorites-count"
+                            style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+                            {{ $cantidadFavoritos }}
+                        </span>
                     </a>
 
-                {{-- FAVORITOS MOBILE --}}
-<a href="{{ route('tienda.favoritos.index') }}"
-   class="store-icon-btn d-inline-flex d-md-none position-relative"
-   aria-label="Favoritos">
 
-    <i class="bi bi-heart fs-5"></i>
+                    <a href="{{ route('tienda.carrito.index') }}"
+                        class="store-icon-btn d-none d-md-inline-flex position-relative" aria-label="Carrito">
 
-    <span class="store-cart-badge js-favorites-count"
-          style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+                        <i class="bi bi-cart3 fs-5"></i>
 
-        {{ $cantidadFavoritos }}
+                        @if ($cantidadCarrito > 0)
+                            <span class="store-cart-badge">
+                                {{ $cantidadCarrito }}
+                            </span>
+                        @endif
 
-    </span>
+                    </a>
 
-</a>
+                    {{-- FAVORITOS MOBILE --}}
+                    <a href="{{ route('tienda.favoritos.index') }}"
+                        class="store-icon-btn d-inline-flex d-md-none position-relative" aria-label="Favoritos">
+
+                        <i class="bi bi-heart fs-5"></i>
+
+                        <span class="store-cart-badge js-favorites-count"
+                            style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+
+                            {{ $cantidadFavoritos }}
+
+                        </span>
+
+                    </a>
                 </div>
             </div>
 
@@ -273,28 +286,27 @@
                     <i class="bi bi-bookmark-star"></i>
                 </a>
 
-                <a href="{{ route('tienda.favoritos.index') }}"
-   class="store-offcanvas-link"
-   data-store-close-offcanvas="true">
+                <a href="{{ route('tienda.favoritos.index') }}" class="store-offcanvas-link"
+                    data-store-close-offcanvas="true">
 
-    <span>
-        Favoritos
-    </span>
+                    <span>
+                        Favoritos
+                    </span>
 
-    <span class="d-inline-flex align-items-center gap-2">
+                    <span class="d-inline-flex align-items-center gap-2">
 
-        <span class="store-offcanvas-count js-favorites-count"
-              style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
+                        <span class="store-offcanvas-count js-favorites-count"
+                            style="{{ $cantidadFavoritos > 0 ? '' : 'display: none;' }}">
 
-            {{ $cantidadFavoritos }}
+                            {{ $cantidadFavoritos }}
 
-        </span>
+                        </span>
 
-        <i class="bi bi-heart"></i>
+                        <i class="bi bi-heart"></i>
 
-    </span>
+                    </span>
 
-</a>
+                </a>
                 <a href="{{ route('tienda.checkout.index') }}" class="store-offcanvas-link"
                     data-store-close-offcanvas="true">
                     <span>Checkout</span>
@@ -336,81 +348,75 @@
     </div>
 
     {{-- BOTTOM NAV MOBILE --}}
- <div class="store-mobile-bottom-nav d-lg-none">
-    <div class="container px-2">
+    <div class="store-mobile-bottom-nav d-lg-none">
+        <div class="container px-2">
 
-        <div class="store-mobile-bottom-nav-wrap">
+            <div class="store-mobile-bottom-nav-wrap">
 
-            {{-- INICIO --}}
-            <a href="{{ route('tienda.home') }}"
-               class="store-mobile-bottom-link active">
+                {{-- INICIO --}}
+                <a href="{{ route('tienda.home') }}" class="store-mobile-bottom-link active">
 
-                <i class="bi bi-house-door"></i>
+                    <i class="bi bi-house-door"></i>
 
-                <span>
-                    Inicio
-                </span>
-
-            </a>
-
-            {{-- PRODUCTOS --}}
-            <a href="{{ route('tienda.productos.index') }}"
-               class="store-mobile-bottom-link">
-
-                <i class="bi bi-grid"></i>
-
-                <span>
-                    Productos
-                </span>
-
-            </a>
-
-            {{-- CARRITO CENTRO --}}
-            <a href="{{ route('tienda.carrito.index') }}"
-               class="store-mobile-bottom-link store-mobile-cart-center">
-
-                <span class="store-mobile-cart-pill">
-
-                    <i class="bi bi-cart3"></i>
-
-                </span>
-
-                @if ($cantidadCarrito > 0)
-
-                    <span class="store-mobile-bottom-badge">
-                        {{ $cantidadCarrito }}
+                    <span>
+                        Inicio
                     </span>
 
-                @endif
+                </a>
 
-            </a>
+                {{-- PRODUCTOS --}}
+                <a href="{{ route('tienda.productos.index') }}" class="store-mobile-bottom-link">
 
-            {{-- CATEGORÍAS --}}
-            <a href="{{ route('tienda.categorias.index') }}"
-               class="store-mobile-bottom-link">
+                    <i class="bi bi-grid"></i>
 
-                <i class="bi bi-collection"></i>
+                    <span>
+                        Productos
+                    </span>
 
-                <span>
-                    Categorías
-                </span>
+                </a>
 
-            </a>
+                {{-- CARRITO CENTRO --}}
+                <a href="{{ route('tienda.carrito.index') }}"
+                    class="store-mobile-bottom-link store-mobile-cart-center">
 
-            {{-- PEDIDOS --}}
-            <a href="{{ route('tienda.pedidos.mis') }}"
-               class="store-mobile-bottom-link">
+                    <span class="store-mobile-cart-pill">
 
-                <i class="bi bi-box-seam"></i>
+                        <i class="bi bi-cart3"></i>
 
-                <span>
-                    Pedidos
-                </span>
+                    </span>
 
-            </a>
+                    @if ($cantidadCarrito > 0)
+                        <span class="store-mobile-bottom-badge">
+                            {{ $cantidadCarrito }}
+                        </span>
+                    @endif
+
+                </a>
+
+                {{-- CATEGORÍAS --}}
+                <a href="{{ route('tienda.categorias.index') }}" class="store-mobile-bottom-link">
+
+                    <i class="bi bi-collection"></i>
+
+                    <span>
+                        Categorías
+                    </span>
+
+                </a>
+
+                {{-- PEDIDOS --}}
+                <a href="{{ route('tienda.pedidos.mis') }}" class="store-mobile-bottom-link">
+
+                    <i class="bi bi-box-seam"></i>
+
+                    <span>
+                        Pedidos
+                    </span>
+
+                </a>
+
+            </div>
 
         </div>
-
     </div>
-</div>
 </header>

@@ -310,65 +310,78 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
 
-            const mainImage = document.getElementById('storeProductMainImage');
-            const thumbs = document.querySelectorAll('.store-product-thumb');
+    const mainImage = document.getElementById('storeProductMainImage');
+    const thumbs = document.querySelectorAll('.store-product-thumb');
 
-            thumbs.forEach((thumb) => {
-                thumb.addEventListener('click', function() {
-                    const image = this.dataset.productImage;
+    thumbs.forEach((thumb) => {
 
-                    if (mainImage && image) {
-                        mainImage.src = image;
-                    }
+        thumb.addEventListener('click', function () {
 
-                    thumbs.forEach((item) => item.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
+            const image = this.dataset.productImage;
 
-            const qtyInput = document.getElementById('storeProductQty');
-            const qtyButtons = document.querySelectorAll('[data-qty-action]');
+            if (mainImage && image) {
+                mainImage.src = image;
+            }
 
-            qtyButtons.forEach((button) => {
-                button.addEventListener('click', function() {
-                    if (!qtyInput) return;
+            thumbs.forEach((item) => item.classList.remove('active'));
 
-                    const action = this.dataset.qtyAction;
-                    const min = parseInt(qtyInput.min || 1);
-                    const max = parseInt(qtyInput.max || 999);
-                    let value = parseInt(qtyInput.value || 1);
-
-                    if (action === 'minus') {
-                        value = Math.max(min, value - 1);
-                    }
-
-                    if (action === 'plus') {
-                        value = Math.min(max, value + 1);
-                    }
-
-                    qtyInput.value = value;
-                });
-            });
+            this.classList.add('active');
 
         });
 
-        const qtyHidden = document.getElementById('storeProductQtyHidden');
+    });
 
-        if (qtyInput && qtyHidden) {
+    const qtyInput = document.getElementById('storeProductQty');
+    const qtyHidden = document.getElementById('storeProductQtyHidden');
+    const qtyButtons = document.querySelectorAll('[data-qty-action]');
 
-            qtyInput.addEventListener('input', function() {
-                qtyHidden.value = this.value;
-            });
+    if (!qtyInput || !qtyHidden) return;
 
-            qtyButtons.forEach((button) => {
-                button.addEventListener('click', function() {
-                    qtyHidden.value = qtyInput.value;
-                });
-            });
+    qtyButtons.forEach((button) => {
 
-        }
-    </script>
+        button.addEventListener('click', function () {
+
+            const action = this.dataset.qtyAction;
+
+            const min = parseInt(qtyInput.min || 1);
+            const max = parseInt(qtyInput.max || 999);
+
+            let value = parseInt(qtyInput.value || 1);
+
+            if (action === 'minus') {
+                value = Math.max(min, value - 1);
+            }
+
+            if (action === 'plus') {
+                value = Math.min(max, value + 1);
+            }
+
+            qtyInput.value = value;
+            qtyHidden.value = value;
+
+        });
+
+    });
+
+    qtyInput.addEventListener('input', function () {
+
+        let value = parseInt(this.value || 1);
+
+        const min = parseInt(this.min || 1);
+        const max = parseInt(this.max || 999);
+
+        if (value < min) value = min;
+        if (value > max) value = max;
+
+        this.value = value;
+
+        qtyHidden.value = value;
+
+    });
+
+});
+</script>
 @endpush

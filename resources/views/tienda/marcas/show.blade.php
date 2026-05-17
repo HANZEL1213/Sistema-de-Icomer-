@@ -180,14 +180,19 @@
 
 
                                 {{-- BADGES --}}
-                                @if ($producto->stock <= 0)
-                                @elseif($producto->destacado)
-                                    <span class="store-product-badge">
+                         @if ($producto->stock_actual <= 0)
 
-                                        Destacado
+    <span class="store-product-badge store-product-badge-muted">
+        Agotado
+    </span>
 
-                                    </span>
-                                @endif
+@elseif($producto->destacado)
+
+    <span class="store-product-badge">
+        Destacado
+    </span>
+
+@endif
 
                             </a>
 
@@ -225,12 +230,15 @@
 
                                         </div>
 
-                                        <small class="store-product-stock">
+                                <small class="store-product-stock">
 
-                                            Stock:
-                                            {{ $producto->stock }}
+    @if($producto->stock_actual > 0)
+        Stock: {{ $producto->stock_actual}}
+    @else
+        Agotado
+    @endif
 
-                                        </small>
+</small>
 
                                     </div>
 
