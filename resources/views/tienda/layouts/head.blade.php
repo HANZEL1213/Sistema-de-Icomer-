@@ -21,6 +21,9 @@
 <link rel="stylesheet" href="{{ asset('assets/css/tienda-forms.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
 
+{{-- google maps --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 {{-- Swiper --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 @stack('styles')

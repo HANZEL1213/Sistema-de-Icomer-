@@ -254,30 +254,164 @@
                                         @enderror
                                     </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                                     <div class="col-12">
-                                        <label class="store-form-label">Link de Google Maps</label>
+                                        <label class="store-form-label">
+                                            <i class="bi bi-map"></i>
+                                            Ubicación en mapa
+                                        </label>
 
-                                        <div class="d-grid gap-2 d-md-flex">
-                                            <input type="url" name="link_google_maps" id="checkoutGoogleMaps"
-                                                value="{{ old('link_google_maps') }}"
-                                                class="form-control store-filter-control @error('link_google_maps') is-invalid @enderror"
-                                                placeholder="Pega aquí el link de tu ubicación">
-
-                                            <a href="https://www.google.com/maps" target="_blank"
-                                                class="btn btn-store-outline">
-                                                <i class="bi bi-map"></i>
-                                                Abrir mapa
-                                            </a>
+                                        <div class="alert alert-info mb-3">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            La dirección escrita arriba se usará solo como referencia para ubicar mejor el
+                                            mapa.
                                         </div>
 
-                                        <small class="text-muted d-block mt-2">
-                                            Abre Google Maps, busca tu ubicación, copia el enlace y pégalo aquí.
-                                        </small>
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-12 col-md-6">
+                                                <button type="button" class="btn btn-store-primary w-100"
+                                                    id="btnUseCurrentLocation">
+                                                    <i class="bi bi-crosshair me-1"></i>
+                                                    Usar mi ubicación actual
+                                                </button>
+                                            </div>
+
+                                            <div class="col-12 col-md-6">
+                                                <button type="button" class="btn btn-store-outline w-100"
+                                                    id="btnShowMap">
+                                                    <i class="bi bi-map me-1"></i>
+                                                    Elegir otra ubicación
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div id="mapBox" style="display: none;">
+
+                                            <div class="mb-3 position-relative">
+                                                <label class="store-form-label">Buscar ubicación</label>
+
+                                                <input type="text" id="addressSearch"
+                                                    class="form-control store-filter-control"
+                                                    placeholder="Ejemplo: escuela, iglesia, supermercado, barrio...">
+
+                                                <div id="addressSuggestions"
+                                                    class="list-group position-absolute w-100 shadow-sm"
+                                                    style="z-index: 9999; display: none; max-height: 220px; overflow-y: auto;">
+                                                </div>
+
+                                                <small class="text-muted d-block mt-2">
+                                                    Escribí una referencia y seleccioná una sugerencia. También podés mover
+                                                    el marcador.
+                                                </small>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="store-form-label">
+                                                    coordenadas
+                                                </label>
+
+                                                <div class="input-group">
+                                                    <input type="text" id="manualLocationInput"
+                                                        class="form-control store-filter-control"
+                                                        placeholder="Pegá un link de Google Maps o coordenadas: 9.9281,-84.0907">
+
+                                                    <button type="button" class="btn btn-store-outline"
+                                                        id="btnLoadManualLocation">
+                                                        Cargar
+                                                    </button>
+                                                </div>
+
+                                                <small class="text-muted d-block mt-2">
+                                                    Este campo se llena solo cuando seleccionás una ubicación.
+                                                </small>
+                                            </div>
+
+                                            <div id="pickupMap"
+                                                style="height: 350px; width: 100%; border-radius: 16px; overflow: hidden; z-index: 1;">
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" name="link_google_maps" id="googleMapsLink"
+                                            value="{{ old('link_google_maps') }}">
+                                        <input type="hidden" name="latitud" id="latitud"
+                                            value="{{ old('latitud') }}">
+                                        <input type="hidden" name="longitud" id="longitud"
+                                            value="{{ old('longitud') }}">
+                                        <input type="hidden" name="direccion_mapa" id="direccionMapa"
+                                            value="{{ old('direccion_mapa') }}">
+
+                                        <div class="mt-3 p-3 bg-light rounded-4 border" id="selectedLocationInfo"
+                                            style="{{ old('link_google_maps') ? '' : 'display: none;' }}">
+
+                                            <strong class="d-block mb-1">Ubicación seleccionada:</strong>
+
+                                            <span id="selectedAddressText" class="small d-block">
+                                                {{ old('direccion_mapa') ?: 'Ubicación cargada correctamente' }}
+                                            </span>
+
+                                            <code id="selectedCoordsText" class="small d-block mt-2 text-muted">
+                                                @if (old('latitud') && old('longitud'))
+                                                    Coordenadas: {{ old('latitud') }}, {{ old('longitud') }}
+                                                @endif
+                                            </code>
+
+                                            <a href="{{ old('link_google_maps') ?: '#' }}" id="openGoogleMapsLink"
+                                                target="_blank" class="small d-inline-flex align-items-center gap-1 mt-2">
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                                Ver en Google Maps
+                                            </a>
+                                        </div>
 
                                         @error('link_google_maps')
                                             <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
                                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                                 </div>
                             </div>
@@ -421,156 +555,156 @@
 
                     </div>
 
-               
-{{-- RESUMEN --}}
-<div class="col-12 col-lg-5">
-    <div class="store-checkout-summary-card">
 
-        <div class="store-checkout-summary-header">
-            <h2>Resumen del pedido</h2>
-        </div>
+                    {{-- RESUMEN --}}
+                    <div class="col-12 col-lg-5">
+                        <div class="store-checkout-summary-card">
 
-        <div class="store-checkout-products">
-            @foreach ($carrito as $item)
-                @php
-                    $imagen = $item['imagen']
-                        ? asset('storage/' . $item['imagen'])
-                        : asset('assets/img/no-image.png');
-                @endphp
+                            <div class="store-checkout-summary-header">
+                                <h2>Resumen del pedido</h2>
+                            </div>
 
-                <div class="store-checkout-product">
-                    <div class="store-checkout-product-image">
-                        <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
-                    </div>
+                            <div class="store-checkout-products">
+                                @foreach ($carrito as $item)
+                                    @php
+                                        $imagen = $item['imagen']
+                                            ? asset('storage/' . $item['imagen'])
+                                            : asset('assets/img/no-image.png');
+                                    @endphp
 
-                    <div class="store-checkout-product-info">
-                        <h5>{{ $item['nombre'] }}</h5>
-                        <span>Cantidad: {{ $item['cantidad'] }}</span>
-                    </div>
+                                    <div class="store-checkout-product">
+                                        <div class="store-checkout-product-image">
+                                            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
+                                        </div>
 
-                    <div class="store-checkout-product-price">
-                        ₡{{ number_format($item['precio'] * $item['cantidad'], 2) }}
-                    </div>
-                </div>
-            @endforeach
-        </div>
+                                        <div class="store-checkout-product-info">
+                                            <h5>{{ $item['nombre'] }}</h5>
+                                            <span>Cantidad: {{ $item['cantidad'] }}</span>
+                                        </div>
 
-        {{-- CUPÓN APLICADO --}}
-        @if($cuponAplicado)
-            <div class="store-cart-coupon-box mt-3 mb-3">
+                                        <div class="store-checkout-product-price">
+                                            ₡{{ number_format($item['precio'] * $item['cantidad'], 2) }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
 
-                <label class="store-form-label">
-                    Cupón de descuento
-                </label>
+                            {{-- CUPÓN APLICADO --}}
+                            @if ($cuponAplicado)
+                                <div class="store-cart-coupon-box mt-3 mb-3">
 
-                <div class="bg-light rounded-4 p-3 border">
+                                    <label class="store-form-label">
+                                        Cupón de descuento
+                                    </label>
 
-                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                    <div class="bg-light rounded-4 p-3 border">
 
-                        <div>
-                            <span class="badge bg-success mb-2">
-                                Cupón aplicado
-                            </span>
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
 
-                            <h6 class="fw-bold mb-1">
-                                {{ $cuponAplicado['codigo'] }}
-                            </h6>
+                                            <div>
+                                                <span class="badge bg-success mb-2">
+                                                    Cupón aplicado
+                                                </span>
 
-                            <small class="text-muted d-block">
-                                Descuento aplicado:
-                                ₡{{ number_format($descuento, 2) }}
-                            </small>
+                                                <h6 class="fw-bold mb-1">
+                                                    {{ $cuponAplicado['codigo'] }}
+                                                </h6>
 
-                            @if($cuponAplicado['tipo'] === 'porcentaje')
-                                <small class="text-success">
-                                    {{ number_format($cuponAplicado['valor'], 0) }}% OFF
-                                </small>
-                            @else
-                                <small class="text-success">
-                                    ₡{{ number_format($cuponAplicado['valor'], 2) }} OFF
-                                </small>
+                                                <small class="text-muted d-block">
+                                                    Descuento aplicado:
+                                                    ₡{{ number_format($descuento, 2) }}
+                                                </small>
+
+                                                @if ($cuponAplicado['tipo'] === 'porcentaje')
+                                                    <small class="text-success">
+                                                        {{ number_format($cuponAplicado['valor'], 0) }}% OFF
+                                                    </small>
+                                                @else
+                                                    <small class="text-success">
+                                                        ₡{{ number_format($cuponAplicado['valor'], 2) }} OFF
+                                                    </small>
+                                                @endif
+                                            </div>
+
+                                            <a href="{{ route('tienda.carrito.index') }}"
+                                                class="btn btn-store-outline btn-sm">
+                                                Cambiar
+                                            </a>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
                             @endif
+
+                            <input type="hidden" id="checkoutSubtotalValue" value="{{ $subtotal }}">
+                            <input type="hidden" id="checkoutDescuentoValue" value="{{ $descuento }}">
+
+                            <div class="store-checkout-totals">
+
+                                <div class="store-checkout-total-row">
+                                    <span>Subtotal</span>
+
+                                    <strong id="checkoutSubtotalText">
+                                        ₡{{ number_format($subtotal, 2) }}
+                                    </strong>
+                                </div>
+
+                                <div class="store-checkout-total-row">
+                                    <span>Envío</span>
+
+                                    <strong id="checkoutEnvioText">
+                                        Seleccione una zona
+                                    </strong>
+                                </div>
+
+                                <div class="store-checkout-total-row text-success">
+                                    <span>Descuento</span>
+
+                                    <strong id="checkoutDescuentoText">
+                                        -₡{{ number_format($descuento, 2) }}
+                                    </strong>
+                                </div>
+
+                                <div class="store-checkout-total-row total">
+                                    <span>Total final</span>
+
+                                    <strong id="checkoutTotalText">
+                                        ₡{{ number_format($total, 2) }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                            <div class="alert alert-warning mb-3">
+                                <i class="bi bi-clock-history me-1"></i>
+                                Tu pedido será revisado manualmente después de validar el pago.
+                            </div>
+
+                            <button type="submit" class="btn btn-store-primary store-checkout-submit">
+                                <i class="bi bi-shield-check me-1"></i>
+                                Confirmar pedido
+                            </button>
+
+                            <a href="{{ route('tienda.carrito.index') }}" class="btn btn-store-outline w-100 mb-3">
+                                Volver al carrito
+                            </a>
+
+                            <div class="store-checkout-security">
+                                <div>
+                                    <i class="bi bi-lock"></i>
+                                    Compra segura
+                                </div>
+
+                                <div>
+                                    <i class="bi bi-truck"></i>
+                                    Envío según zona
+                                </div>
+                            </div>
+
                         </div>
-
-                        <a href="{{ route('tienda.carrito.index') }}"
-                           class="btn btn-store-outline btn-sm">
-                            Cambiar
-                        </a>
-
                     </div>
-
-                </div>
-
-            </div>
-        @endif
-
-        <input type="hidden" id="checkoutSubtotalValue" value="{{ $subtotal }}">
-        <input type="hidden" id="checkoutDescuentoValue" value="{{ $descuento }}">
-
-        <div class="store-checkout-totals">
-
-            <div class="store-checkout-total-row">
-                <span>Subtotal</span>
-
-                <strong id="checkoutSubtotalText">
-                    ₡{{ number_format($subtotal, 2) }}
-                </strong>
-            </div>
-
-            <div class="store-checkout-total-row">
-                <span>Envío</span>
-
-                <strong id="checkoutEnvioText">
-                    Seleccione una zona
-                </strong>
-            </div>
-
-            <div class="store-checkout-total-row text-success">
-                <span>Descuento</span>
-
-                <strong id="checkoutDescuentoText">
-                    -₡{{ number_format($descuento, 2) }}
-                </strong>
-            </div>
-
-            <div class="store-checkout-total-row total">
-                <span>Total final</span>
-
-                <strong id="checkoutTotalText">
-                    ₡{{ number_format($total, 2) }}
-                </strong>
-            </div>
-
-        </div>
-
-        <div class="alert alert-warning mb-3">
-            <i class="bi bi-clock-history me-1"></i>
-            Tu pedido será revisado manualmente después de validar el pago.
-        </div>
-
-        <button type="submit" class="btn btn-store-primary store-checkout-submit">
-            <i class="bi bi-shield-check me-1"></i>
-            Confirmar pedido
-        </button>
-
-        <a href="{{ route('tienda.carrito.index') }}" class="btn btn-store-outline w-100 mb-3">
-            Volver al carrito
-        </a>
-
-        <div class="store-checkout-security">
-            <div>
-                <i class="bi bi-lock"></i>
-                Compra segura
-            </div>
-
-            <div>
-                <i class="bi bi-truck"></i>
-                Envío según zona
-            </div>
-        </div>
-
-    </div>
-</div>
 
 
                 </div>
@@ -587,6 +721,7 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
             const tipoEntregaRadios = document.querySelectorAll('input[name="tipo_entrega"]');
             const addressBox = document.getElementById('checkoutAddressBox');
 
@@ -612,10 +747,14 @@
             }
 
             function actualizarResumenEnvio(costo) {
-                const totalFinal = subtotalValue - descuentoValue + Number(costo || 0);
+
+                const totalFinal =
+                    subtotalValue - descuentoValue + Number(costo || 0);
 
                 if (envioText) {
-                    envioText.textContent = Number(costo) > 0 ?
+
+                    envioText.textContent =
+                        Number(costo) > 0 ?
                         formatoCRC(costo) :
                         'Gratis';
                 }
@@ -630,6 +769,7 @@
             }
 
             function resetResumenEnvio(texto = 'Seleccione una zona') {
+
                 const totalBase = subtotalValue - descuentoValue;
 
                 if (envioText) {
@@ -646,8 +786,11 @@
             }
 
             function consultarCostoEnvio(idDistrito) {
+
                 if (!idDistrito) {
+
                     resetResumenEnvio();
+
                     return;
                 }
 
@@ -658,9 +801,15 @@
                 fetch(`/checkout/costo-envio/${idDistrito}`)
                     .then(response => response.json())
                     .then(data => {
+
                         if (data.success) {
-                            actualizarResumenEnvio(Number(data.costo || 0));
+
+                            actualizarResumenEnvio(
+                                Number(data.costo || 0)
+                            );
+
                         } else {
+
                             resetResumenEnvio('No disponible');
                         }
                     })
@@ -670,37 +819,54 @@
             }
 
             function toggleEntrega() {
-                const tipo = document.querySelector('input[name="tipo_entrega"]:checked')?.value || 'envio';
+
+                const tipo =
+                    document.querySelector('input[name="tipo_entrega"]:checked')
+                    ?.value || 'envio';
 
                 if (tipo === 'retiro') {
+
                     addressBox.style.display = 'none';
+
                     actualizarResumenEnvio(0);
+
                 } else {
+
                     addressBox.style.display = '';
 
                     if (distritoSelect.value) {
+
                         consultarCostoEnvio(distritoSelect.value);
+
                     } else {
+
                         resetResumenEnvio();
                     }
                 }
 
-                document.querySelectorAll('.store-payment-option').forEach(option => {
-                    const input = option.querySelector('input[type="radio"]');
+                document.querySelectorAll('.store-payment-option')
+                    .forEach(option => {
 
-                    if (!input) return;
+                        const input =
+                            option.querySelector('input[type="radio"]');
 
-                    option.classList.toggle('active', input.checked);
-                });
+                        if (!input) return;
+
+                        option.classList.toggle('active', input.checked);
+                    });
             }
 
             function limpiarSelect(select, texto = 'Seleccione') {
-                select.innerHTML = `<option value="">${texto}</option>`;
+
+                select.innerHTML =
+                    `<option value="">${texto}</option>`;
             }
 
             function cargarCantones(idProvincia, selected = null) {
+
                 limpiarSelect(cantonSelect);
                 limpiarSelect(distritoSelect);
+
                 resetResumenEnvio();
 
                 if (!idProvincia) return;
@@ -708,12 +874,19 @@
                 fetch(`/checkout/cantones/${idProvincia}`)
                     .then(response => response.json())
                     .then(data => {
+
                         data.forEach(canton => {
-                            const option = document.createElement('option');
+
+                            const option =
+                                document.createElement('option');
+
                             option.value = canton.id_canton;
                             option.textContent = canton.nombre;
 
-                            if (selected && String(selected) === String(canton.id_canton)) {
+                            if (
+                                selected &&
+                                String(selected) === String(canton.id_canton)
+                            ) {
                                 option.selected = true;
                             }
 
@@ -727,7 +900,9 @@
             }
 
             function cargarDistritos(idCanton, selected = null) {
+
                 limpiarSelect(distritoSelect);
+
                 resetResumenEnvio();
 
                 if (!idCanton) return;
@@ -735,12 +910,19 @@
                 fetch(`/checkout/distritos/${idCanton}`)
                     .then(response => response.json())
                     .then(data => {
+
                         data.forEach(distrito => {
-                            const option = document.createElement('option');
+
+                            const option =
+                                document.createElement('option');
+
                             option.value = distrito.id_distrito;
                             option.textContent = distrito.nombre;
 
-                            if (selected && String(selected) === String(distrito.id_distrito)) {
+                            if (
+                                selected &&
+                                String(selected) === String(distrito.id_distrito)
+                            ) {
                                 option.selected = true;
                             }
 
@@ -772,20 +954,617 @@
             toggleEntrega();
 
             if (provinciaSelect.value) {
-                cargarCantones(provinciaSelect.value, oldCanton);
+                cargarCantones(
+                    provinciaSelect.value,
+                    oldCanton
+                );
             }
+
+            /*
+            |--------------------------------------------------------------------------
+            | MAPA
+            |--------------------------------------------------------------------------
+            */
+
+            const btnUseCurrentLocation =
+                document.getElementById('btnUseCurrentLocation');
+
+            const btnShowMap =
+                document.getElementById('btnShowMap');
+
+            const mapBox =
+                document.getElementById('mapBox');
+
+            const addressSearch =
+                document.getElementById('addressSearch');
+
+            const addressSuggestions =
+                document.getElementById('addressSuggestions');
+
+            const manualLocationInput =
+                document.getElementById('manualLocationInput');
+
+            const btnLoadManualLocation =
+                document.getElementById('btnLoadManualLocation');
+
+            const inputDireccion =
+                document.querySelector('textarea[name="direccion_envio"]');
+
+            const inputReferencia =
+                document.querySelector('input[name="referencia_envio"]');
+
+            const inputLat =
+                document.getElementById('latitud');
+
+            const inputLng =
+                document.getElementById('longitud');
+
+            const inputLink =
+                document.getElementById('googleMapsLink');
+
+            const inputDireccionMapa =
+                document.getElementById('direccionMapa');
+
+            const selectedAddressText =
+                document.getElementById('selectedAddressText');
+
+            const selectedCoordsText =
+                document.getElementById('selectedCoordsText');
+
+            const openGoogleMapsLink =
+                document.getElementById('openGoogleMapsLink');
+
+            const infoBox =
+                document.getElementById('selectedLocationInfo');
+
+            let map = null;
+            let marker = null;
+            let suggestionTimeout = null;
+
+            const defaultLat = 9.9281;
+            const defaultLng = -84.0907;
+
+            function activarModoUbicacion(tipo) {
+
+                if (tipo === 'actual') {
+
+                    btnUseCurrentLocation.classList.remove('btn-store-outline');
+                    btnUseCurrentLocation.classList.add('btn-store-primary');
+
+                    btnShowMap.classList.remove('btn-store-primary');
+                    btnShowMap.classList.add('btn-store-outline');
+
+                } else {
+
+                    btnShowMap.classList.remove('btn-store-outline');
+                    btnShowMap.classList.add('btn-store-primary');
+
+                    btnUseCurrentLocation.classList.remove('btn-store-primary');
+                    btnUseCurrentLocation.classList.add('btn-store-outline');
+                }
+            }
+
+            function obtenerReferenciaBusqueda() {
+
+                const provincia =
+                    provinciaSelect.options[provinciaSelect.selectedIndex]?.text || '';
+
+                const canton =
+                    cantonSelect.options[cantonSelect.selectedIndex]?.text || '';
+
+                const distrito =
+                    distritoSelect.options[distritoSelect.selectedIndex]?.text || '';
+
+                return [
+                        distrito,
+                        canton,
+                        provincia,
+                        'Costa Rica'
+                    ]
+                    .filter(Boolean)
+                    .join(', ');
+            }
+
+            function setLocation(lat, lng, texto) {
+
+                const link =
+                    `https://www.google.com/maps?q=${lat},${lng}`;
+
+                inputLat.value = lat;
+                inputLng.value = lng;
+                inputLink.value = link;
+
+                if (manualLocationInput) {
+                    manualLocationInput.value = link;
+                }
+
+                if (inputDireccionMapa) {
+                    inputDireccionMapa.value = texto;
+                }
+
+                if (selectedAddressText) {
+                    selectedAddressText.textContent = texto;
+                }
+
+                if (selectedCoordsText) {
+
+                    selectedCoordsText.textContent =
+                        `Coordenadas: ${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`;
+                }
+
+                if (openGoogleMapsLink) {
+                    openGoogleMapsLink.href = link;
+                }
+
+                if (infoBox) {
+                    infoBox.style.display = '';
+                }
+            }
+
+            async function obtenerDireccionDesdeCoordenadas(
+                lat,
+                lng,
+                textoFallback = 'Ubicación seleccionada'
+            ) {
+
+                setLocation(
+                    lat,
+                    lng,
+                    'Buscando dirección aproximada...'
+                );
+
+                try {
+
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+                    );
+
+                    const data = await response.json();
+
+                    setLocation(
+                        lat,
+                        lng,
+                        data.display_name || textoFallback
+                    );
+
+                } catch (error) {
+
+                    setLocation(
+                        lat,
+                        lng,
+                        textoFallback
+                    );
+                }
+            }
+
+            function initMap(lat = defaultLat, lng = defaultLng) {
+
+                if (map) {
+                    map.invalidateSize();
+                    return;
+                }
+
+                map = L.map('pickupMap', {
+                    maxZoom: 19,
+                    minZoom: 8,
+                    zoomControl: true
+                }).setView([lat, lng], 16);
+
+                const mapaNormal = L.tileLayer(
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap'
+                    }
+                );
+
+                const mapaSatelite = L.tileLayer(
+                    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        maxZoom: 18,
+                        attribution: 'Tiles &copy; Esri'
+                    }
+                );
+
+                mapaNormal.addTo(map);
+
+                L.control.layers({
+                        'Mapa normal': mapaNormal,
+                        'Satélite': mapaSatelite
+                    },
+                    null, {
+                        position: 'topright',
+                        collapsed: false
+                    }
+                ).addTo(map);
+
+                marker = L.marker([lat, lng], {
+                    draggable: true
+                }).addTo(map);
+
+                marker.bindPopup('Mové este marcador hasta la ubicación exacta.').openPopup();
+
+                marker.on('dragend', function() {
+                    const position = marker.getLatLng();
+
+                    obtenerDireccionDesdeCoordenadas(
+                        position.lat,
+                        position.lng,
+                        'Ubicación seleccionada en el mapa'
+                    );
+                });
+
+                map.on('click', function(e) {
+                    marker.setLatLng(e.latlng);
+
+                    obtenerDireccionDesdeCoordenadas(
+                        e.latlng.lat,
+                        e.latlng.lng,
+                        'Ubicación seleccionada en el mapa'
+                    );
+                });
+            }
+
+            async function buscarDireccion(textoBusqueda) {
+
+                if (!textoBusqueda) return;
+
+                try {
+
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(textoBusqueda)}&limit=1&countrycodes=cr`
+                    );
+
+                    const data = await response.json();
+
+                    if (!data.length) return;
+
+                    const resultado = data[0];
+
+                    const lat = Number(resultado.lat);
+                    const lng = Number(resultado.lon);
+
+                    initMap(lat, lng);
+
+                    map.setView([lat, lng], 16);
+
+                    marker.setLatLng([lat, lng]);
+
+                    setLocation(
+                        lat,
+                        lng,
+                        resultado.display_name
+                    );
+
+                    setTimeout(() => {
+
+                        if (map) {
+                            map.invalidateSize();
+                        }
+
+                    }, 500);
+
+                } catch (error) {
+
+                    console.log(error);
+                }
+            }
+
+            function extraerCoordenadas(texto) {
+
+                const regex =
+                    /(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/;
+
+                const match = texto.match(regex);
+
+                if (!match) return null;
+
+                return {
+                    lat: Number(match[1]),
+                    lng: Number(match[2])
+                };
+            }
+
+            async function buscarSugerencias(textoBusqueda) {
+
+                if (!textoBusqueda || textoBusqueda.length < 3) {
+
+                    addressSuggestions.style.display = 'none';
+                    addressSuggestions.innerHTML = '';
+
+                    return;
+                }
+
+                const referencia =
+                    obtenerReferenciaBusqueda();
+
+                const busqueda =
+                    `${textoBusqueda}, ${referencia}`;
+
+                try {
+
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(busqueda)}&limit=5&countrycodes=cr`
+                    );
+
+                    const data = await response.json();
+
+                    addressSuggestions.innerHTML = '';
+
+                    if (!data.length) {
+
+                        addressSuggestions.style.display = 'none';
+
+                        return;
+                    }
+
+                    data.forEach(item => {
+
+                        const button =
+                            document.createElement('button');
+
+                        button.type = 'button';
+
+                        button.className =
+                            'list-group-item list-group-item-action small';
+
+                        button.textContent =
+                            item.display_name;
+
+                        button.addEventListener('click', function() {
+
+                            const lat = Number(item.lat);
+                            const lng = Number(item.lon);
+
+                            initMap(lat, lng);
+
+                            map.setView([lat, lng], 16);
+
+                            marker.setLatLng([lat, lng]);
+
+                            setLocation(
+                                lat,
+                                lng,
+                                item.display_name
+                            );
+
+                            addressSearch.value =
+                                item.display_name;
+
+                            addressSuggestions.style.display = 'none';
+
+                            addressSuggestions.innerHTML = '';
+
+                            setTimeout(() => {
+
+                                if (map) {
+                                    map.invalidateSize();
+                                }
+
+                            }, 500);
+                        });
+
+                        addressSuggestions.appendChild(button);
+                    });
+
+                    addressSuggestions.style.display = 'block';
+
+                } catch (error) {
+
+                    addressSuggestions.style.display = 'none';
+                }
+            }
+
+            function cargarUbicacionManual() {
+
+                const texto =
+                    manualLocationInput?.value?.trim();
+
+                if (!texto) return;
+
+                const coordenadas =
+                    extraerCoordenadas(texto);
+
+                if (!coordenadas) {
+
+                    alert(
+                        'Pegá coordenadas válidas. Ejemplo: 9.9281,-84.0907'
+                    );
+
+                    return;
+                }
+
+                mapBox.style.display = '';
+
+                initMap(
+                    coordenadas.lat,
+                    coordenadas.lng
+                );
+
+                map.setView(
+                    [coordenadas.lat, coordenadas.lng],
+                    17
+                );
+
+                marker.setLatLng(
+                    [coordenadas.lat, coordenadas.lng]
+                );
+
+                obtenerDireccionDesdeCoordenadas(
+                    coordenadas.lat,
+                    coordenadas.lng,
+                    'Ubicación cargada manualmente'
+                );
+
+                setTimeout(() => {
+
+                    if (map) {
+                        map.invalidateSize();
+                    }
+
+                }, 500);
+            }
+
+            btnUseCurrentLocation?.addEventListener('click', function() {
+
+                activarModoUbicacion('actual');
+
+                mapBox.style.display = '';
+
+                if (!navigator.geolocation) {
+
+                    alert(
+                        'Tu navegador no soporta ubicación.'
+                    );
+
+                    return;
+                }
+
+                btnUseCurrentLocation.disabled = true;
+
+                btnUseCurrentLocation.innerHTML =
+                    '<i class="bi bi-hourglass-split me-1"></i> Obteniendo ubicación...';
+
+                navigator.geolocation.getCurrentPosition(
+
+                    function(position) {
+
+                        const lat =
+                            position.coords.latitude;
+
+                        const lng =
+                            position.coords.longitude;
+
+                        initMap(lat, lng);
+
+                        map.setView([lat, lng], 17);
+                        marker.setLatLng([lat, lng]);
+
+                        obtenerDireccionDesdeCoordenadas(
+                            lat,
+                            lng,
+                            'Ubicación actual seleccionada'
+                        );
+
+                        setTimeout(() => {
+
+                            if (map) {
+                                map.invalidateSize();
+                            }
+
+                        }, 500);
+
+                        btnUseCurrentLocation.disabled = false;
+
+                        btnUseCurrentLocation.innerHTML =
+                            '<i class="bi bi-check-circle me-1"></i> Ubicación actual';
+
+                    },
+
+                    function() {
+
+                        btnUseCurrentLocation.disabled = false;
+
+                        btnUseCurrentLocation.innerHTML =
+                            '<i class="bi bi-crosshair me-1"></i> Usar mi ubicación actual';
+
+                        alert(
+                            'No se pudo obtener tu ubicación.'
+                        );
+                    },
+
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+                );
+            });
+
+            btnShowMap?.addEventListener('click', function() {
+
+                activarModoUbicacion('mapa');
+
+                mapBox.style.display = '';
+
+                const referencia =
+                    obtenerReferenciaBusqueda();
+
+                if (referencia) {
+
+                    buscarDireccion(referencia);
+
+                } else {
+
+                    initMap();
+
+                    setTimeout(() => {
+
+                        if (map) {
+                            map.invalidateSize();
+                        }
+
+                    }, 500);
+                }
+            });
+
+            addressSearch?.addEventListener('input', function() {
+
+                clearTimeout(suggestionTimeout);
+
+                suggestionTimeout = setTimeout(() => {
+
+                    buscarSugerencias(this.value);
+
+                }, 500);
+            });
+
+            addressSearch?.addEventListener('keydown', function(e) {
+
+                if (e.key !== 'Enter') return;
+
+                e.preventDefault();
+
+                const referencia =
+                    obtenerReferenciaBusqueda();
+
+                const busqueda =
+                    `${this.value}, ${referencia}`;
+
+                addressSuggestions.style.display = 'none';
+
+                buscarDireccion(busqueda);
+            });
+
+            btnLoadManualLocation?.addEventListener('click', function() {
+
+                cargarUbicacionManual();
+            });
+
+            manualLocationInput?.addEventListener('keydown', function(e) {
+
+                if (e.key !== 'Enter') return;
+
+                e.preventDefault();
+
+                cargarUbicacionManual();
+            });
+
         });
 
 
         /*
         |--------------------------------------------------------------------------
-        | Preview comprobante
+        | PREVIEW COMPROBANTE
         |--------------------------------------------------------------------------
         */
 
-        const comprobanteInput = document.getElementById('checkoutComprobanteInput');
-        const comprobantePreview = document.getElementById('checkoutProofPreview');
-        const comprobantePreviewWrap = document.getElementById('checkoutProofPreviewWrap');
+        const comprobanteInput =
+            document.getElementById('checkoutComprobanteInput');
+
+        const comprobantePreview =
+            document.getElementById('checkoutProofPreview');
+
+        const comprobantePreviewWrap =
+            document.getElementById('checkoutProofPreviewWrap');
 
         if (comprobanteInput) {
 
@@ -796,6 +1575,7 @@
                 if (!file) {
 
                     comprobantePreview.src = '';
+
                     comprobantePreviewWrap.classList.add('d-none');
 
                     return;
@@ -805,7 +1585,8 @@
 
                 reader.onload = function(event) {
 
-                    comprobantePreview.src = event.target.result;
+                    comprobantePreview.src =
+                        event.target.result;
 
                     comprobantePreviewWrap.classList.remove('d-none');
                 };
