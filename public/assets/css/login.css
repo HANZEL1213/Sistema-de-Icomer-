@@ -303,6 +303,16 @@ body {
     cursor: pointer;
 }
 
+.store-auth-alert {
+    background: rgba(220, 53, 69, .08);
+    border: 1px solid rgba(220, 53, 69, .18);
+    color: #b02a37;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
 
 /* ==========================================================
    LOGIN ADMIN
