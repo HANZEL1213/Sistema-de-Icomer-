@@ -17,7 +17,7 @@ use App\Http\Controllers\Tienda\{
     FavoritoController,
     PedidoController,
     PagoPedidoController,
-    TiendaAuthController
+    TiendaAuthController,
 };
 
 /*
@@ -58,6 +58,23 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
 
     Route::get('/login', [TiendaAuthController::class, 'showLogin'])
         ->name('login');
+
+    Route::post('/registro', [TiendaAuthController::class, 'register'])
+        ->name('register.post');
+
+});
+
+
+Route::prefix('auth')->name('tienda.auth.')->group(function () {
+
+    Route::get('/login', [TiendaAuthController::class, 'showLogin'])
+        ->name('login');
+
+    Route::post('/login', [TiendaAuthController::class, 'login'])
+        ->name('login.post');
+
+    Route::post('/logout', [TiendaAuthController::class, 'logout'])
+        ->name('logout');
 
 });
 
