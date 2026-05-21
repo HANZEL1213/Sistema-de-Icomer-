@@ -266,6 +266,49 @@
                                         </div>
                                     </div>
                                 @endif
+
+                             @if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
+
+    <div class="alert alert-danger rounded-4 mt-4">
+
+        <div class="d-flex align-items-start gap-3">
+
+            <div class="fs-4">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+
+            <div>
+
+                <h5 class="fw-bold mb-1">
+                    Comprobante rechazado
+                </h5>
+
+                @if ($pago->motivo_rechazo)
+                    <p class="mb-3">
+                        {{ $pago->motivo_rechazo }}
+                    </p>
+                @else
+                    <p class="mb-3">
+                        El comprobante enviado no pudo ser validado.
+                    </p>
+                @endif
+
+                <a href="{{ route('tienda.pedidos.show', $pedido->numero_pedido) }}"
+                    class="btn btn-store-primary">
+
+                    <i class="bi bi-arrow-repeat me-1"></i>
+
+                    Corregir pago
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
                             </div>
 
                         </div>

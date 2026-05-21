@@ -355,6 +355,79 @@
                                         </div>
                                     @endif
 
+
+
+
+@if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
+    <div class="alert alert-danger rounded-4 mt-4">
+        <strong>Pago rechazado</strong>
+
+        @if ($pago->motivo_rechazo)
+            <p class="mb-0 mt-1">
+                Motivo: {{ $pago->motivo_rechazo }}
+            </p>
+        @else
+            <p class="mb-0 mt-1">
+                El comprobante no pudo ser validado.
+            </p>
+        @endif
+    </div>
+
+    <div class="bg-light rounded-4 border p-4 mt-4">
+        <h4 class="fw-bold mb-2">
+            Reenviar pago
+        </h4>
+
+        <p class="text-muted mb-3">
+            Puedes ingresar un nuevo código SINPE, subir una imagen del voucher o enviar ambos.
+        </p>
+
+        <form action="{{ route('tienda.pagos.store', $pedido->numero_pedido) }}"
+              method="POST"
+              enctype="multipart/form-data">
+            @csrf
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Código SINPE
+                </label>
+
+                <input type="text"
+                       name="numero_comprobante"
+                       class="form-control"
+                       value="{{ old('numero_comprobante') }}"
+                       placeholder="Ej: 123456789">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Imagen del voucher
+                </label>
+
+                <input type="file"
+                       name="comprobante"
+                       class="form-control"
+                       accept="image/*">
+            </div>
+
+            <button type="submit" class="btn btn-store-primary">
+                <i class="bi bi-arrow-repeat me-1"></i>
+                Reenviar pago
+            </button>
+        </form>
+    </div>
+@endif
+
+
+
+
+
+
+
+
+
+
+                                    
                                 </div>
 
                             </div>
