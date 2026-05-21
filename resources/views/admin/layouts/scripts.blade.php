@@ -65,3 +65,40 @@
 ========================================= -->
 
 @stack('scripts')
+
+<!-- =========================================
+   SWEETALERT DE PERFIL VALIDACIÓN
+========================================= -->
+
+@if (session('success'))
+
+<script>
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Proceso completado',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#dca116',
+        timer: 2800,
+        timerProgressBar: true,
+        showConfirmButton: false
+    });
+
+</script>
+
+@if ($errors->any())
+
+<script>
+
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: '{{ $errors->first() }}',
+        confirmButtonColor: '#d33',
+    });
+
+</script>
+
+@endif
+
+@endif
