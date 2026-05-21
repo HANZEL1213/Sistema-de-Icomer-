@@ -43,6 +43,7 @@ use App\Http\Controllers\Admin\{
     RolesController,
     VentasLocalesController,
     PagosVentasLocalesController,
+    PerfilController,
     ZonasEnvioController,
     VentasController,
     UsosCuponesController
@@ -282,6 +283,17 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     /*
     |--------------------------------------------------------------------------
+    | Perfil ADMIN
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/perfil', [PerfilController::class, 'index'])->name('perfil');
+
+    Route::put('/perfil', [PerfilController::class, 'update'])->name('perfil.update');
+
+    Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');
+
+    /*
+    |--------------------------------------------------------------------------
     | Dashboard
     |--------------------------------------------------------------------------
     */
@@ -386,7 +398,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         // Aquí luego podés agregar relacionados, variantes, etc.
         // Route::get('relacionados', [ProductosRelacionadosController::class, 'index'])->name('relacionados.index');
     });
-
 
 
 });
