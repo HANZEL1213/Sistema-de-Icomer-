@@ -18,20 +18,20 @@
         <div class="container">
             <div class="store-topbar-wrap d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 <div class="store-topbar-left">
-                    <span class="store-topbar-item">
-                        <i class="bi bi-truck me-1"></i>
-                        Envíos disponibles
-                    </span>
+             <span class="store-topbar-item">
+    <i class="bi bi-truck me-1"></i>
+    {{ $configTienda['topbar_envios_texto'] ?? 'Envíos disponibles' }}
+</span>
 
-                    <span class="store-topbar-item">
-                        <i class="bi bi-shield-check me-1"></i>
-                        Compra segura
-                    </span>
+<span class="store-topbar-item">
+    <i class="bi bi-shield-check me-1"></i>
+    {{ $configTienda['topbar_seguridad_texto'] ?? 'Compra segura' }}
+</span>
 
-                    <span class="store-topbar-item">
-                        <i class="bi bi-patch-check me-1"></i>
-                        Experiencia confiable
-                    </span>
+<span class="store-topbar-item">
+    <i class="bi bi-patch-check me-1"></i>
+    {{ $configTienda['topbar_confianza_texto'] ?? 'Experiencia confiable' }}
+</span>
                 </div>
 
                 <div class="store-topbar-right">
@@ -60,14 +60,19 @@
                     </button>
 
                     <a href="{{ route('tienda.home') }}" class="store-logo-link">
-                        <div class="store-logo-box">
-                            T
-                        </div>
+                       <div class="store-logo-box">
+    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'T', 0, 1)) }}
+</div>
 
-                        <div class="store-logo-text d-none d-sm-flex">
-                            <span class="store-logo-title">Mi Tienda</span>
-                            <span class="store-logo-subtitle">E-commerce premium</span>
-                        </div>
+<div class="store-logo-text d-none d-sm-flex">
+    <span class="store-logo-title">
+        {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}
+    </span>
+
+    <span class="store-logo-subtitle">
+        {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce premium' }}
+    </span>
+</div>
                     </a>
                 </div>
 
@@ -242,19 +247,19 @@
 
         <div class="offcanvas-header border-bottom">
             <div class="store-offcanvas-brand">
-                <div class="store-logo-box">
-                    T
-                </div>
+               <div class="store-logo-box">
+    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'T', 0, 1)) }}
+</div>
 
-                <div class="store-logo-text d-flex">
-                    <span class="store-logo-title" id="mobileStoreMenuLabel">
-                        Mi Tienda
-                    </span>
+<div class="store-logo-text d-flex">
+    <span class="store-logo-title" id="mobileStoreMenuLabel">
+        {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}
+    </span>
 
-                    <span class="store-logo-subtitle">
-                        Menú principal
-                    </span>
-                </div>
+    <span class="store-logo-subtitle">
+        Menú principal
+    </span>
+</div>
             </div>
 
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Cerrar">

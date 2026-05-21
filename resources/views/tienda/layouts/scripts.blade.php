@@ -1,12 +1,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="{{ asset('assets/js/tienda.js') }}"></script>
-<<<<<<< HEAD
+
 {{-- google maps --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-=======
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
->>>>>>> faa849d1e20472e747a197638c26add1c9f4fe71
+
+{{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 

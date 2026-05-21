@@ -486,17 +486,18 @@
                                     </h6>
 
                                     <p class="mb-1">
-                                        <strong>SINPE:</strong> 8888-8888
+                                        <strong>SINPE:</strong>
+
+                                        {{ $configTienda['checkout_sinpe'] ?? '8888-8888' }}
                                     </p>
 
                                     <p class="mb-1">
-                                        <strong>Nombre:</strong> Mi Tienda Online
+                                        <strong>Nombre:</strong>
+
+                                        {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
                                     </p>
 
-                                    <p class="mb-0">
-                                        <strong>Total inicial:</strong>
-                                        ₡{{ number_format($total, 2) }}
-                                    </p>
+
 
                                 </div>
 

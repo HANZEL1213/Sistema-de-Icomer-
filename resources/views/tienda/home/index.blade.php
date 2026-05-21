@@ -1,6 +1,6 @@
 @extends('tienda.layouts.app')
 
-@section('title', 'Inicio | Mi Tienda')
+@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
 
 @section('content')
 
@@ -37,36 +37,33 @@
 
                                 <div class="store-hero-slide"
                                     style="
-                                        background:
-                                        linear-gradient(90deg, rgba(17,24,39,0.88) 0%, rgba(17,24,39,0.58) 42%, rgba(17,24,39,0.22) 100%),
-                                        url('{{ asset('storage/' . $item->ruta_imagen) }}') center/cover no-repeat;
-                                     ">
+                                    background:
+                                    linear-gradient(90deg, rgba(17,24,39,0.88) 0%, rgba(17,24,39,0.58) 42%, rgba(17,24,39,0.22) 100%),
+                                    url('{{ asset('storage/' . $item->ruta_imagen) }}') center/cover no-repeat;
+                                ">
 
                                     <div class="container">
                                         <div class="store-hero-content">
 
-                                            <span class="store-badge-soft mb-3">
-                                                <i class="bi bi-stars"></i>
-                                                {{ $item->tipo_destino ? ucfirst($item->tipo_destino) : 'Destacado' }}
-                                            </span>
+                                            @if ($item->tipo_destino)
+                                                <span class="store-badge-soft mb-3">
+                                                    <i class="bi bi-stars"></i>
+                                                    {{ ucfirst($item->tipo_destino) }}
+                                                </span>
+                                            @endif
 
                                             <h1 class="store-hero-title text-white">
-                                                {{ $item->titulo ?? 'Descubrí nuestras novedades' }}
+                                                {{ $item->titulo ?: 'Descubrí nuestras novedades' }}
                                             </h1>
 
                                             <p class="store-hero-text text-white-50">
-                                                {{ $item->subtitulo ?? 'Explorá productos, categorías y marcas disponibles en nuestra tienda.' }}
+                                                {{ $item->subtitulo ?: 'Explorá productos, categorías y marcas disponibles en nuestra tienda.' }}
                                             </p>
 
                                             <div class="d-flex flex-wrap gap-3">
                                                 <a href="{{ $item->destino_url ?? route('tienda.productos.index') }}"
                                                     class="btn btn-store-primary px-4">
-                                                    {{ $item->texto_boton ?? 'Ver productos' }}
-                                                </a>
-
-                                                <a href="{{ route('tienda.categorias.index') }}"
-                                                    class="btn btn-light fw-semibold rounded-4 px-4">
-                                                    Explorar categorías
+                                                    {{ $item->texto_boton ?: 'Ver productos' }}
                                                 </a>
                                             </div>
 
@@ -98,11 +95,13 @@
             @else
                 <div class="store-hero-slide"
                     style="
-                        background:
-                        linear-gradient(90deg, rgba(17,24,39,0.90) 0%, rgba(17,24,39,0.70) 50%, rgba(17,24,39,0.45) 100%);
-                     ">
+                    background:
+                    linear-gradient(90deg, rgba(17,24,39,0.90) 0%, rgba(17,24,39,0.70) 50%, rgba(17,24,39,0.45) 100%);
+                ">
+
                     <div class="container">
                         <div class="store-hero-content">
+
                             <span class="store-badge-soft mb-3">
                                 <i class="bi bi-stars"></i>
                                 Tienda
@@ -120,21 +119,17 @@
                                 <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-primary px-4">
                                     Ver productos
                                 </a>
-
-                                <a href="{{ route('tienda.categorias.index') }}"
-                                    class="btn btn-light fw-semibold rounded-4 px-4">
-                                    Explorar categorías
-                                </a>
                             </div>
+
                         </div>
                     </div>
+
                 </div>
 
             @endif
 
         </div>
     </section>
-
     {{-- =========================================================
         CATEGORÍAS DESTACADAS DINÁMICAS
     ========================================================== --}}
@@ -364,54 +359,70 @@
 
                 <div class="row g-0 align-items-center">
 
+                    @php
+                        $bannerProducto = $productosHome->first();
+
+                        $bannerImagen = $bannerProducto?->imagenPrincipal?->ruta
+                            ? asset('storage/' . $bannerProducto->imagenPrincipal->ruta)
+                            : $placeholder;
+
+                        $bannerUrl = $bannerProducto
+                            ? route('tienda.productos.show', $bannerProducto->slug)
+                            : route('tienda.productos.index');
+                    @endphp
+
                     <div class="col-lg-7">
+
                         <div class="p-4 p-lg-5 text-white">
 
                             <span class="store-badge-soft mb-3">
                                 <i class="bi bi-lightning-charge"></i>
-                                Compra fácil
+
+                                {{ $configTienda['home_banner_badge'] ?? 'Compra fácil' }}
                             </span>
 
                             <h2 class="fw-bold mb-3 text-white"
                                 style="font-size: clamp(1.7rem, 3vw, 2.7rem); line-height: 1.1;">
-                                Encontrá productos, marcas y categorías en un solo lugar
+
+                                {{ $configTienda['home_banner_titulo'] ?? 'Encontrá productos, marcas y categorías en un solo lugar' }}
+
                             </h2>
 
                             <p class="text-white-50 mb-4" style="line-height: 1.8; max-width: 560px;">
-                                Navegá el catálogo, agregá productos al carrito y finalizá tu pedido de forma sencilla.
+
+                                {{ $configTienda['home_banner_texto'] ??
+                                    'Navegá el catálogo, agregá productos al carrito y finalizá tu pedido de forma sencilla.' }}
+
                             </p>
 
                             <div class="d-flex flex-wrap gap-3">
-                                <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-primary px-4">
-                                    Comprar ahora
+
+                                <a href="{{ $bannerUrl }}" class="btn btn-store-primary px-4">
+
+                                    {{ $configTienda['home_banner_boton_1'] ?? 'Ver producto' }}
+
                                 </a>
 
-                                <a href="{{ route('tienda.marcas.index') }}"
-                                    class="btn btn-light fw-semibold rounded-4 px-4">
-                                    Ver marcas
-                                </a>
                             </div>
 
                         </div>
+
                     </div>
 
                     <div class="col-lg-5">
 
-                        @php
-                            $bannerProducto = $productosHome->first();
-                            $bannerImagen = $bannerProducto?->imagenPrincipal?->ruta
-                                ? asset('storage/' . $bannerProducto->imagenPrincipal->ruta)
-                                : $placeholder;
-                        @endphp
+                        <a href="{{ $bannerUrl }}" class="d-block text-decoration-none">
 
-                        <div
-                            style="
-                                min-height: 360px;
-                                background:
-                                linear-gradient(to top, rgba(17,24,39,0.12), rgba(17,24,39,0)),
-                                url('{{ $bannerImagen }}') center/cover no-repeat;
-                            ">
-                        </div>
+                            <div
+                                style="
+                    min-height: 360px;
+                    background:
+                    linear-gradient(to top, rgba(17,24,39,0.12), rgba(17,24,39,0)),
+                    url('{{ $bannerImagen }}') center/cover no-repeat;
+                ">
+                            </div>
+
+                        </a>
 
                     </div>
 
