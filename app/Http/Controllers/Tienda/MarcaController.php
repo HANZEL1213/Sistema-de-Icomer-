@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Tienda;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Marca;
 use App\Models\Producto;
@@ -56,11 +56,11 @@ class MarcaController extends Controller
 
         // ✅ Favoritos (para que funcione el corazón)
         $favoritosIds = Favorito::where(function ($query) {
-            if (auth()->check()) {
-                $query->where('id_usuario', auth()->id());
-            } else {
-                $query->where('session_id', session()->getId());
-            }
+        if (Auth::check()) {
+    $query->where('id_usuario', Auth::id());
+} else {
+    $query->where('session_id', session()->getId());
+}
         })
         ->pluck('id_producto')
         ->toArray();

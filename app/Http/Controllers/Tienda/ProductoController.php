@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Tienda;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Categoria;
 use App\Models\Marca;
@@ -102,11 +102,11 @@ class ProductoController extends Controller
 
         // ✅ Favoritos (para que el corazón sepa qué productos están guardados)
         $favoritosIds = Favorito::where(function ($query) {
-            if (auth()->check()) {
-                $query->where('id_usuario', auth()->id());
-            } else {
-                $query->where('session_id', session()->getId());
-            }
+          if (Auth::check()) {
+    $query->where('id_usuario', Auth::id());
+} else {
+    $query->where('session_id', session()->getId());
+}
         })
         ->pluck('id_producto')
         ->toArray();
@@ -119,81 +119,88 @@ class ProductoController extends Controller
         ));
     }
 
-    public function show($slug)
-    {
-        $producto = Producto::with([
+ public function show($slug)
+{
+    /** @var \App\Models\Producto $producto */
+    $producto = Producto::with([
+            'marca',
+            'categoriaPrincipal',
+            'categorias',
+            'imagenes',
+            'imagenPrincipal',
+
+            'relacionados' => function ($query) {
+
+                $query->where('activo', 1)
+                    ->whereNull('deleted_at');
+
+            },
+
+            'relacionados.marca',
+            'relacionados.categoriaPrincipal',
+            'relacionados.imagenPrincipal',
+        ])
+        ->where('activo', 1)
+        ->whereNull('deleted_at')
+        ->where('slug', $slug)
+        ->firstOrFail();
+
+    $relacionados = $producto->relacionados()
+        ->with([
+            'marca',
+            'categoriaPrincipal',
+            'imagenPrincipal',
+        ])
+        ->where('activo', 1)
+        ->whereNull('deleted_at')
+        ->limit(4)
+        ->get();
+
+    if ($relacionados->isEmpty() && $producto->id_categoria_principal) {
+
+        $relacionados = Producto::with([
                 'marca',
                 'categoriaPrincipal',
-                'categorias',
-                'imagenes',
                 'imagenPrincipal',
-
-                'relacionados' => function ($query) {
-
-                    $query->where('activo', 1)
-                        ->whereNull('deleted_at');
-
-                },
-
-                'relacionados.marca',
-                'relacionados.categoriaPrincipal',
-                'relacionados.imagenPrincipal',
             ])
             ->where('activo', 1)
             ->whereNull('deleted_at')
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        $relacionados = $producto->relacionados()
-            ->with([
-                'marca',
-                'categoriaPrincipal',
-                'imagenPrincipal',
-            ])
-            ->where('activo', 1)
-            ->whereNull('deleted_at')
+            ->where(
+                'id_categoria_principal',
+                $producto->id_categoria_principal
+            )
+            ->where(
+                'id_producto',
+                '!=',
+                $producto->id_producto
+            )
             ->limit(4)
             ->get();
+    }
 
-        if ($relacionados->isEmpty() && $producto->id_categoria_principal) {
+    // ✅ Favoritos en la vista de detalle
+    $favoritosIds = Favorito::where(function ($query) {
 
-            $relacionados = Producto::with([
-                    'marca',
-                    'categoriaPrincipal',
-                    'imagenPrincipal',
-                ])
-                ->where('activo', 1)
-                ->whereNull('deleted_at')
-                ->where(
-                    'id_categoria_principal',
-                    $producto->id_categoria_principal
-                )
-                ->where(
-                    'id_producto',
-                    '!=',
-                    $producto->id_producto
-                )
-                ->limit(4)
-                ->get();
+        if (Auth::check()) {
+
+            $query->where('id_usuario', Auth::id());
+
+        } else {
+
+            $query->where('session_id', session()->getId());
+
         }
 
-        // ✅ Favoritos en la vista de detalle
-        $favoritosIds = Favorito::where(function ($query) {
-            if (auth()->check()) {
-                $query->where('id_usuario', auth()->id());
-            } else {
-                $query->where('session_id', session()->getId());
-            }
-        })
-        ->pluck('id_producto')
-        ->toArray();
+    })
+    ->pluck('id_producto')
+    ->toArray();
 
-        return view('tienda.productos.show', compact(
-            'producto',
-            'relacionados',
-            'favoritosIds'           // ← Agregado
-        ));
-    }
+    return view('tienda.productos.show', compact(
+        'producto',
+        'relacionados',
+        'favoritosIds'
+    ));
+}
 
     public function sugerencias(Request $request)
     {

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Tienda;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\DetallePedido;
 use App\Models\Pedido;
@@ -339,7 +339,7 @@ public function confirmar(Request $request)
         }
 
         // === Crear detalles del pedido y descontar stock ===
-    foreach ($carrito as $item) {
+foreach ($carrito as $item) {
 
     $producto = Producto::findOrFail($item['id_producto']);
 
@@ -358,7 +358,7 @@ public function confirmar(Request $request)
         'Pedido online',
         $pedido->id_pedido,
         null,
-        auth()->id() ?? 1,
+        Auth::id() ?? 1,
         'Pedido: ' . $pedido->numero_pedido
     );
 }
@@ -445,11 +445,11 @@ public function costoEnvio($id_distrito)
 }
 
 
-private function validarCupon(Cupon $cupon, float $subtotal): bool|string
+private function validarCupon(Cupon $cupon, float $subtotal)
 {
     $ahora = now();
 
-    if (!$cupon->activo) {
+    if (! $cupon->activo) {
         return 'Este cupón no está activo.';
     }
 
@@ -462,7 +462,9 @@ private function validarCupon(Cupon $cupon, float $subtotal): bool|string
     }
 
     if ($subtotal < (float) $cupon->minimo_subtotal) {
-        return 'El subtotal mínimo para usar este cupón es ₡' . number_format($cupon->minimo_subtotal, 2) . '.';
+        return 'El subtotal mínimo para usar este cupón es ₡' .
+            number_format((float) $cupon->minimo_subtotal, 2) .
+            '.';
     }
 
     if ($cupon->max_usos_total && $cupon->usos()->count() >= $cupon->max_usos_total) {
@@ -471,7 +473,6 @@ private function validarCupon(Cupon $cupon, float $subtotal): bool|string
 
     return true;
 }
-
 private function calcularDescuentoCupon(Cupon $cupon, float $subtotal): float
 {
     if ($cupon->tipo === 'porcentaje') {

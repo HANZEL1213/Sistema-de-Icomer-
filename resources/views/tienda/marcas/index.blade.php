@@ -2,7 +2,7 @@
 
 @extends('tienda.layouts.app')
 
-@section('title', 'Marcas | Tienda')
+@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
 @section('meta_description', 'Explora las marcas disponibles en nuestra tienda en línea.')
 
 @section('content')

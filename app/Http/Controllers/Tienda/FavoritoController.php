@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Favorito;
 use App\Models\Producto;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FavoritoController extends Controller
 {
@@ -25,9 +26,9 @@ class FavoritoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (auth()->check()) {
+        if (Auth::check()) {
 
-            $favorito = Favorito::where('id_usuario', auth()->id())
+            $favorito = Favorito::where('id_usuario', Auth::id())
                 ->where('id_producto', $producto->id_producto)
                 ->first();
 
@@ -44,7 +45,7 @@ class FavoritoController extends Controller
             }
 
             Favorito::create([
-                'id_usuario'  => auth()->id(),
+                'id_usuario'  => Auth::id(),
                 'id_producto' => $producto->id_producto,
             ]);
 
@@ -101,10 +102,10 @@ class FavoritoController extends Controller
 
     public function index()
     {
-        if (auth()->check()) {
+        if (Auth::check()) {
 
             $favoritos = Favorito::with('producto.imagenPrincipal')
-                ->where('id_usuario', auth()->id())
+                ->where('id_usuario', Auth::id())
                 ->latest()
                 ->get();
 
@@ -130,9 +131,9 @@ class FavoritoController extends Controller
     {
         return Favorito::where(function ($query) use ($request) {
 
-            if (auth()->check()) {
+            if (Auth::check()) {
 
-                $query->where('id_usuario', auth()->id());
+                $query->where('id_usuario', Auth::id());
 
             } else {
 

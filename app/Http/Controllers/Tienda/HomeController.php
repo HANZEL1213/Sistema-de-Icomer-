@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Tienda;
-
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\CarruselItem;
 use App\Models\Categoria;
@@ -29,12 +29,12 @@ class HomeController extends Controller
             ->where('orden', '>', 0)
             ->ordenados()
             ->get()
-            ->map(function ($item) {
+        ->map(function (CarruselItem $item) {
 
-                $item->destino_url = $this->resolverDestinoCarrusel($item);
+    $item->destino_url = $this->resolverDestinoCarrusel($item);
 
-                return $item;
-            });
+    return $item;
+});
 
         /*
         |--------------------------------------------------------------------------
@@ -99,21 +99,21 @@ class HomeController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $favoritosIds = Favorito::where(function ($query) {
+$favoritosIds = Favorito::where(function ($query) {
 
-                if (auth()->check()) {
+        if (Auth::check()) {
 
-                    $query->where('id_usuario', auth()->id());
+            $query->where('id_usuario', Auth::id());
 
-                } else {
+        } else {
 
-                    $query->where('session_id', session()->getId());
+            $query->where('session_id', session()->getId());
 
-                }
+        }
 
-            })
-            ->pluck('id_producto')
-            ->toArray();
+    })
+    ->pluck('id_producto')
+    ->toArray();
 
         /*
         |--------------------------------------------------------------------------

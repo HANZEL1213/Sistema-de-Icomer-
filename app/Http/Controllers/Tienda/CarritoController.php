@@ -207,32 +207,37 @@ class CarritoController extends Controller
         return back()->with('success', 'Cupón eliminado correctamente.');
     }
 
-    private function validarCupon(Cupon $cupon, float $subtotal): bool|string
-    {
-        $ahora = now();
+private function validarCupon(Cupon $cupon, float $subtotal)
+{
+    $ahora = now();
 
-        if (!$cupon->activo) {
-            return 'Este cupón no está activo.';
-        }
-
-        if ($cupon->inicia_en && $ahora->lt($cupon->inicia_en)) {
-            return 'Este cupón aún no está disponible.';
-        }
-
-        if ($cupon->termina_en && $ahora->gt($cupon->termina_en)) {
-            return 'Este cupón ya venció.';
-        }
-
-        if ($subtotal < (float) $cupon->minimo_subtotal) {
-            return 'El subtotal mínimo para usar este cupón es ₡' . number_format($cupon->minimo_subtotal, 2) . '.';
-        }
-
-        if ($cupon->max_usos_total && $cupon->usos()->count() >= $cupon->max_usos_total) {
-            return 'Este cupón ya alcanzó el máximo de usos.';
-        }
-
-        return true;
+    if (! $cupon->activo) {
+        return 'Este cupón no está activo.';
     }
+
+    if ($cupon->inicia_en && $ahora->lt($cupon->inicia_en)) {
+        return 'Este cupón aún no está disponible.';
+    }
+
+    if ($cupon->termina_en && $ahora->gt($cupon->termina_en)) {
+        return 'Este cupón ya venció.';
+    }
+
+    if ($subtotal < (float) $cupon->minimo_subtotal) {
+        return 'El subtotal mínimo para usar este cupón es ₡' .
+            number_format((float) $cupon->minimo_subtotal, 2) .
+            '.';
+    }
+
+    if (
+        $cupon->max_usos_total &&
+        $cupon->usos()->count() >= $cupon->max_usos_total
+    ) {
+        return 'Este cupón ya alcanzó el máximo de usos.';
+    }
+
+    return true;
+}
 
     private function calcularDescuentoCupon(Cupon $cupon, float $subtotal): float
     {

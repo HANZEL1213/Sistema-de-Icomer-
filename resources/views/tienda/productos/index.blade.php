@@ -1,7 +1,7 @@
 {{-- resources/views/tienda/productos/index.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Productos | Tienda')
+@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
 
 @section('content')
 
