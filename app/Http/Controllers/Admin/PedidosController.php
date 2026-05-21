@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MovimientoInventario;
+use App\Models\Producto;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+
 
 class PedidosController extends Controller
 {
@@ -232,57 +235,71 @@ class PedidosController extends Controller
     /* ============================================
        🔄 ACTUALIZAR ESTADO DEL PEDIDO
     ============================================ */
-    public function actualizarEstado(Request $request, string $id)
-    {
-        $pedido = Pedido::with([
-                'pagos',
-                'pagoUltimo',
-            ])
-            ->findOrFail($id);
+/* ============================================
+   🔄 ACTUALIZAR ESTADO DEL PEDIDO
+============================================ */
+public function actualizarEstado(Request $request, string $id)
+{
+    $pedido = Pedido::with([
+            'pagos',
+            'pagoUltimo',
+            'detalle',
+        ])
+        ->findOrFail($id);
 
-        $this->sincronizarPagoActualEnMemoria($pedido);
+    $this->sincronizarPagoActualEnMemoria($pedido);
 
-        $request->validate([
-            'estado' => [
-                'required',
-                'string',
-                Rule::in(array_keys($this->estadosPedido())),
-            ],
-        ]);
+    $request->validate([
+        'estado' => [
+            'required',
+            'string',
+            Rule::in(array_keys($this->estadosPedido())),
+        ],
+    ]);
 
-        $estadoNuevo = $request->estado;
-        $transicionesPermitidas = $this->transicionesPermitidas($pedido);
+    $estadoNuevo = $request->estado;
+    $transicionesPermitidas = $this->transicionesPermitidas($pedido);
 
-        if (! in_array($estadoNuevo, $transicionesPermitidas, true)) {
+    if (! in_array($estadoNuevo, $transicionesPermitidas, true)) {
+        return redirect()
+            ->route('admin.pedidos.verificar', $pedido->id_pedido)
+            ->with('error', 'La transición de estado no está permitida desde el estado actual.');
+    }
+
+    if ($estadoNuevo === 'pagado_verificado') {
+        if (! $pedido->pagoUltimo || $pedido->pagoUltimo->estado !== 'verificado') {
             return redirect()
                 ->route('admin.pedidos.verificar', $pedido->id_pedido)
-                ->with('error', 'La transición de estado no está permitida desde el estado actual.');
+                ->with('error', 'No puedes pasar el pedido a PAGADO VERIFICADO si el pago aún no está verificado.');
         }
+    }
 
-        if ($estadoNuevo === 'pagado_verificado') {
-            if (! $pedido->pagoUltimo || $pedido->pagoUltimo->estado !== 'verificado') {
-                return redirect()
-                    ->route('admin.pedidos.verificar', $pedido->id_pedido)
-                    ->with('error', 'No puedes pasar el pedido a PAGADO VERIFICADO si el pago aún no está verificado.');
+    try {
+        DB::transaction(function () use ($pedido, $estadoNuevo) {
+
+            if ($estadoNuevo === 'cancelado') {
+                $this->devolverInventarioPedido(
+                    $pedido,
+                    'Devolución por pedido cancelado'
+                );
             }
-        }
 
-        try {
             $pedido->update([
                 'estado' => $estadoNuevo,
             ]);
+        });
 
-            return redirect()
-                ->route('admin.pedidos.verificar', $pedido->id_pedido)
-                ->with('success', 'Estado del pedido actualizado correctamente.');
-        } catch (\Throwable $e) {
-            report($e);
+        return redirect()
+            ->route('admin.pedidos.verificar', $pedido->id_pedido)
+            ->with('success', 'Estado del pedido actualizado correctamente.');
+    } catch (\Throwable $e) {
+        report($e);
 
-            return redirect()
-                ->route('admin.pedidos.verificar', $pedido->id_pedido)
-                ->with('error', 'No se pudo actualizar el estado del pedido.');
-        }
+        return redirect()
+            ->route('admin.pedidos.verificar', $pedido->id_pedido)
+            ->with('error', 'No se pudo actualizar el estado del pedido.');
     }
+}
 
     /* ============================================
        🧠 CATÁLOGO DE ESTADOS
@@ -385,4 +402,42 @@ class PedidosController extends Controller
             $pedido->setRelation('pagoUltimo', $pagoActual);
         }
     }
+private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
+{
+    $pedido->loadMissing('detalle');
+
+    foreach ($pedido->detalle as $detalle) {
+
+        if (! $detalle->id_producto) {
+            continue;
+        }
+
+        $yaDevuelto = MovimientoInventario::where('id_pedido', $pedido->id_pedido)
+            ->where('id_producto', $detalle->id_producto)
+            ->where('tipo', 'entrada')
+            ->exists();
+
+        if ($yaDevuelto) {
+            continue;
+        }
+
+        $producto = Producto::where('id_producto', $detalle->id_producto)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $producto) {
+            continue;
+        }
+
+        $producto->registrarEntradaInventario(
+            $detalle->cantidad,
+            $motivo,
+            $pedido->id_pedido,
+            null,
+            Auth::id() ?? 1,
+            'Pedido: ' . $pedido->numero_pedido
+        );
+    }
+}
+
 }

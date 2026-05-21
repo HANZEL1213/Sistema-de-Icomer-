@@ -339,21 +339,29 @@ public function confirmar(Request $request)
         }
 
         // === Crear detalles del pedido y descontar stock ===
-        foreach ($carrito as $item) {
-            $producto = Producto::findOrFail($item['id_producto']);
+    foreach ($carrito as $item) {
 
-            DetallePedido::create([
-                'id_pedido' => $pedido->id_pedido,
-                'id_producto' => $producto->id_producto,
-                'nombre_producto' => $producto->nombre,
-                'sku_snapshot' => $producto->sku,
-                'precio_unitario' => $producto->precio,
-                'cantidad' => $item['cantidad'],
-                'total_linea' => $producto->precio * $item['cantidad'],
-            ]);
+    $producto = Producto::findOrFail($item['id_producto']);
 
-            $producto->decrement('stock_actual', $item['cantidad']);
-        }
+    DetallePedido::create([
+        'id_pedido' => $pedido->id_pedido,
+        'id_producto' => $producto->id_producto,
+        'nombre_producto' => $producto->nombre,
+        'sku_snapshot' => $producto->sku,
+        'precio_unitario' => $producto->precio,
+        'cantidad' => $item['cantidad'],
+        'total_linea' => $producto->precio * $item['cantidad'],
+    ]);
+
+    $producto->registrarSalidaInventario(
+        $item['cantidad'],
+        'Pedido online',
+        $pedido->id_pedido,
+        null,
+        auth()->id() ?? 1,
+        'Pedido: ' . $pedido->numero_pedido
+    );
+}
 
         // === Lógica de pago ===
         $rutaComprobante = null;

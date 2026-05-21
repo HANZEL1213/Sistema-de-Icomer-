@@ -98,4 +98,36 @@ class Producto extends Model
             'id_producto'
         );
     }
+
+    public function registrarSalidaInventario($cantidad, $motivo, $idPedido = null, $idVentaLocal = null, $idUsuario = 1, $notas = null)
+    {
+        $this->decrement('stock_actual', $cantidad);
+
+        return MovimientoInventario::create([
+            'id_producto' => $this->id_producto,
+            'tipo' => 'salida',
+            'cantidad' => $cantidad,
+            'motivo' => $motivo,
+            'id_pedido' => $idPedido,
+            'id_venta_local' => $idVentaLocal,
+            'id_usuario_realizador' => $idUsuario,
+            'notas' => $notas,
+        ]);
+    }
+
+    public function registrarEntradaInventario($cantidad, $motivo, $idPedido = null, $idVentaLocal = null, $idUsuario = 1, $notas = null)
+    {
+        $this->increment('stock_actual', $cantidad);
+
+        return MovimientoInventario::create([
+            'id_producto' => $this->id_producto,
+            'tipo' => 'entrada',
+            'cantidad' => $cantidad,
+            'motivo' => $motivo,
+            'id_pedido' => $idPedido,
+            'id_venta_local' => $idVentaLocal,
+            'id_usuario_realizador' => $idUsuario,
+            'notas' => $notas,
+        ]);
+    }
 }
