@@ -235,14 +235,40 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
         Route::get('{codigo}/seguimiento', [PedidoController::class, 'seguimiento'])->name('seguimiento');
     });
 
+/*
+|--------------------------------------------------------------------------
+| Pago de pedido
+|--------------------------------------------------------------------------
+*/
+Route::prefix('pedido')->name('pagos.')->group(function () {
+
     /*
     |--------------------------------------------------------------------------
-    | Pago de pedido
+    | FORMULARIO DE PAGO
     |--------------------------------------------------------------------------
     */
-    Route::prefix('pedido')->name('pagos.')->group(function () {
-        Route::get('{pedido}/pago', [PagoPedidoController::class, 'index'])->name('index');
-    });
+    Route::get(
+        '{codigo}/pago',
+        [PagoPedidoController::class, 'index']
+    )->name('index');
+
+    /*
+    |--------------------------------------------------------------------------
+    | ENVIAR / REENVIAR PAGO
+    |--------------------------------------------------------------------------
+    */
+    Route::post(
+        '{codigo}/pago',
+        [PagoPedidoController::class, 'store']
+    )->name('store');
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| CIERRE RUTAS TIENDA
+|--------------------------------------------------------------------------
+*/
 });
 
 
