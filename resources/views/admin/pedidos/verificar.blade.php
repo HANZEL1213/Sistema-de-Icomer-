@@ -92,7 +92,7 @@
         $puedeAprobarRechazar = $item->estado === 'en_revision' && $pago && ($pago->estado ?? null) === 'enviado';
     @endphp
 
-    
+
 
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -344,6 +344,86 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+
+            {{-- ENTREGA --}}
+            <div class="verify-section-card mt-4">
+                <div class="card-header-soft">
+                    <h6 class="mb-0 fw-bold">Entrega y Dirección</h6>
+                </div>
+
+                <div class="card-body">
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <div class="verify-kv">
+                                <small class="text-muted">Tipo de entrega</small>
+                                <div class="fw-semibold">{{ strtoupper($item->tipo_entrega) }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="verify-kv">
+                                <small class="text-muted">Provincia</small>
+                                <div>{{ $item->provincia_envio ?: '—' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="verify-kv">
+                                <small class="text-muted">Cantón</small>
+                                <div>{{ $item->canton_envio ?: '—' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="verify-kv">
+                                <small class="text-muted">Distrito</small>
+                                <div>{{ $item->distrito_envio ?: '—' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="verify-kv">
+                                <small class="text-muted">Costo de envío</small>
+                                <div class="fw-semibold">
+                                    ₡{{ number_format((float) $item->costo_envio, 2, '.', ',') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="verify-kv">
+                                <small class="text-muted">Dirección</small>
+                                <div>{{ $item->direccion_envio ?: '—' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="verify-kv">
+                                <small class="text-muted">Referencia</small>
+                                <div>{{ $item->referencia_envio ?: '—' }}</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="verify-kv">
+                                <small class="text-muted">Google Maps</small>
+                                <div>
+                                    @if ($item->link_google_maps)
+                                        <a href="{{ $item->link_google_maps }}" target="_blank" class="fw-semibold">
+                                            Ver ubicación
+                                        </a>
+                                    @else
+                                        —
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
