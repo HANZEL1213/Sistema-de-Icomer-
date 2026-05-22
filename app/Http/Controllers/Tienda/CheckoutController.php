@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\PagoPedido;
 use App\Models\Cupon;
 use App\Models\UsoCupon;
+use App\Models\Venta;
 
 class CheckoutController extends Controller
 {
@@ -297,35 +298,42 @@ public function confirmar(Request $request)
         $subtotalConDescuento = max($subtotal - $descuento, 0);
         $total = $subtotalConDescuento + $envio;
 
-        // === Crear Pedido ===
-        $pedido = Pedido::create([
-            'numero_pedido' => 'PED-' . now()->format('YmdHis'),
-            'estado' => 'pendiente_pago',
+// === Crear Pedido ===
+$pedido = Pedido::create([
+    'numero_pedido' => 'PED-' . now()->format('YmdHis'),
+    'estado' => 'pendiente_pago',
 
-            'id_usuario' => null,
-            'nombre_cliente' => $request->nombre_cliente,
-            'telefono_cliente' => $request->telefono_cliente,
-            'correo_cliente' => $request->correo_cliente,
+    'id_usuario' => null,
+    'nombre_cliente' => $request->nombre_cliente,
+    'telefono_cliente' => $request->telefono_cliente,
+    'correo_cliente' => $request->correo_cliente,
 
-            'tipo_entrega' => $request->tipo_entrega,
-            'provincia_envio' => $provinciaNombre,
-            'canton_envio' => $cantonNombre,
-            'distrito_envio' => $distritoNombre,
-            'direccion_envio' => $request->direccion_envio,
-            'referencia_envio' => $request->referencia_envio,
-            'link_google_maps' => $request->link_google_maps,
+    'tipo_entrega' => $request->tipo_entrega,
+    'provincia_envio' => $provinciaNombre,
+    'canton_envio' => $cantonNombre,
+    'distrito_envio' => $distritoNombre,
+    'direccion_envio' => $request->direccion_envio,
+    'referencia_envio' => $request->referencia_envio,
+    'link_google_maps' => $request->link_google_maps,
 
-            'costo_envio' => $envio,
-            'id_cupon' => $idCupon,
-            'codigo_cupon' => $codigoCupon,
-            'descuento' => $descuento,
-            'subtotal' => $subtotal,
-            'subtotal_con_descuento' => $subtotalConDescuento,
-            'total' => $total,
+    'costo_envio' => $envio,
+    'id_cupon' => $idCupon,
+    'codigo_cupon' => $codigoCupon,
+    'descuento' => $descuento,
+    'subtotal' => $subtotal,
+    'subtotal_con_descuento' => $subtotalConDescuento,
+    'total' => $total,
 
-            'notas' => $request->notas,
-            'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
-        ]);
+    'notas' => $request->notas,
+    'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
+]);
+
+// === Registrar en reporte de ventas ===
+Venta::create([
+    'canal' => 'online',
+    'id_pedido' => $pedido->id_pedido,
+    'id_venta_local' => null,
+]);
 
         // === Registrar uso del cupón ===
         if ($idCupon) {
