@@ -115,13 +115,22 @@ Route::prefix('tienda')->name('tienda.')->middleware(['cliente'])->group(functio
 */
 Route::name('tienda.')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Home
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/', [HomeController::class, 'index'])->name('home');
+   /*
+|--------------------------------------------------------------------------
+| Home
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| AJAX PRODUCTOS HOME
+|--------------------------------------------------------------------------
+*/
+Route::get(
+    '/home/productos',
+    [HomeController::class, 'productosAjax']
+)->name('home.productos.ajax');
 
 
 
