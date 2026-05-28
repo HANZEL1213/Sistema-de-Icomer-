@@ -92,7 +92,8 @@
                             <th class="fw-semibold">Precio</th>
                             <th class="fw-semibold">Stock</th>
                             <th class="fw-semibold">Estado</th>
-                            <th class="fw-semibold">Registro</th>
+                            <th class="fw-semibold">Destacado</th>
+                           
                             <th class="fw-semibold">Acciones</th>
                         </tr>
                     </thead>
@@ -101,7 +102,10 @@
                         @foreach ($items as $item)
                             @php
                                 $imagenProducto = $item->imagenPrincipal?->ruta
-                                    ? (\Illuminate\Support\Str::startsWith($item->imagenPrincipal->ruta, ['http://', 'https://'])
+                                    ? (\Illuminate\Support\Str::startsWith($item->imagenPrincipal->ruta, [
+                                        'http://',
+                                        'https://',
+                                    ])
                                         ? $item->imagenPrincipal->ruta
                                         : asset('storage/' . $item->imagenPrincipal->ruta))
                                     : null;
@@ -192,30 +196,32 @@
                                         </span>
                                     @endif
                                 </td>
-
-                                {{-- REGISTRO --}}
+                                {{-- DESTACADO --}}
                                 <td>
-                                    <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('Y-m-d') }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ optional($item->created_at)->format('H:i') }}
-                                    </small>
+                                    @if ($item->destacado)
+                                        <span class="status-badge status-active">
+                                            <i class="bx bx-star me-1"></i>Destacado
+                                        </span>
+                                    @else
+                                        <span class="status-badge status-inactive">
+                                            <i class="bx bx-package me-1"></i>Normal
+                                        </span>
+                                    @endif
                                 </td>
 
+                                {{-- REGISTRO --}}
+                            
                                 {{-- ACCIONES --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
 
                                         <a class="btn-action btn-view"
-                                            href="{{ route('admin.productos.show', $item->id_producto) }}"
-                                            title="Ver">
+                                            href="{{ route('admin.productos.show', $item->id_producto) }}" title="Ver">
                                             <i class="bx bx-show"></i>
                                         </a>
 
                                         <a class="btn-action btn-edit"
-                                            href="{{ route('admin.productos.edit', $item->id_producto) }}"
-                                            title="Editar">
+                                            href="{{ route('admin.productos.edit', $item->id_producto) }}" title="Editar">
                                             <i class="bx bx-edit"></i>
                                         </a>
 

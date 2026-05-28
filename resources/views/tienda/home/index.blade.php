@@ -237,10 +237,73 @@
         </section>
 
     @endif
-
-
 {{-- =========================================================
-    PRODUCTOS DESTACADOS DINÁMICOS
+    PRODUCTOS DESTACADOS
+========================================================== --}}
+@if ($productosDestacados->isNotEmpty())
+
+    <section class="store-section store-featured-products-section">
+        <div class="container">
+
+            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+
+                <div>
+                    <div class="store-mini-label">
+                        Destacados
+                    </div>
+
+                    <h2 class="store-section-title mb-2">
+                        Productos destacados
+                    </h2>
+
+                    <p class="store-section-subtitle">
+                        Una selección especial de productos recomendados.
+                    </p>
+                </div>
+
+                <a href="{{ route('tienda.productos.index') }}"
+                   class="btn btn-store-outline px-4">
+                    Ver catálogo
+                </a>
+
+            </div>
+
+            <div class="store-home-carousel">
+
+                <div class="store-home-carousel-head">
+
+                    <button type="button"
+                            class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeFeaturedProductsCarousel">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+
+                    <button type="button"
+                            class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeFeaturedProductsCarousel">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+
+                </div>
+
+                <div id="homeFeaturedProductsCarousel"
+                     class="store-home-scroll store-home-products-row store-featured-products-row">
+
+                    @include('tienda.home.partials.productos-home-items', [
+                        'productos' => $productosDestacados,
+                        'favoritosIds' => $favoritosIds,
+                    ])
+
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+@endif
+{{-- =========================================================
+    PRODUCTOS  DINÁMICOS
 ========================================================== --}}
 @if ($productosHome->isNotEmpty())
 
@@ -255,7 +318,7 @@
                     </div>
 
                     <h2 class="store-section-title mb-2">
-                        Productos destacados
+                        Productos 
                     </h2>
 
                     <p class="store-section-subtitle">
@@ -640,94 +703,116 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
 
-            let productosPreloadPromise = null;
+        let productosPreloadPromise = null;
+        let scrollTimer = null;
 
-            async function cargarMasProductos() {
-                const fila1 = document.querySelector('#homeProductsCarouselOne');
-                const fila2 = document.querySelector('#homeProductsCarouselTwo');
+        async function cargarMasProductos() {
+            const fila1 = document.querySelector('#homeProductsCarouselOne');
+            const fila2 = document.querySelector('#homeProductsCarouselTwo');
 
-                if (!fila1 || !fila2) return false;
-                if (fila1.dataset.hasMore !== '1') return false;
+            if (!fila1 || !fila2) return false;
+            if (fila1.dataset.hasMore !== '1') return false;
 
-                if (productosPreloadPromise) {
-                    return productosPreloadPromise;
-                }
-
-                const page = parseInt(fila1.dataset.nextPage || '2', 10);
-                const url = `${fila1.dataset.loadUrl}?page=${page}`;
-
-                fila1.dataset.loading = '1';
-
-                productosPreloadPromise = fetch(url, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        fila1.insertAdjacentHTML('beforeend', data.html_fila_1 || '');
-                        fila2.insertAdjacentHTML('beforeend', data.html_fila_2 || '');
-
-                        fila1.dataset.nextPage = page + 1;
-                        fila1.dataset.hasMore = data.has_more ? '1' : '0';
-
-                        return true;
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        return false;
-                    })
-                    .finally(() => {
-                        fila1.dataset.loading = '0';
-                        productosPreloadPromise = null;
-                    });
-
+            if (productosPreloadPromise) {
                 return productosPreloadPromise;
             }
 
-            function estaCercaDelFinal(target) {
-                return target.scrollLeft + target.clientWidth >= target.scrollWidth - (target.clientWidth * 1.4);
-            }
+            const page = parseInt(fila1.dataset.nextPage || '2', 10);
+            const url = `${fila1.dataset.loadUrl}?page=${page}`;
 
-            async function moverCarrusel(target, direction) {
-                if (!target) return;
+            fila1.dataset.loading = '1';
 
-                const esProducto =
-                    target.id === 'homeProductsCarouselOne' ||
-                    target.id === 'homeProductsCarouselTwo';
-
-                if (esProducto && direction === 1 && estaCercaDelFinal(target)) {
-                    await cargarMasProductos();
+            productosPreloadPromise = fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    fila1.insertAdjacentHTML('beforeend', data.html_fila_1 || '');
+                    fila2.insertAdjacentHTML('beforeend', data.html_fila_2 || '');
 
-                requestAnimationFrame(() => {
-                    target.scrollBy({
-                        left: target.clientWidth * 0.85 * direction,
-                        behavior: 'smooth'
-                    });
+                    fila1.dataset.nextPage = page + 1;
+                    fila1.dataset.hasMore = data.has_more ? '1' : '0';
+
+                    return true;
+                })
+                .catch(error => {
+                    console.error(error);
+                    return false;
+                })
+                .finally(() => {
+                    fila1.dataset.loading = '0';
+                    productosPreloadPromise = null;
                 });
 
-                if (esProducto && direction === 1) {
-                    setTimeout(() => {
-                        if (estaCercaDelFinal(target)) {
-                            cargarMasProductos();
-                        }
-                    }, 500);
-                }
+            return productosPreloadPromise;
+        }
+
+        function estaCercaDelFinal(target) {
+            return target.scrollLeft + target.clientWidth >= target.scrollWidth - (target.clientWidth * 1.4);
+        }
+
+        async function moverCarrusel(target, direction) {
+            if (!target) return;
+
+            const esProducto =
+                target.id === 'homeProductsCarouselOne' ||
+                target.id === 'homeProductsCarouselTwo';
+
+            if (esProducto && direction === 1 && estaCercaDelFinal(target)) {
+                await cargarMasProductos();
             }
 
-            document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function (button) {
-                button.addEventListener('click', function () {
-                    const target = document.querySelector(this.dataset.target);
-                    const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
-
-                    moverCarrusel(target, direction);
+            requestAnimationFrame(() => {
+                target.scrollBy({
+                    left: target.clientWidth * 0.85 * direction,
+                    behavior: 'smooth'
                 });
             });
+
+            if (esProducto && direction === 1) {
+                setTimeout(() => {
+                    if (estaCercaDelFinal(target)) {
+                        cargarMasProductos();
+                    }
+                }, 500);
+            }
+        }
+
+        function activarCargaPorScrollManual() {
+            const carruselesProductos = [
+                document.querySelector('#homeProductsCarouselOne'),
+                document.querySelector('#homeProductsCarouselTwo')
+            ].filter(Boolean);
+
+            carruselesProductos.forEach(function (carousel) {
+                carousel.addEventListener('scroll', function () {
+                    clearTimeout(scrollTimer);
+
+                    scrollTimer = setTimeout(function () {
+                        if (estaCercaDelFinal(carousel)) {
+                            cargarMasProductos();
+                        }
+                    }, 120);
+                }, { passive: true });
+            });
+        }
+
+        document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const target = document.querySelector(this.dataset.target);
+                const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
+
+                moverCarrusel(target, direction);
+            });
         });
-    </script>
+
+        activarCargaPorScrollManual();
+    });
+</script>
 @endpush

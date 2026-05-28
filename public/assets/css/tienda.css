@@ -14,19 +14,7 @@
     margin-bottom: 1rem;
 }
 
-.store-home-carousel-btn {
-    width: 44px;
-    height: 44px;
-    border: 1px solid var(--store-border);
-    border-radius: 50%;
-    background: #ffffff;
-    color: var(--store-primary);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-    transition: all 0.2s ease;
-}
+
 
 .store-home-carousel-btn:hover {
     background: var(--store-primary);
@@ -61,6 +49,93 @@
     grid-auto-columns: 260px;
 }
 
+/* =========================================================
+   FLECHAS Y BOTONES HOME - ESTILO GLOBAL LIMPIO
+========================================================== */
+
+.store-home-carousel-btn {
+    width: 44px;
+    height: 44px;
+
+    border: 1px solid var(--store-border);
+    border-radius: 50%;
+
+    background: var(--store-white);
+    color: var(--store-primary);
+
+    box-shadow: var(--store-shadow-sm);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease;
+}
+
+.store-home-carousel-btn:hover {
+    background: var(--store-accent);
+    border-color: var(--store-accent);
+    color: var(--store-white);
+
+    transform: translateY(-2px);
+    box-shadow: var(--store-shadow-md);
+}
+
+.store-home-carousel-btn:active {
+    transform: scale(0.96);
+}
+
+.store-home-carousel-btn i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Botones: Ver catálogo / Ver todas / Ver marcas */
+.btn-store-outline {
+    border: 1px solid var(--store-border) !important;
+    border-radius: 999px;
+
+    background: var(--store-white) !important;
+    color: var(--store-primary) !important;
+
+    font-weight: 800;
+
+    transition: all 0.2s ease;
+}
+
+.btn-store-outline:hover {
+    background: var(--store-accent) !important;
+    border-color: var(--store-accent) !important;
+    color: var(--store-white) !important;
+
+    transform: translateY(-2px);
+    box-shadow: var(--store-shadow-sm);
+}
+
+.btn-store-outline:active {
+    transform: scale(0.98);
+}
+
+/* Productos destacados mantiene el mismo sistema */
+.store-featured-products-section .store-home-carousel-btn,
+.store-featured-products-section .btn-store-outline {
+    color: var(--store-primary) !important;
+}
+
+.store-featured-products-section .store-home-carousel-btn:hover,
+.store-featured-products-section .btn-store-outline:hover {
+    background: var(--store-accent) !important;
+    border-color: var(--store-accent) !important;
+    color: var(--store-white) !important;
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+    .store-home-carousel-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
 /* =========================================================
    PRODUCTOS / CARDS UNIFICADAS DE TIENDA
 ========================================================== */
@@ -413,6 +488,105 @@
         min-width: 32px;
     }
 }
+
+
+
+
+/* =========================================================
+   PRODUCTOS DESTACADOS - ESTILO SUAVE PREMIUM
+========================================================== */
+
+.store-featured-products-section {
+    background: #f7f7f7;
+
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.store-featured-products-section .store-mini-label {
+    color: #b7791f;
+}
+
+.store-featured-products-section .store-section-title::after {
+    content: "";
+
+    display: inline-block;
+
+    width: 70px;
+    height: 4px;
+
+    margin-left: 1rem;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #facc15,
+            #dca116
+        );
+
+    vertical-align: middle;
+}
+
+.store-featured-products-row {
+    grid-auto-columns: 300px;
+
+    padding-top: 0.6rem;
+    padding-bottom: 1.2rem;
+}
+
+.store-featured-products-section .store-product-card,
+.store-featured-products-section .store-product-minimal {
+    background: #ffffff;
+
+    border: 2px solid rgba(220, 161, 22, 0.18);
+
+    box-shadow:
+        0 16px 40px rgba(15, 23, 42, 0.06);
+}
+
+.store-featured-products-section .store-product-card:hover,
+.store-featured-products-section .store-product-minimal:hover {
+    transform: translateY(-7px);
+
+    border-color: rgba(220, 161, 22, 0.42);
+
+    box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.12);
+}
+
+.store-featured-products-section .store-product-price,
+.store-featured-products-section .store-product-minimal-price {
+    color: #b7791f;
+}
+
+.store-featured-products-section .store-home-carousel-btn {
+    border-color: rgba(15, 23, 42, 0.10);
+
+    background: #ffffff;
+
+    color: #475569;
+}
+
+.store-featured-products-section .store-home-carousel-btn:hover {
+    background: #111827;
+
+    border-color: #111827;
+
+    color: #ffffff;
+}
+
+@media (max-width: 575.98px) {
+
+    .store-featured-products-row {
+        grid-auto-columns: 78%;
+    }
+
+}
+
+
+
 
 /* =========================================================
    PRODUCTOS INDEX / CATÁLOGO
@@ -4846,4 +5020,3 @@
 .store-product-heart.is-active:hover {
     background: #fff5f6;
 }
-

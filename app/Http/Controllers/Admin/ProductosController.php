@@ -75,15 +75,16 @@ class ProductosController extends Controller
                 'max:80',
                 Rule::unique('productos', 'sku')->whereNull('deleted_at'),
             ],
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
-            'stock_actual' => 'required|integer|min:0',
-            'activo' => 'nullable|boolean',
+           'descripcion' => 'nullable|string',
+'precio' => 'required|numeric|min:0',
+'stock_actual' => 'required|integer|min:0',
+'activo' => 'nullable|boolean',
+'destacado' => 'nullable|boolean',
 
-            'id_categoria_principal' => [
-                'nullable',
-                Rule::exists('categorias', 'id_categoria')->where(fn ($q) => $q->where('activo', 1)),
-            ],
+'id_categoria_principal' => [
+    'nullable',
+    Rule::exists('categorias', 'id_categoria')->where(fn ($q) => $q->where('activo', 1)),
+],
 
             'categorias_adicionales' => 'nullable|array',
             'categorias_adicionales.*' => [
@@ -148,18 +149,19 @@ class ProductosController extends Controller
                 $rutasSubidas,
                 $idCategoriaPrincipal
             ) {
-                $item = Producto::create([
-                    'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
-                    'nombre' => trim($request->nombre),
-                    'slug' => $slugGenerado,
-                    'codigo' => $this->nullIfBlank($request->codigo),
-                    'sku' => $this->nullIfBlank($request->sku),
-                    'descripcion' => $this->nullIfBlank($request->descripcion),
-                    'precio' => $request->precio,
-                    'stock_actual' => $request->stock_actual,
-                    'activo' => $request->has('activo') ? 1 : 0,
-                    'id_categoria_principal' => $idCategoriaPrincipal,
-                ]);
+       $item = Producto::create([
+    'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
+    'nombre' => trim($request->nombre),
+    'slug' => $slugGenerado,
+    'codigo' => $this->nullIfBlank($request->codigo),
+    'sku' => $this->nullIfBlank($request->sku),
+    'descripcion' => $this->nullIfBlank($request->descripcion),
+    'precio' => $request->precio,
+    'stock_actual' => $request->stock_actual,
+    'activo' => $request->has('activo') ? 1 : 0,
+    'destacado' => $request->has('destacado') ? 1 : 0,
+    'id_categoria_principal' => $idCategoriaPrincipal,
+]);
 
                 $item->categorias()->sync($categoriasSync);
 
@@ -310,21 +312,22 @@ class ProductosController extends Controller
                     ->ignore($id, 'id_producto')
                     ->whereNull('deleted_at'),
             ],
-            'descripcion' => 'nullable|string',
-            'precio' => 'required|numeric|min:0',
-            'stock_actual' => 'required|integer|min:0',
-            'activo' => 'nullable|boolean',
+        'descripcion' => 'nullable|string',
+'precio' => 'required|numeric|min:0',
+'stock_actual' => 'required|integer|min:0',
+'activo' => 'nullable|boolean',
+'destacado' => 'nullable|boolean',
 
-            'id_categoria_principal' => [
-                'nullable',
-                Rule::exists('categorias', 'id_categoria')->where(function ($q) use ($item) {
-                    $q->where('activo', 1);
+'id_categoria_principal' => [
+    'nullable',
+    Rule::exists('categorias', 'id_categoria')->where(function ($q) use ($item) {
+        $q->where('activo', 1);
 
-                    if ($item->id_categoria_principal) {
-                        $q->orWhere('id_categoria', $item->id_categoria_principal);
-                    }
-                }),
-            ],
+        if ($item->id_categoria_principal) {
+            $q->orWhere('id_categoria', $item->id_categoria_principal);
+        }
+    }),
+],
 
             'categorias_adicionales' => 'nullable|array',
             'categorias_adicionales.*' => [
@@ -440,18 +443,19 @@ class ProductosController extends Controller
                     $imagenPrincipalExistente = null;
                 }
 
-                $item->update([
-                    'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
-                    'nombre' => trim($request->nombre),
-                    'slug' => $slugGenerado,
-                    'codigo' => $this->nullIfBlank($request->codigo),
-                    'sku' => $this->nullIfBlank($request->sku),
-                    'descripcion' => $this->nullIfBlank($request->descripcion),
-                    'precio' => $request->precio,
-                    'stock_actual' => $request->stock_actual,
-                    'activo' => $request->has('activo') ? 1 : 0,
-                    'id_categoria_principal' => $idCategoriaPrincipal,
-                ]);
+               $item->update([
+    'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
+    'nombre' => trim($request->nombre),
+    'slug' => $slugGenerado,
+    'codigo' => $this->nullIfBlank($request->codigo),
+    'sku' => $this->nullIfBlank($request->sku),
+    'descripcion' => $this->nullIfBlank($request->descripcion),
+    'precio' => $request->precio,
+    'stock_actual' => $request->stock_actual,
+    'activo' => $request->has('activo') ? 1 : 0,
+    'destacado' => $request->has('destacado') ? 1 : 0,
+    'id_categoria_principal' => $idCategoriaPrincipal,
+]);
 
                 $item->categorias()->sync($categoriasSync);
                 $item->relacionados()->sync($relacionados);

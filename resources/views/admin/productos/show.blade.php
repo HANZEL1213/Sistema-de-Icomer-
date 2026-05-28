@@ -103,12 +103,7 @@
                                 {{ $imagenes->count() }} {{ $imagenes->count() === 1 ? 'imagen' : 'imágenes' }}
                             </span>
 
-                            @if ($principal)
-                                <span class="product-gallery-chip">
-                                    <i class="bx bx-star"></i>
-                                    Principal definida
-                                </span>
-                            @endif
+                        
                         </div>
                     </div>
 
@@ -197,26 +192,40 @@
 
                     <div class="info-row">
                         <span class="info-label">Estado general</span>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="estado-badge bg-{{ $badgeColor }} text-white">
-                                <i class="bx {{ $item->activo ? 'bx-check-circle' : 'bx-x-circle' }} me-1"></i>
-                                {{ $badgeLabel }}
-                            </span>
+                  <div class="d-flex flex-wrap align-items-center gap-2">
 
-                            @if ($item->stock_actual <= 5 && $item->stock_actual > 0)
-                                <span class="soft-status-text text-warning">
-                                    <i class="bx bx-error-circle me-1"></i>Stock bajo
-                                </span>
-                            @elseif ($item->stock_actual == 0)
-                                <span class="soft-status-text text-danger">
-                                    <i class="bx bx-x-circle me-1"></i>Agotado
-                                </span>
-                            @else
-                                <span class="soft-status-text text-success">
-                                    <i class="bx bx-check-circle me-1"></i>Disponible
-                                </span>
-                            @endif
-                        </div>
+    <span class="estado-badge bg-{{ $badgeColor }} text-white">
+        <i class="bx {{ $item->activo ? 'bx-check-circle' : 'bx-x-circle' }} me-1"></i>
+        {{ $badgeLabel }}
+    </span>
+
+    @if ($item->destacado)
+        <span class="estado-badge bg-success text-white">
+            <i class="bx bx-star me-1"></i>
+            Destacado
+        </span>
+    @else
+        <span class="estado-badge bg-secondary text-white">
+            <i class="bx bx-package me-1"></i>
+            Normal
+        </span>
+    @endif
+
+    @if ($item->stock_actual <= 5 && $item->stock_actual > 0)
+        <span class="soft-status-text text-warning">
+            <i class="bx bx-error-circle me-1"></i>Stock bajo
+        </span>
+    @elseif ($item->stock_actual == 0)
+        <span class="soft-status-text text-danger">
+            <i class="bx bx-x-circle me-1"></i>Agotado
+        </span>
+    @else
+        <span class="soft-status-text text-success">
+            <i class="bx bx-check-circle me-1"></i>Disponible
+        </span>
+    @endif
+
+</div>
                     </div>
 
                     <div class="info-row">

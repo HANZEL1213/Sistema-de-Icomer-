@@ -56,6 +56,24 @@ class HomeController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | PRODUCTOS DESTACADOS
+        |--------------------------------------------------------------------------
+        */
+
+        $productosDestacados = Producto::query()
+            ->where('activo', 1)
+            ->where('destacado', 1)
+            ->with([
+                'marca:id_marca,nombre,slug',
+                'categoriaPrincipal:id_categoria,nombre,slug',
+                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
+            ])
+            ->orderByDesc('created_at')
+            ->limit(12)
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
         | PRODUCTOS HOME - PRIMERA CARGA
         |--------------------------------------------------------------------------
         */
@@ -102,6 +120,7 @@ class HomeController extends Controller
         return view('tienda.home.index', compact(
             'carruselItems',
             'categoriasHome',
+            'productosDestacados',
             'productosHome',
             'productosFila1',
             'productosFila2',
@@ -109,12 +128,6 @@ class HomeController extends Controller
             'favoritosIds'
         ));
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | PRODUCTOS AJAX - CARGAR MÁS
-    |--------------------------------------------------------------------------
-    */
 
     public function productosAjax(Request $request)
     {
@@ -153,12 +166,6 @@ class HomeController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | FAVORITOS IDS
-    |--------------------------------------------------------------------------
-    */
-
     private function obtenerFavoritosIds(): array
     {
         return Favorito::where(function ($query) {
@@ -171,12 +178,6 @@ class HomeController extends Controller
             ->pluck('id_producto')
             ->toArray();
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESOLVER DESTINO CARRUSEL
-    |--------------------------------------------------------------------------
-    */
 
     private function resolverDestinoCarrusel(CarruselItem $item): string
     {

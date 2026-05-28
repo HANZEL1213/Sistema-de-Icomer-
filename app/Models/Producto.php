@@ -12,24 +12,26 @@ class Producto extends Model
     protected $table = 'productos';
     protected $primaryKey = 'id_producto';
 
-    protected $fillable = [
-        'id_marca',
-        'nombre',
-        'slug',
-        'codigo',
-        'sku',
-        'descripcion',
-        'precio',
-        'stock_actual',
-        'activo',
-        'id_categoria_principal',
-    ];
+ protected $fillable = [
+    'id_marca',
+    'nombre',
+    'slug',
+    'codigo',
+    'sku',
+    'descripcion',
+    'precio',
+    'stock_actual',
+    'activo',
+    'destacado',
+    'id_categoria_principal',
+];
 
-    protected $casts = [
-        'precio' => 'decimal:2',
-        'stock_actual' => 'integer',
-        'activo' => 'boolean',
-    ];
+protected $casts = [
+    'precio' => 'decimal:2',
+    'stock_actual' => 'integer',
+    'activo' => 'boolean',
+    'destacado' => 'boolean',
+];
 
     public function marca()
     {

@@ -272,7 +272,60 @@
                             </div>
                         </div>
 
+
+
+
+
+                        {{-- Destacado --}}
+@php
+    $estaDestacado = old('destacado');
+@endphp
+
+<div class="card border-0 bg-light mt-3">
+    <div class="card-body d-flex justify-content-between align-items-center">
+
+        <div>
+            <label class="fw-semibold d-block mb-1">
+                Producto destacado
+            </label>
+
+            <small class="text-muted">
+                Mostrar este producto en la sección destacada del home
+            </small>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <span
+                id="destacadoTexto"
+              class="badge estado-badge px-3 py-2 {{ $estaDestacado ? 'bg-success' : 'bg-secondary' }}"
+            >
+                @if ($estaDestacado)
+                    <i class="bx bx-star me-1"></i> Destacado
+                @else
+                    <i class="bx bx-package me-1"></i> Normal
+                @endif
+            </span>
+
+            <label class="switch">
+                <input
+                    type="checkbox"
+                    id="destacadoSwitch"
+                    name="destacado"
+                    value="1"
+                    {{ $estaDestacado ? 'checked' : '' }}
+                >
+
+                <span class="slider round"></span>
+            </label>
+
+        </div>
+
+    </div>
+</div>
                     </div>
+
+
 
                     {{-- CATEGORÍAS ADICIONALES --}}
                     <div class="col-12 mt-4">

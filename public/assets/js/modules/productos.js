@@ -749,4 +749,34 @@ document.addEventListener('DOMContentLoaded', function () {
         categoriasIcon.classList.add('bx-chevron-up');
         categoriasExpanded = true;
     }
+
+const destacadoSwitch = document.getElementById('destacadoSwitch');
+const destacadoTexto = document.getElementById('destacadoTexto');
+
+if (destacadoSwitch && destacadoTexto) {
+
+    const actualizarDestacado = () => {
+
+        if (destacadoSwitch.checked) {
+
+            destacadoTexto.classList.remove('bg-secondary');
+            destacadoTexto.classList.add('bg-success');
+
+            destacadoTexto.innerHTML =
+                '<i class="bx bx-star me-1"></i> Destacado';
+
+        } else {
+
+            destacadoTexto.classList.remove('bg-success');
+            destacadoTexto.classList.add('bg-secondary');
+
+            destacadoTexto.innerHTML =
+                '<i class="bx bx-package me-1"></i> Normal';
+        }
+    };
+
+    destacadoSwitch.addEventListener('change', actualizarDestacado);
+
+    actualizarDestacado();
+}
 });
