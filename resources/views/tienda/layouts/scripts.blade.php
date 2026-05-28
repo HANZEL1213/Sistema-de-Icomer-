@@ -1,11 +1,12 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+{{-- SWEETALERT --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="{{ asset('assets/js/tienda.js') }}"></script>
 
 {{-- google maps --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-{{-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> --}}
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -68,24 +69,32 @@
     });
 </script>
 
- {{-- /* ============================================
-           SWEETALERT REGISTRO EXITOSO
-        ============================================ */ --}}
 
- @if (session('success'))
-
+    @if (session('swal_success'))
     <script>
-
-        Swal.fire({
-            icon: 'success',
-            title: '¡Bienvenido!',
-            text: '{{ session('success') }}',
-            confirmButtonColor: '#dca117',
-            timer: 2000,
-            timerProgressBar: true,
-            showConfirmButton: false
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Listo!',
+                text: @json(session('swal_success')),
+                confirmButtonColor: '#dca117',
+                timer: 1500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
         });
-
     </script>
+@endif
 
-    @endif
+{{-- @if (session('swal_error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: @json(session('swal_error')),
+                confirmButtonColor: '#dc3545'
+            });
+        });
+    </script>
+@endif --}}
