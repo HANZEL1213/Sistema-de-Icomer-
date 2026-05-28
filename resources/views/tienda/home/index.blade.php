@@ -160,62 +160,76 @@
 
                 </div>
 
-                <div class="row g-3 g-md-4">
+                <div class="store-home-carousel">
 
-                    @foreach ($categoriasHome as $categoria)
-                        @php
-                            $categoriaImagen = $categoria->imagen
-                                ? asset('storage/' . $categoria->imagen)
-                                : $placeholder;
-                        @endphp
+                    <div class="store-home-carousel-head justify-content-end mb-3">
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeCategoriesCarousel">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
 
-                        <div class="col-6 col-lg-3">
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeCategoriesCarousel">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
 
-                            <a href="{{ route('tienda.categorias.show', $categoria->slug) }}" class="store-category-card">
+                    <div id="homeCategoriesCarousel" class="store-home-scroll">
 
-                                <div class="store-category-image-wrap">
+                        @foreach ($categoriasHome as $categoria)
+                            @php
+                                $categoriaImagen = $categoria->imagen
+                                    ? asset('storage/' . $categoria->imagen)
+                                    : $placeholder;
+                            @endphp
 
-                                    <img src="{{ $categoriaImagen }}" alt="{{ $categoria->nombre }}"
-                                        class="store-category-image">
+                            <div class="store-home-slide">
 
-                                    <div class="store-category-overlay"></div>
+                                <a href="{{ route('tienda.categorias.show', $categoria->slug) }}"
+                                    class="store-category-card">
 
-                                    <div class="store-category-icon">
-                                        <i class="bi bi-grid"></i>
-                                    </div>
+                                    <div class="store-category-image-wrap">
 
-                                    <span class="store-category-badge">
-                                        {{ $categoria->productos_count }} productos
-                                    </span>
+                                        <img src="{{ $categoriaImagen }}" alt="{{ $categoria->nombre }}"
+                                            class="store-category-image">
 
-                                </div>
+                                        <div class="store-category-overlay"></div>
 
-                                <div class="store-category-body">
+                                        <div class="store-category-icon">
+                                            <i class="bi bi-grid"></i>
+                                        </div>
 
-                                    <div>
-                                        <h3 class="store-category-title">
-                                            {{ $categoria->nombre }}
-                                        </h3>
-
-                                        <p class="store-category-text mb-0">
-                                            {{ $categoria->descripcion ?: 'Explorar productos y descubrir nuevas opciones.' }}
-                                        </p>
-                                    </div>
-
-                                    <div class="store-category-footer mt-3">
-                                        <span>
-                                            Explorar categoría
+                                        <span class="store-category-badge">
+                                            {{ $categoria->productos_count }} productos
                                         </span>
 
-                                        <i class="bi bi-arrow-right"></i>
                                     </div>
 
-                                </div>
+                                    <div class="store-category-body">
 
-                            </a>
+                                        <div>
+                                            <h3 class="store-category-title">
+                                                {{ $categoria->nombre }}
+                                            </h3>
 
-                        </div>
-                    @endforeach
+                                            <p class="store-category-text mb-0">
+                                                {{ $categoria->descripcion ?: 'Explorar productos y descubrir nuevas opciones.' }}
+                                            </p>
+                                        </div>
+
+                                        <div class="store-category-footer mt-3">
+                                            <span>Explorar categoría</span>
+                                            <i class="bi bi-arrow-right"></i>
+                                        </div>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+                        @endforeach
+
+                    </div>
 
                 </div>
 
@@ -225,8 +239,8 @@
     @endif
 
     {{-- =========================================================
-        PRODUCTOS DESTACADOS DINÁMICOS
-    ========================================================== --}}
+    PRODUCTOS DESTACADOS DINÁMICOS
+========================================================== --}}
     @if ($productosHome->isNotEmpty())
 
         <section class="store-section store-products-minimal-section">
@@ -254,91 +268,189 @@
 
                 </div>
 
-                <div class="row g-3 g-md-4">
 
-                    @foreach ($productosHome as $producto)
-                        @php
-                            $productoImagen = $producto->imagenPrincipal?->ruta
-                                ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                                : $placeholder;
-                        @endphp
 
-                        <div class="col-6 col-md-4 col-xl-3">
+                {{-- FILA 1 --}}
+                <div class="store-home-carousel mb-4">
 
-                            <div class="store-product-card">
+                    <div class="store-home-carousel-head">
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeProductsCarouselOne">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
 
-                                {{-- IMAGEN --}}
-                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                    class="store-product-image-wrap">
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeProductsCarouselOne">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
 
-                                    <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
-                                        class="store-product-image">
+                    <div id="homeProductsCarouselOne" class="store-home-scroll store-home-products-row">
 
-                                    <button type="button"
-                                        class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
-                                        data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
+                        @foreach ($productosFila1 as $producto)
+                            @php
+                                $productoImagen = $producto->imagenPrincipal?->ruta
+                                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                    : $placeholder;
+                            @endphp
 
-                                        <i
-                                            class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                            <div class="store-home-slide">
 
-                                    </button>
-
-                                    @if ($producto->stock_actual <= 0)
-                                        <span class="store-product-badge store-product-badge-muted">
-                                            Agotado
-                                        </span>
-                                    @else
-                                    @endif
-
-                                </a>
-
-                                {{-- INFO --}}
-                                <div class="store-product-body">
-
-                                    <div class="store-product-meta">
-                                        {{ $producto->marca?->nombre ?? 'Sin marca' }}
-                                    </div>
+                                <div class="store-product-card">
 
                                     <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                        class="store-product-name">
+                                        class="store-product-image-wrap">
 
-                                        {{ $producto->nombre }}
+                                        <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
+                                            class="store-product-image">
+
+                                        <button type="button"
+                                            class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                            data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
+
+                                            <i
+                                                class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+
+                                        </button>
 
                                     </a>
 
-                                    <div class="store-product-category">
-                                        {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
-                                    </div>
+                                    <div class="store-product-body">
 
-                                    <div class="store-product-footer">
-
-                                        <div>
-                                            <div class="store-product-price">
-                                                ₡{{ number_format($producto->precio, 2) }}
-                                            </div>
-
-                                            <small class="store-product-stock">
-                                                Stock: {{ $producto->stock_actual }}
-                                            </small>
+                                        <div class="store-product-meta">
+                                            {{ $producto->marca?->nombre ?? 'Sin marca' }}
                                         </div>
 
                                         <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                            class="store-product-action">
-
-                                            <i class="bi bi-eye"></i>
-
+                                            class="store-product-name">
+                                            {{ $producto->nombre }}
                                         </a>
+
+                                        <div class="store-product-category">
+                                            {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+                                        </div>
+
+                                        <div class="store-product-footer">
+
+                                            <div>
+                                                <div class="store-product-price">
+                                                    ₡{{ number_format($producto->precio, 2) }}
+                                                </div>
+
+                                                <small class="store-product-stock">
+                                                    Stock: {{ $producto->stock_actual }}
+                                                </small>
+                                            </div>
+
+                                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                                class="store-product-action">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+
+                                        </div>
 
                                     </div>
 
                                 </div>
 
                             </div>
+                        @endforeach
 
-                        </div>
-                    @endforeach
+                    </div>
 
                 </div>
+
+                {{-- FILA 2 --}}
+                @if ($productosFila2->isNotEmpty())
+                    <div class="store-home-carousel">
+
+                        <div class="store-home-carousel-head">
+                            <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                                data-target="#homeProductsCarouselTwo">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+
+                            <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                                data-target="#homeProductsCarouselTwo">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <div id="homeProductsCarouselTwo" class="store-home-scroll store-home-products-row">
+
+                            @foreach ($productosFila2 as $producto)
+                                @php
+                                    $productoImagen = $producto->imagenPrincipal?->ruta
+                                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                        : $placeholder;
+                                @endphp
+
+                                <div class="store-home-slide">
+
+                                    <div class="store-product-card">
+
+                                        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                            class="store-product-image-wrap">
+
+                                            <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
+                                                class="store-product-image">
+
+                                            <button type="button"
+                                                class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                                data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
+
+                                                <i
+                                                    class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+
+                                            </button>
+
+                                        </a>
+
+                                        <div class="store-product-body">
+
+                                            <div class="store-product-meta">
+                                                {{ $producto->marca?->nombre ?? 'Sin marca' }}
+                                            </div>
+
+                                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                                class="store-product-name">
+                                                {{ $producto->nombre }}
+                                            </a>
+
+                                            <div class="store-product-category">
+                                                {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+                                            </div>
+
+                                            <div class="store-product-footer">
+
+                                                <div>
+                                                    <div class="store-product-price">
+                                                        ₡{{ number_format($producto->precio, 2) }}
+                                                    </div>
+
+                                                    <small class="store-product-stock">
+                                                        Stock: {{ $producto->stock_actual }}
+                                                    </small>
+                                                </div>
+
+                                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                                    class="store-product-action">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            @endforeach
+
+                        </div>
+
+                    </div>
+                @endif
 
             </div>
         </section>
@@ -462,62 +574,74 @@
 
                 </div>
 
-                <div class="row g-3 g-md-4">
+                <div class="store-home-carousel">
 
-                    @foreach ($marcasHome as $marca)
-                        @php
-                            $marcaImagen = $marca->imagen ? asset('storage/' . $marca->imagen) : $placeholder;
+                    <div class="store-home-carousel-head justify-content-end mb-3">
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeBrandsCarousel">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
 
-                            $marcaLogo = strtoupper(mb_substr($marca->nombre, 0, 2));
-                        @endphp
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeBrandsCarousel">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
 
-                        <div class="col-6 col-lg-3">
+                    <div id="homeBrandsCarousel" class="store-home-scroll">
 
-                            <a href="{{ route('tienda.marcas.show', $marca->slug) }}" class="store-brand-card">
+                        @foreach ($marcasHome as $marca)
+                            @php
+                                $marcaImagen = $marca->imagen ? asset('storage/' . $marca->imagen) : $placeholder;
+                                $marcaLogo = strtoupper(mb_substr($marca->nombre, 0, 2));
+                            @endphp
 
-                                <div class="store-brand-image-wrap">
+                            <div class="store-home-slide">
 
-                                    <img src="{{ $marcaImagen }}" alt="{{ $marca->nombre }}"
-                                        class="store-brand-image">
+                                <a href="{{ route('tienda.marcas.show', $marca->slug) }}" class="store-brand-card">
 
-                                    <div class="store-brand-overlay"></div>
+                                    <div class="store-brand-image-wrap">
 
-                                    <div class="store-brand-logo">
-                                        {{ $marcaLogo }}
-                                    </div>
+                                        <img src="{{ $marcaImagen }}" alt="{{ $marca->nombre }}"
+                                            class="store-brand-image">
 
-                                    <span class="store-brand-badge">
-                                        {{ $marca->productos_count }} productos
-                                    </span>
+                                        <div class="store-brand-overlay"></div>
 
-                                </div>
+                                        <div class="store-brand-logo">
+                                            {{ $marcaLogo }}
+                                        </div>
 
-                                <div class="store-brand-body">
-
-                                    <div>
-                                        <h3 class="store-brand-title">
-                                            {{ $marca->nombre }}
-                                        </h3>
-
-                                        <p class="store-brand-text mb-0">
-                                            Explorar productos de esta marca.
-                                        </p>
-                                    </div>
-
-                                    <div class="store-brand-footer mt-3">
-                                        <span>
-                                            Ver marca
+                                        <span class="store-brand-badge">
+                                            {{ $marca->productos_count }} productos
                                         </span>
 
-                                        <i class="bi bi-arrow-right"></i>
                                     </div>
 
-                                </div>
+                                    <div class="store-brand-body">
 
-                            </a>
+                                        <div>
+                                            <h3 class="store-brand-title">
+                                                {{ $marca->nombre }}
+                                            </h3>
 
-                        </div>
-                    @endforeach
+                                            <p class="store-brand-text mb-0">
+                                                Explorar productos de esta marca.
+                                            </p>
+                                        </div>
+
+                                        <div class="store-brand-footer mt-3">
+                                            <span>Ver marca</span>
+                                            <i class="bi bi-arrow-right"></i>
+                                        </div>
+
+                                    </div>
+
+                                </a>
+
+                            </div>
+                        @endforeach
+
+                    </div>
 
                 </div>
 
@@ -620,3 +744,26 @@
     </section>
 
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const target = document.querySelector(this.dataset.target);
+
+                    if (!target) {
+                        return;
+                    }
+
+                    const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
+                    const distance = target.clientWidth * 0.85;
+
+                    target.scrollBy({
+                        left: direction * distance,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+@endpush
