@@ -221,11 +221,11 @@
                                 </a>
                             </li>
 
-                            <li>
+                            {{-- <li>
                                 <a href="{{ route('tienda.auth.login') }}">
                                     Mi cuenta
                                 </a>
-                            </li>
+                            </li> --}}
 
                         </ul>
 

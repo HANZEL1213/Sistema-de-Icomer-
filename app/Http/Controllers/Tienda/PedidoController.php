@@ -4,17 +4,21 @@ namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use Illuminate\Support\Facades\Auth;
 
 class PedidoController extends Controller
 {
     public function misPedidos()
     {
+        $usuario = Auth::user();
+
         $pedidos = Pedido::with([
                 'detalle',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',
             ])
+            ->where('id_usuario', $usuario->id_usuario)
             ->latest('created_at')
             ->get();
 

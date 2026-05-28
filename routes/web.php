@@ -14,6 +14,7 @@ use App\Http\Controllers\Tienda\{
     MarcaController,
     CarritoController,
     CheckoutController,
+    CuentaController,
     FavoritoController,
     PedidoController,
     PagoPedidoController,
@@ -62,7 +63,6 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
 
     Route::post('/registro', [TiendaAuthController::class, 'register'])
         ->name('register.post');
-
 });
 
 
@@ -76,8 +76,34 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
 
     Route::post('/logout', [TiendaAuthController::class, 'logout'])
         ->name('logout');
-
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| RUTAS PRIVADAS - TIENDA
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('tienda')->name('tienda.')->middleware(['cliente'])->group(function () {
+
+    Route::get('/mi-cuenta', [CuentaController::class, 'index'])->name('cuenta');
+
+    Route::put('/mi-cuenta', [CuentaController::class, 'update'])
+        ->name('cuenta.update');
+
+    Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('pedidos.mis');
+
+    Route::put('/mi-cuenta/password', [CuentaController::class, 'updatePassword'])
+        ->name('cuenta.password');
+    Route::get('/mi-cuenta/password', function () {
+        return redirect()->route('tienda.cuenta');
+    });
+
+    Route::post('/logout', [TiendaAuthController::class, 'logout'])
+        ->name('logout');
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -99,27 +125,26 @@ Route::name('tienda.')->group(function () {
 
 
 
-        /*
+    /*
         |--------------------------------------------------------------------------
         | FAVORITOS
         |--------------------------------------------------------------------------
         */
 
-        Route::prefix('favoritos')
-            ->name('favoritos.')
-            ->group(function () {
+    Route::prefix('favoritos')
+        ->name('favoritos.')
+        ->group(function () {
 
-                Route::get(
-                    '/',
-                    [FavoritoController::class, 'index']
-                )->name('index');
+            Route::get(
+                '/',
+                [FavoritoController::class, 'index']
+            )->name('index');
 
-                Route::post(
-                    '/toggle/{id}',
-                    [FavoritoController::class, 'toggle']
-                )->name('toggle');
-
-            });
+            Route::post(
+                '/toggle/{id}',
+                [FavoritoController::class, 'toggle']
+            )->name('toggle');
+        });
 
 
 
@@ -128,21 +153,20 @@ Route::name('tienda.')->group(function () {
     | Productos
     |--------------------------------------------------------------------------
     */
- Route::prefix('productos')
-    ->name('productos.')
-    ->group(function () {
+    Route::prefix('productos')
+        ->name('productos.')
+        ->group(function () {
 
-        Route::get('/', [ProductoController::class, 'index'])
-            ->name('index');
+            Route::get('/', [ProductoController::class, 'index'])
+                ->name('index');
 
-        // 🔍 SUGERENCIAS
-        Route::get('/buscar/sugerencias', [ProductoController::class, 'sugerencias'])
-            ->name('sugerencias');
+            // 🔍 SUGERENCIAS
+            Route::get('/buscar/sugerencias', [ProductoController::class, 'sugerencias'])
+                ->name('sugerencias');
 
-        Route::get('/{slug}', [ProductoController::class, 'show'])
-            ->name('show');
-
-    });
+            Route::get('/{slug}', [ProductoController::class, 'show'])
+                ->name('show');
+        });
 
     /*
     |--------------------------------------------------------------------------
@@ -170,101 +194,99 @@ Route::name('tienda.')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-Route::prefix('carrito')
-    ->name('carrito.')
-    ->controller(CarritoController::class)
-    ->group(function () {
+    Route::prefix('carrito')
+        ->name('carrito.')
+        ->controller(CarritoController::class)
+        ->group(function () {
 
-        Route::get('/', 'index')->name('index');
+            Route::get('/', 'index')->name('index');
 
-        Route::post('/agregar/{producto}', 'agregar')->name('agregar');
+            Route::post('/agregar/{producto}', 'agregar')->name('agregar');
 
-        Route::patch('/actualizar/{producto}', 'actualizar')->name('actualizar');
+            Route::patch('/actualizar/{producto}', 'actualizar')->name('actualizar');
 
-        Route::delete('/eliminar/{producto}', 'eliminar')->name('eliminar');
+            Route::delete('/eliminar/{producto}', 'eliminar')->name('eliminar');
 
-        Route::delete('/vaciar', 'vaciar')->name('vaciar');
+            Route::delete('/vaciar', 'vaciar')->name('vaciar');
 
-        /*
+            /*
         |--------------------------------------------------------------------------
         | CUPONES
         |--------------------------------------------------------------------------
         */
 
-        Route::post('/cupon/aplicar', 'aplicarCupon')
-            ->name('cupon.aplicar');
+            Route::post('/cupon/aplicar', 'aplicarCupon')
+                ->name('cupon.aplicar');
 
-        Route::delete('/cupon/eliminar', 'eliminarCupon')
-            ->name('cupon.eliminar');
+            Route::delete('/cupon/eliminar', 'eliminarCupon')
+                ->name('cupon.eliminar');
+        });
 
-    });
-
-/*
+    /*
 |--------------------------------------------------------------------------
 | Checkout
 |--------------------------------------------------------------------------
 */
-Route::prefix('checkout')->name('checkout.')->group(function () {
+    Route::prefix('checkout')->name('checkout.')->group(function () {
 
-    Route::get('/', [CheckoutController::class, 'index'])
-        ->name('index');
+        Route::get('/', [CheckoutController::class, 'index'])
+            ->name('index');
 
-    Route::post('/confirmar', [CheckoutController::class, 'confirmar'])
-        ->name('confirmar');
+        Route::post('/confirmar', [CheckoutController::class, 'confirmar'])
+            ->name('confirmar');
 
-    Route::get('/cantones/{id_provincia}', [CheckoutController::class, 'cantonesDisponibles'])
-        ->name('cantones');
+        Route::get('/cantones/{id_provincia}', [CheckoutController::class, 'cantonesDisponibles'])
+            ->name('cantones');
 
-    Route::get('/distritos/{id_canton}', [CheckoutController::class, 'distritosDisponibles'])
-        ->name('distritos');
+        Route::get('/distritos/{id_canton}', [CheckoutController::class, 'distritosDisponibles'])
+            ->name('distritos');
 
-    Route::get('/confirmacion/{pedido}', [CheckoutController::class, 'confirmacion'])
-        ->name('confirmacion');
+        Route::get('/confirmacion/{pedido}', [CheckoutController::class, 'confirmacion'])
+            ->name('confirmacion');
 
         Route::get('/costo-envio/{id_distrito}', [CheckoutController::class, 'costoEnvio'])
-    ->name('costo.envio');
-});
+            ->name('costo.envio');
+    });
     /*
     |--------------------------------------------------------------------------
     | Pedidos del cliente
     |--------------------------------------------------------------------------
     */
     Route::prefix('pedido')->name('pedidos.')->group(function () {
-        Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('mis');
+        // Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('mis');
         Route::get('{codigo}', [PedidoController::class, 'show'])->name('show');
         Route::get('{codigo}/seguimiento', [PedidoController::class, 'seguimiento'])->name('seguimiento');
     });
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | Pago de pedido
 |--------------------------------------------------------------------------
 */
-Route::prefix('pedido')->name('pagos.')->group(function () {
+    Route::prefix('pedido')->name('pagos.')->group(function () {
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | FORMULARIO DE PAGO
     |--------------------------------------------------------------------------
     */
-    Route::get(
-        '{codigo}/pago',
-        [PagoPedidoController::class, 'index']
-    )->name('index');
+        Route::get(
+            '{codigo}/pago',
+            [PagoPedidoController::class, 'index']
+        )->name('index');
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | ENVIAR / REENVIAR PAGO
     |--------------------------------------------------------------------------
     */
-    Route::post(
-        '{codigo}/pago',
-        [PagoPedidoController::class, 'store']
-    )->name('store');
+        Route::post(
+            '{codigo}/pago',
+            [PagoPedidoController::class, 'store']
+        )->name('store');
+    });
 
-});
-
-/*
+    /*
 |--------------------------------------------------------------------------
 | CIERRE RUTAS TIENDA
 |--------------------------------------------------------------------------
@@ -286,7 +308,7 @@ Route::get('/login', function () {
 Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');    
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
 /*
@@ -424,6 +446,4 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         // Aquí luego podés agregar relacionados, variantes, etc.
         // Route::get('relacionados', [ProductosRelacionadosController::class, 'index'])->name('relacionados.index');
     });
-
-
 });

@@ -12,6 +12,10 @@
     })->count();
 @endphp
 
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 <header>
     {{-- TOP BAR --}}
     <div class="store-topbar d-none d-md-block">
@@ -39,9 +43,20 @@
                         Mis pedidos
                     </a>
 
-                    <a href="{{ route('tienda.auth.login') }}" class="store-topbar-link">
-                        Mi cuenta
-                    </a>
+                    @auth
+                        <a href="{{ route('tienda.cuenta') }}"
+                        class="store-topbar-link">
+
+                            {{ Str::limit(Auth::user()->nombre, 10) }}
+                        </a>
+                    @else
+                        <a href="{{ route('tienda.auth.login') }}"
+                        class="store-topbar-link">
+
+                            Mi cuenta
+                        </a>
+                    @endauth
+
                 </div>
             </div>
         </div>
@@ -112,10 +127,21 @@
                         <i class="bi bi-box-seam fs-5"></i>
                     </a>
 
-                    <a href="{{ route('tienda.auth.login') }}" class="store-icon-btn d-none d-md-inline-flex"
+                   @auth
+                        <a href="{{ route('tienda.cuenta') }}"
+                        class="store-icon-btn d-none d-md-inline-flex"
                         aria-label="Mi cuenta">
-                        <i class="bi bi-person fs-5"></i>
-                    </a>
+
+                            <i class="bi bi-person-check fs-5"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('tienda.auth.login') }}"
+                        class="store-icon-btn d-none d-md-inline-flex"
+                        aria-label="Mi cuenta">
+
+                            <i class="bi bi-person fs-5"></i>
+                        </a>
+                    @endauth
 
                     <a href="{{ route('tienda.favoritos.index') }}"
                         class="store-icon-btn d-none d-md-inline-flex position-relative" aria-label="Favoritos">
@@ -343,11 +369,27 @@
                     <i class="bi bi-box-seam"></i>
                 </a>
 
-                <a href="{{ route('tienda.auth.login') }}" class="store-offcanvas-link"
+                    @auth
+
+                    <a href="{{ route('tienda.cuenta') }}"
+                    class="store-offcanvas-link"
                     data-store-close-offcanvas="true">
-                    <span>Mi cuenta</span>
-                    <i class="bi bi-person"></i>
-                </a>
+
+                        <span>
+                            {{ Str::limit(Auth::user()->nombre, 18) }}
+                        </span>
+                        <i class="bi bi-person-check"></i>
+                    </a>
+                @else
+                    <a href="{{ route('tienda.auth.login') }}"
+                    class="store-offcanvas-link"
+                    data-store-close-offcanvas="true">
+
+                        <span>Mi cuenta</span>
+                        <i class="bi bi-person"></i>
+                    </a>
+                @endauth
+
             </div>
         </div>
     </div>

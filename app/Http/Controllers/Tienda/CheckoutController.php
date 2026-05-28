@@ -303,7 +303,7 @@ $pedido = Pedido::create([
     'numero_pedido' => 'PED-' . now()->format('YmdHis'),
     'estado' => 'pendiente_pago',
 
-    'id_usuario' => null,
+    'id_usuario' => Auth::check() ? Auth::user()->id_usuario : null,
     'nombre_cliente' => $request->nombre_cliente,
     'telefono_cliente' => $request->telefono_cliente,
     'correo_cliente' => $request->correo_cliente,
