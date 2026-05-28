@@ -238,225 +238,119 @@
 
     @endif
 
-    {{-- =========================================================
+
+{{-- =========================================================
     PRODUCTOS DESTACADOS DINÁMICOS
 ========================================================== --}}
-    @if ($productosHome->isNotEmpty())
+@if ($productosHome->isNotEmpty())
 
-        <section class="store-section store-products-minimal-section">
-            <div class="container">
+    <section class="store-section store-products-minimal-section">
+        <div class="container">
 
-                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
 
-                    <div>
-                        <div class="store-mini-label">
-                            Selección
-                        </div>
-
-                        <h2 class="store-section-title mb-2">
-                            Productos destacados
-                        </h2>
-
-                        <p class="store-section-subtitle">
-                            Productos disponibles en el catálogo principal.
-                        </p>
+                <div>
+                    <div class="store-mini-label">
+                        Selección
                     </div>
 
-                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
-                        Ver catálogo
-                    </a>
+                    <h2 class="store-section-title mb-2">
+                        Productos destacados
+                    </h2>
 
+                    <p class="store-section-subtitle">
+                        Productos disponibles en el catálogo principal.
+                    </p>
                 </div>
 
-
-
-                {{-- FILA 1 --}}
-                <div class="store-home-carousel mb-4">
-
-                    <div class="store-home-carousel-head">
-                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
-                            data-target="#homeProductsCarouselOne">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-
-                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
-                            data-target="#homeProductsCarouselOne">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                    </div>
-
-                    <div id="homeProductsCarouselOne" class="store-home-scroll store-home-products-row">
-
-                        @foreach ($productosFila1 as $producto)
-                            @php
-                                $productoImagen = $producto->imagenPrincipal?->ruta
-                                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                                    : $placeholder;
-                            @endphp
-
-                            <div class="store-home-slide">
-
-                                <div class="store-product-card">
-
-                                    <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                        class="store-product-image-wrap">
-
-                                        <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
-                                            class="store-product-image">
-
-                                        <button type="button"
-                                            class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
-                                            data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
-
-                                            <i
-                                                class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-
-                                        </button>
-
-                                    </a>
-
-                                    <div class="store-product-body">
-
-                                        <div class="store-product-meta">
-                                            {{ $producto->marca?->nombre ?? 'Sin marca' }}
-                                        </div>
-
-                                        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                            class="store-product-name">
-                                            {{ $producto->nombre }}
-                                        </a>
-
-                                        <div class="store-product-category">
-                                            {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
-                                        </div>
-
-                                        <div class="store-product-footer">
-
-                                            <div>
-                                                <div class="store-product-price">
-                                                    ₡{{ number_format($producto->precio, 2) }}
-                                                </div>
-
-                                                <small class="store-product-stock">
-                                                    Stock: {{ $producto->stock_actual }}
-                                                </small>
-                                            </div>
-
-                                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                                class="store-product-action">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        @endforeach
-
-                    </div>
-
-                </div>
-
-                {{-- FILA 2 --}}
-                @if ($productosFila2->isNotEmpty())
-                    <div class="store-home-carousel">
-
-                        <div class="store-home-carousel-head">
-                            <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
-                                data-target="#homeProductsCarouselTwo">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
-
-                            <button type="button" class="store-home-carousel-btn js-home-carousel-next"
-                                data-target="#homeProductsCarouselTwo">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
-                        </div>
-
-                        <div id="homeProductsCarouselTwo" class="store-home-scroll store-home-products-row">
-
-                            @foreach ($productosFila2 as $producto)
-                                @php
-                                    $productoImagen = $producto->imagenPrincipal?->ruta
-                                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                                        : $placeholder;
-                                @endphp
-
-                                <div class="store-home-slide">
-
-                                    <div class="store-product-card">
-
-                                        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                            class="store-product-image-wrap">
-
-                                            <img src="{{ $productoImagen }}" alt="{{ $producto->nombre }}"
-                                                class="store-product-image">
-
-                                            <button type="button"
-                                                class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
-                                                data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
-
-                                                <i
-                                                    class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
-
-                                            </button>
-
-                                        </a>
-
-                                        <div class="store-product-body">
-
-                                            <div class="store-product-meta">
-                                                {{ $producto->marca?->nombre ?? 'Sin marca' }}
-                                            </div>
-
-                                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                                class="store-product-name">
-                                                {{ $producto->nombre }}
-                                            </a>
-
-                                            <div class="store-product-category">
-                                                {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
-                                            </div>
-
-                                            <div class="store-product-footer">
-
-                                                <div>
-                                                    <div class="store-product-price">
-                                                        ₡{{ number_format($producto->precio, 2) }}
-                                                    </div>
-
-                                                    <small class="store-product-stock">
-                                                        Stock: {{ $producto->stock_actual }}
-                                                    </small>
-                                                </div>
-
-                                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                                    class="store-product-action">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-                            @endforeach
-
-                        </div>
-
-                    </div>
-                @endif
+                <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+                    Ver catálogo
+                </a>
 
             </div>
-        </section>
 
-    @endif
+            {{-- FILA 1 --}}
+            <div class="store-home-carousel mb-4">
 
+                <div class="store-home-carousel-head">
+
+                    <button type="button"
+                        class="store-home-carousel-btn js-home-carousel-prev"
+                        data-target="#homeProductsCarouselOne">
+
+                        <i class="bi bi-chevron-left"></i>
+
+                    </button>
+
+                    <button type="button"
+                        class="store-home-carousel-btn js-home-carousel-next"
+                        data-target="#homeProductsCarouselOne">
+
+                        <i class="bi bi-chevron-right"></i>
+
+                    </button>
+
+                </div>
+
+                <div id="homeProductsCarouselOne"
+                    class="store-home-scroll store-home-products-row"
+                    data-load-url="{{ route('tienda.home.productos.ajax') }}"
+                    data-next-page="2"
+                    data-has-more="1"
+                    data-loading="0">
+
+                    @include('tienda.home.partials.productos-home-items', [
+                        'productos' => $productosFila1,
+                        'favoritosIds' => $favoritosIds,
+                    ])
+
+                </div>
+
+            </div>
+
+            {{-- FILA 2 --}}
+            @if ($productosFila2->isNotEmpty())
+
+                <div class="store-home-carousel">
+
+                    <div class="store-home-carousel-head">
+
+                        <button type="button"
+                            class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeProductsCarouselTwo">
+
+                            <i class="bi bi-chevron-left"></i>
+
+                        </button>
+
+                        <button type="button"
+                            class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeProductsCarouselTwo">
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </button>
+
+                    </div>
+
+                    <div id="homeProductsCarouselTwo"
+                        class="store-home-scroll store-home-products-row">
+
+                        @include('tienda.home.partials.productos-home-items', [
+                            'productos' => $productosFila2,
+                            'favoritosIds' => $favoritosIds,
+                        ])
+
+                    </div>
+
+                </div>
+
+            @endif
+
+        </div>
+    </section>
+
+@endif
     {{-- =========================================================
         BANNER INTERMEDIO PREMIUM
     ========================================================== --}}
@@ -744,24 +638,94 @@
     </section>
 
 @endsection
+
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const target = document.querySelector(this.dataset.target);
+        document.addEventListener('DOMContentLoaded', function () {
 
-                    if (!target) {
-                        return;
+            let productosPreloadPromise = null;
+
+            async function cargarMasProductos() {
+                const fila1 = document.querySelector('#homeProductsCarouselOne');
+                const fila2 = document.querySelector('#homeProductsCarouselTwo');
+
+                if (!fila1 || !fila2) return false;
+                if (fila1.dataset.hasMore !== '1') return false;
+
+                if (productosPreloadPromise) {
+                    return productosPreloadPromise;
+                }
+
+                const page = parseInt(fila1.dataset.nextPage || '2', 10);
+                const url = `${fila1.dataset.loadUrl}?page=${page}`;
+
+                fila1.dataset.loading = '1';
+
+                productosPreloadPromise = fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        fila1.insertAdjacentHTML('beforeend', data.html_fila_1 || '');
+                        fila2.insertAdjacentHTML('beforeend', data.html_fila_2 || '');
 
-                    const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
-                    const distance = target.clientWidth * 0.85;
+                        fila1.dataset.nextPage = page + 1;
+                        fila1.dataset.hasMore = data.has_more ? '1' : '0';
 
+                        return true;
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        return false;
+                    })
+                    .finally(() => {
+                        fila1.dataset.loading = '0';
+                        productosPreloadPromise = null;
+                    });
+
+                return productosPreloadPromise;
+            }
+
+            function estaCercaDelFinal(target) {
+                return target.scrollLeft + target.clientWidth >= target.scrollWidth - (target.clientWidth * 1.4);
+            }
+
+            async function moverCarrusel(target, direction) {
+                if (!target) return;
+
+                const esProducto =
+                    target.id === 'homeProductsCarouselOne' ||
+                    target.id === 'homeProductsCarouselTwo';
+
+                if (esProducto && direction === 1 && estaCercaDelFinal(target)) {
+                    await cargarMasProductos();
+                }
+
+                requestAnimationFrame(() => {
                     target.scrollBy({
-                        left: direction * distance,
+                        left: target.clientWidth * 0.85 * direction,
                         behavior: 'smooth'
                     });
+                });
+
+                if (esProducto && direction === 1) {
+                    setTimeout(() => {
+                        if (estaCercaDelFinal(target)) {
+                            cargarMasProductos();
+                        }
+                    }, 500);
+                }
+            }
+
+            document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const target = document.querySelector(this.dataset.target);
+                    const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
+
+                    moverCarrusel(target, direction);
                 });
             });
         });

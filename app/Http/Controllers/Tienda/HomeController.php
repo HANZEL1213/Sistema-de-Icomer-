@@ -8,6 +8,7 @@ use App\Models\Categoria;
 use App\Models\Favorito;
 use App\Models\Marca;
 use App\Models\Producto;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
@@ -40,7 +41,6 @@ class HomeController extends Controller
         |--------------------------------------------------------------------------
         | CATEGORÍAS HOME
         |--------------------------------------------------------------------------
-        | Se muestran todas las categorías activas.
         */
 
         $categoriasHome = Categoria::query()
@@ -56,30 +56,28 @@ class HomeController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PRODUCTOS HOME
+        | PRODUCTOS HOME - PRIMERA CARGA
         |--------------------------------------------------------------------------
-        | Se muestran máximo 24 productos activos para dividirlos en 2 filas.
         */
 
-       $productosHome = Producto::query()
-    ->where('activo', 1)
-    ->with([
-        'marca:id_marca,nombre,slug',
-        'categoriaPrincipal:id_categoria,nombre,slug',
-        'imagenPrincipal:id_imagen_producto,id_producto,ruta',
-    ])
-    ->orderByDesc('created_at')
-    ->limit(24)
-    ->get();
+        $productosHome = Producto::query()
+            ->where('activo', 1)
+            ->with([
+                'marca:id_marca,nombre,slug',
+                'categoriaPrincipal:id_categoria,nombre,slug',
+                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
+            ])
+            ->orderByDesc('created_at')
+            ->limit(24)
+            ->get();
 
-$productosFila1 = $productosHome->take(12);
-$productosFila2 = $productosHome->skip(12)->take(12);
+        $productosFila1 = $productosHome->take(12);
+        $productosFila2 = $productosHome->skip(12)->take(12);
 
         /*
         |--------------------------------------------------------------------------
         | MARCAS HOME
         |--------------------------------------------------------------------------
-        | Se muestran todas las marcas activas.
         */
 
         $marcasHome = Marca::query()
@@ -99,7 +97,71 @@ $productosFila2 = $productosHome->skip(12)->take(12);
         |--------------------------------------------------------------------------
         */
 
-        $favoritosIds = Favorito::where(function ($query) {
+        $favoritosIds = $this->obtenerFavoritosIds();
+
+        return view('tienda.home.index', compact(
+            'carruselItems',
+            'categoriasHome',
+            'productosHome',
+            'productosFila1',
+            'productosFila2',
+            'marcasHome',
+            'favoritosIds'
+        ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRODUCTOS AJAX - CARGAR MÁS
+    |--------------------------------------------------------------------------
+    */
+
+    public function productosAjax(Request $request)
+    {
+        $page = max((int) $request->get('page', 1), 1);
+        $perPage = 24;
+
+        $productos = Producto::query()
+            ->where('activo', 1)
+            ->with([
+                'marca:id_marca,nombre,slug',
+                'categoriaPrincipal:id_categoria,nombre,slug',
+                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
+            ])
+            ->orderByDesc('created_at')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
+            ->get();
+
+        $favoritosIds = $this->obtenerFavoritosIds();
+
+        $productosFila1 = $productos->take(12);
+        $productosFila2 = $productos->skip(12)->take(12);
+
+        return response()->json([
+            'html_fila_1' => view('tienda.home.partials.productos-home-items', [
+                'productos' => $productosFila1,
+                'favoritosIds' => $favoritosIds,
+            ])->render(),
+
+            'html_fila_2' => view('tienda.home.partials.productos-home-items', [
+                'productos' => $productosFila2,
+                'favoritosIds' => $favoritosIds,
+            ])->render(),
+
+            'has_more' => $productos->count() === $perPage,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FAVORITOS IDS
+    |--------------------------------------------------------------------------
+    */
+
+    private function obtenerFavoritosIds(): array
+    {
+        return Favorito::where(function ($query) {
             if (Auth::check()) {
                 $query->where('id_usuario', Auth::id());
             } else {
@@ -108,22 +170,6 @@ $productosFila2 = $productosHome->skip(12)->take(12);
         })
             ->pluck('id_producto')
             ->toArray();
-
-        /*
-        |--------------------------------------------------------------------------
-        | VIEW
-        |--------------------------------------------------------------------------
-        */
-
-   return view('tienda.home.index', compact(
-    'carruselItems',
-    'categoriasHome',
-    'productosHome',
-    'productosFila1',
-    'productosFila2',
-    'marcasHome',
-    'favoritosIds'
-));
     }
 
     /*
