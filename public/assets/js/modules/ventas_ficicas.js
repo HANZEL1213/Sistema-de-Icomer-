@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let searchTimeout = null;
     let currentProductSelected = null;
     let metodoActual = 'efectivo';
+    let selectedIndex = -1;
 
     function escapeHtml(text) {
         if (!text) return '';
@@ -78,26 +79,42 @@ document.addEventListener('DOMContentLoaded', function () {
             searchResults.innerHTML =
                 '<div class="list-group-item text-muted text-center"><i class="bx bx-search-alt"></i> No se encontraron productos</div>';
             searchResults.style.display = 'block';
+            selectedIndex = -1;
             return;
         }
 
-        searchResults.innerHTML = filtered.map(p => `
-            <a href="#" class="list-group-item list-group-item-action" data-product='${JSON.stringify(p)}'>
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>${escapeHtml(p.nombre)}</strong>
-                        ${(p.codigo_barras || p.sku) ? `<br><small class="text-muted">${escapeHtml(p.codigo_barras || p.sku)}</small>` : ''}
-                    </div>
-                    <div class="text-end">
-                        <span class="badge bg-primary">₡ ${formatMoney(p.precio_venta)}</span>
-                        <br><small class="text-muted">Stock: ${p.stock}</small>
-                    </div>
+     searchResults.innerHTML = filtered.map(p => `
+    <a href="#" class="list-group-item list-group-item-action" data-product='${JSON.stringify(p)}'>
+        <div class="search-product-item">
+
+            ${p.imagen_url ? `
+                <img 
+                    src="${escapeHtml(p.imagen_url)}" 
+                    alt="${escapeHtml(p.nombre)}" 
+                    class="search-product-img"
+                >
+            ` : `
+                <div class="search-product-img search-product-no-img">
+                    <i class="bx bx-image"></i>
                 </div>
-            </a>
-        `).join('');
+            `}
+
+            <div class="search-product-info">
+                <strong>${escapeHtml(p.nombre)}</strong>
+                ${(p.codigo_barras || p.sku) ? `<br><small class="text-muted">${escapeHtml(p.codigo_barras || p.sku)}</small>` : ''}
+            </div>
+
+            <div class="search-product-price">
+                <span class="badge bg-primary">₡ ${formatMoney(p.precio_venta)}</span>
+                <br><small class="text-muted">Stock: ${p.stock}</small>
+            </div>
+
+        </div>
+    </a>
+`).join('');
 
         searchResults.style.display = 'block';
-
+selectedIndex = -1;
         document.querySelectorAll('.list-group-item[data-product]').forEach(el => {
             el.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -111,7 +128,19 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     }
+function updateSelection() {
+    const items = searchResults.querySelectorAll('.list-group-item[data-product]');
 
+    items.forEach((item, index) => {
+        item.classList.toggle('search-selected', index === selectedIndex);
+
+        if (index === selectedIndex) {
+            item.scrollIntoView({
+                block: 'nearest'
+            });
+        }
+    });
+}
     function addProductFromSearch(productData, cantidad = 1) {
         if (!productData) return false;
 
@@ -345,10 +374,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    searchInput?.addEventListener('input', function () {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchProducts(this.value), 250);
-    });
+searchInput?.addEventListener('input', function () {
+    selectedIndex = -1;
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => searchProducts(this.value), 250);
+});
 
     btnAddProduct?.addEventListener('click', () => {
         if (currentProductSelected) {
@@ -381,12 +411,43 @@ document.addEventListener('DOMContentLoaded', function () {
         searchInput.focus();
     });
 
-    searchInput?.addEventListener('keypress', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            btnAddProduct.click();
+ searchInput?.addEventListener('keydown', e => {
+    const items = searchResults.querySelectorAll('.list-group-item[data-product]');
+
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+
+        selectedIndex++;
+
+        if (selectedIndex >= items.length) {
+            selectedIndex = 0;
         }
-    });
+
+        updateSelection();
+
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+
+        selectedIndex--;
+
+        if (selectedIndex < 0) {
+            selectedIndex = items.length - 1;
+        }
+
+        updateSelection();
+
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+
+        if (selectedIndex >= 0) {
+            items[selectedIndex].click();
+        } else {
+            items[0].click();
+        }
+    }
+});
 
     document.addEventListener('click', e => {
         if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {

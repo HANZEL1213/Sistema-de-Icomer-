@@ -410,3 +410,46 @@
         font-size: 11px;
     }
 }
+/* img buscador */
+
+.search-product-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.search-product-img {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    background: #f8f9fa;
+    flex-shrink: 0;
+}
+
+.search-product-no-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    font-size: 22px;
+}
+
+.search-product-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.search-product-info strong {
+    font-size: 14px;
+}
+
+.search-product-price {
+    text-align: right;
+    flex-shrink: 0;
+}
+.search-selected {
+    background: #e9f2ff !important;
+    border-left: 4px solid var(--color-primary);
+}

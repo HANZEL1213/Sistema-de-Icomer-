@@ -37,7 +37,8 @@ class VentasLocalesController extends Controller
     ============================================ */
 public function create()
 {
-    $productos = Producto::where('activo', 1)
+    $productos = Producto::with('imagenPrincipal')
+        ->where('activo', 1)
         ->orderBy('nombre')
         ->get([
             'id_producto',

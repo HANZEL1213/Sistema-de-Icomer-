@@ -4,6 +4,8 @@
 
 @section('content')
 
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/ventas_ficicas_show.css') }}">
+
     @php
         $pagos = $item->pagos ?? collect();
         $detalle = $item->detalle ?? collect();
@@ -20,12 +22,7 @@
         $cantidadUnidades = (int) $detalle->sum('cantidad');
         $cantidadLineas = (int) $detalle->count();
 
-        $metodosUsados = $pagos
-            ->pluck('metodo')
-            ->filter()
-            ->map(fn ($m) => strtoupper($m))
-            ->unique()
-            ->implode(' + ');
+        $metodosUsados = $pagos->pluck('metodo')->filter()->map(fn($m) => strtoupper($m))->unique()->implode(' + ');
 
         $metodosUsados = $metodosUsados ?: 'SIN PAGO';
 
@@ -34,126 +31,9 @@
         $notasVenta = $item->notas ?: 'Sin notas registradas';
     @endphp
 
-   
-        <style>
-            .show-hero-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: .45rem;
-                padding: .55rem .9rem;
-                border-radius: 999px;
-                background: rgba(255, 255, 255, .85);
-                border: 1px solid rgba(0, 0, 0, .06);
-                font-weight: 700;
-            }
 
-            .show-mini-stat {
-                border-radius: 16px;
-                background: #fff;
-                border: 1px solid rgba(0, 0, 0, .06);
-                padding: 1rem;
-                box-shadow: 0 8px 18px rgba(0, 0, 0, .04);
-                transition: transform .2s ease, box-shadow .2s ease;
-                height: 100%;
-            }
 
-            .show-mini-stat:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
-            }
 
-            .show-section-card {
-                border: 0;
-                border-radius: 18px;
-                overflow: hidden;
-                background: #fff;
-                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-            }
-
-            .show-section-card .card-header-soft {
-                background: linear-gradient(135deg, rgba(248, 249, 250, 1) 0%, rgba(255, 255, 255, 1) 100%);
-                border-bottom: 1px solid rgba(0, 0, 0, .05);
-                padding: 1rem 1.25rem;
-            }
-
-            .show-kv {
-                padding: .8rem .95rem;
-                border-radius: 14px;
-                background: #f8f9fa;
-                height: 100%;
-                border: 1px solid rgba(0, 0, 0, .04);
-            }
-
-            .show-kv small {
-                display: block;
-                margin-bottom: .2rem;
-            }
-
-            .show-side-panel {
-                position: sticky;
-                top: 95px;
-            }
-
-            .soft-alert {
-                border-radius: 16px;
-                border: 1px dashed rgba(0, 0, 0, .12);
-                background: #fff;
-                padding: 1rem;
-            }
-
-            .payment-history-card {
-                border: 1px solid rgba(0, 0, 0, .06);
-                border-radius: 18px;
-                background: #fff;
-                transition: all .2s ease;
-            }
-
-            .payment-history-card:hover {
-                box-shadow: 0 12px 24px rgba(0, 0, 0, .06);
-                transform: translateY(-2px);
-            }
-
-            .show-table thead th {
-                white-space: nowrap;
-            }
-
-            .show-floating-note {
-                font-size: .86rem;
-                color: #6c757d;
-            }
-
-            @media (max-width: 1199.98px) {
-                .show-side-panel {
-                    position: static;
-                }
-            }
-
-            @media print {
-                .page-breadcrumb,
-                .btn,
-                .show-side-panel {
-                    display: none !important;
-                }
-
-                .show-section-card,
-                .show-mini-stat,
-                .card,
-                .soft-alert,
-                .show-kv {
-                    box-shadow: none !important;
-                }
-
-                .bg-light {
-                    background: #fff !important;
-                }
-
-                body {
-                    margin: 0;
-                    padding: 0;
-                }
-            }
-        </style>
-   
 
     {{-- BREADCRUMB --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -254,108 +134,159 @@
         {{-- COLUMNA PRINCIPAL --}}
         <div class="col-xl-8">
 
-            {{-- INFORMACIÓN GENERAL + CLIENTE --}}
-            <div class="row g-4">
-                <div class="col-lg-6">
-                    <div class="show-section-card h-100">
-                        <div class="card-header-soft">
-                            <h6 class="mb-0 fw-bold">Información General</h6>
+            {{-- INFORMACIÓN GENERAL + CLIENTE + CAJERO + NOTAS --}}
+<div class="row g-4">
+
+    {{-- INFORMACIÓN GENERAL --}}
+    <div class="col-lg-6">
+        <div class="show-section-card h-100">
+            <div class="card-header-soft">
+                <h6 class="mb-0 fw-bold">Información General</h6>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Número de Ticket</small>
+                            <div class="fw-semibold">{{ $item->numero_ticket }}</div>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Número de Ticket</small>
-                                        <div class="fw-semibold">{{ $item->numero_ticket }}</div>
-                                    </div>
-                                </div>
+                    </div>
 
-                                <div class="col-md-6">
-                                    <div class="show-kv">
-                                        <small class="text-muted">ID Venta Local</small>
-                                        <div class="fw-semibold">{{ $item->id_venta_local }}</div>
-                                    </div>
-                                </div>
+                    <div class="col-md-6">
+                        <div class="show-kv">
+                            <small class="text-muted">ID Venta Local</small>
+                            <div class="fw-semibold">{{ $item->id_venta_local }}</div>
+                        </div>
+                    </div>
 
-                                <div class="col-md-6">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Canal consolidado</small>
-                                        <div class="fw-semibold">
-                                            {{ strtoupper($item->venta?->canal ?? 'LOCAL') }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Estado de pago</small>
-                                        <div>
-                                            <span class="status-badge {{ $estadoBadge }}">
-                                                <i class="bx {{ $estadoIcon }} me-1"></i>{{ $estadoTexto }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Métodos utilizados</small>
-                                        <div class="fw-semibold">{{ $metodosUsados }}</div>
-                                    </div>
-                                </div>
+                    <div class="col-md-6">
+                        <div class="show-kv">
+                            <small class="text-muted">Canal consolidado</small>
+                            <div class="fw-semibold">
+                                {{ strtoupper($item->venta?->canal ?? 'LOCAL') }}
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-6">
-                    <div class="show-section-card h-100">
-                        <div class="card-header-soft">
-                            <h6 class="mb-0 fw-bold">Cliente y Cajero</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Cliente</small>
-                                        <div class="fw-semibold">{{ $clienteNombre }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Teléfono</small>
-                                        <div>{{ $clienteTelefono }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Cajero responsable</small>
-                                        <div class="fw-semibold">
-                                            {{ $item->cajero?->nombre ?: 'No registrado' }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">Correo del cajero</small>
-                                        <div>{{ $item->cajero?->correo ?: 'Sin correo registrado' }}</div>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <div class="show-kv">
-                                        <small class="text-muted">ID usuario cajero</small>
-                                        <div class="fw-semibold">{{ $item->id_usuario_cajero }}</div>
-                                    </div>
-                                </div>
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Estado de pago</small>
+                            <div>
+                                <span class="status-badge {{ $estadoBadge }}">
+                                    <i class="bx {{ $estadoIcon }} me-1"></i>{{ $estadoTexto }}
+                                </span>
                             </div>
                         </div>
                     </div>
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Métodos utilizados</small>
+                            <div class="fw-semibold">{{ $metodosUsados }}</div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+        </div>
+    </div>
+
+    {{-- DATOS DEL CLIENTE --}}
+    <div class="col-lg-6">
+        <div class="show-section-card h-100">
+            <div class="card-header-soft">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bx bx-user me-1"></i>
+                    Datos del Cliente
+                </h6>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Nombre del cliente</small>
+                            <div class="fw-semibold">{{ $clienteNombre }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Teléfono</small>
+                            <div>{{ $clienteTelefono }}</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- DATOS DEL CAJERO --}}
+    <div class="col-lg-6">
+        <div class="show-section-card h-100">
+            <div class="card-header-soft">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bx bx-user-check me-1"></i>
+                    Datos del Cajero
+                </h6>
+            </div>
+
+            <div class="card-body">
+                <div class="row g-3">
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Cajero responsable</small>
+                            <div class="fw-semibold">
+                                {{ $item->cajero?->nombre ?: 'No registrado' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">Correo del cajero</small>
+                            <div>{{ $item->cajero?->correo ?: 'Sin correo registrado' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="show-kv">
+                            <small class="text-muted">ID usuario cajero</small>
+                            <div class="fw-semibold">
+                                {{ $item->id_usuario_cajero ?: '—' }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- NOTAS --}}
+    <div class="col-lg-6">
+        <div class="show-section-card h-100">
+            <div class="card-header-soft">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bx bx-note me-1"></i>
+                    Notas de la Venta
+                </h6>
+            </div>
+
+            <div class="card-body">
+                <div class="soft-alert h-100">
+                    {{ $notasVenta }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 
             {{-- RESUMEN FINANCIERO --}}
             <div class="show-section-card mt-4">
@@ -464,7 +395,8 @@
                                         <td>{{ $d->sku_snapshot ?: '—' }}</td>
                                         <td>₡{{ number_format((float) $d->precio_unitario, 2, '.', ',') }}</td>
                                         <td>{{ $d->cantidad }}</td>
-                                        <td class="fw-bold">₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}</td>
+                                        <td class="fw-bold">₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -479,7 +411,8 @@
                                 <tfoot class="table-light">
                                     <tr>
                                         <td colspan="4" class="text-end fw-bold">SUBTOTAL:</td>
-                                        <td class="fw-bold">₡{{ number_format((float) $item->subtotal, 2, '.', ',') }}</td>
+                                        <td class="fw-bold">₡{{ number_format((float) $item->subtotal, 2, '.', ',') }}
+                                        </td>
                                     </tr>
 
                                     @if ((float) $item->descuento > 0)
@@ -623,17 +556,7 @@
                 </div>
             </div>
 
-            {{-- NOTAS --}}
-            <div class="show-section-card mt-4">
-                <div class="card-header-soft">
-                    <h6 class="mb-0 fw-bold">Notas de la Venta</h6>
-                </div>
-                <div class="card-body">
-                    <div class="soft-alert">
-                        {{ $notasVenta }}
-                    </div>
-                </div>
-            </div>
+
 
         </div>
 
@@ -664,14 +587,14 @@
                     </div>
                 </div>
 
-          
+
                 <div class="show-section-card">
                     <div class="card-header-soft">
                         <h6 class="mb-0 fw-bold">Acciones</h6>
                     </div>
                     <div class="card-body">
                         <div class="d-grid gap-2">
-                         
+
 
                             <button type="button" class="btn btn-primary-custom" onclick="window.print()">
                                 <i class="bx bx-printer"></i>

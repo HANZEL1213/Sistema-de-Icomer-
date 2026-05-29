@@ -6,22 +6,24 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/modules/ventas_ficicas.css') }}">
 
-    @php
-        $productosJs = $productos
-            ->map(
-                fn($p) => [
-                    'id' => $p->id_producto,
-                    'nombre' => $p->nombre,
-                    'codigo_barras' => $p->codigo,
-                    'sku' => $p->sku,
-                    'precio_venta' => (float) $p->precio,
-                    'stock' => (int) $p->stock_actual,
-                ],
-            )
-            ->values()
-            ->all();
-    @endphp
-
+@php
+    $productosJs = $productos
+        ->map(
+            fn($p) => [
+                'id' => $p->id_producto,
+                'nombre' => $p->nombre,
+                'codigo_barras' => $p->codigo,
+                'sku' => $p->sku,
+                'precio_venta' => (float) $p->precio,
+                'stock' => (int) $p->stock_actual,
+                'imagen_url' => $p->imagenPrincipal?->ruta
+                    ? asset('storage/' . $p->imagenPrincipal->ruta)
+                    : null,
+            ],
+        )
+        ->values()
+        ->all();
+@endphp
 
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
