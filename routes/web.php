@@ -406,15 +406,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('pagos-pedidos', PagosPedidosController::class)
         ->only(['index', 'show', 'update']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ventas físicas
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('ventas-locales', VentasLocalesController::class);
+  /*
+|--------------------------------------------------------------------------
+| Ventas físicas
+|--------------------------------------------------------------------------
+*/
 
-    Route::resource('pagos-ventas-locales', PagosVentasLocalesController::class)
-        ->only(['index', 'show']);
+Route::get('ventas-locales/{id}/ticket', [VentasLocalesController::class, 'ticket'])
+    ->name('ventas-locales.ticket');
+
+Route::resource('ventas-locales', VentasLocalesController::class);
+
+Route::resource('pagos-ventas-locales', PagosVentasLocalesController::class)
+    ->only(['index', 'show']);
 
     /*
     |--------------------------------------------------------------------------

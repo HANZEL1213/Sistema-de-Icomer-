@@ -192,9 +192,12 @@
                                             <i class="bx bx-edit"></i>
                                         </button> --}}
 
-                                        <button type="button" class="btn-action btn-edit" title="Imprimir próximamente">
-                                            <i class="bx bx-printer"></i>
-                                        </button>
+                                   <a class="btn-action btn-edit"
+   title="Imprimir Ticket"
+   href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
+   target="_blank">
+    <i class="bx bx-printer"></i>
+</a>
                                     </div>
                                 </td>
                             </tr>

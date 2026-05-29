@@ -313,4 +313,19 @@ public function store(Request $request)
 
         return $value === '' ? null : $value;
     }
+
+
+    public function ticket(string $id)
+{
+    $item = VentaLocal::with([
+            'cajero',
+            'detalle',
+            'pagos',
+            'venta',
+        ])
+        ->findOrFail($id);
+
+    return view('admin.ventas_locales.ticket', compact('item'));
 }
+}
+

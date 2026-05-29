@@ -82,11 +82,12 @@
                         <i class="bx bx-arrow-back"></i>
                         <span class="btn-text">Volver</span>
                     </a>
-
-                    <button type="button" class="btn btn-primary-custom" onclick="window.print()">
-                        <i class="bx bx-printer"></i>
-                        <span>Imprimir</span>
-                    </button>
+<a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
+   target="_blank"
+   class="btn btn-primary-custom">
+    <i class="bx bx-printer"></i>
+    <span>Imprimir</span>
+</a>
                 </div>
             </div>
 
@@ -596,11 +597,12 @@
                         <div class="d-grid gap-2">
 
 
-                            <button type="button" class="btn btn-primary-custom" onclick="window.print()">
-                                <i class="bx bx-printer"></i>
-                                <span>Imprimir</span>
-                            </button>
-
+<a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
+   target="_blank"
+   class="btn btn-primary-custom">
+    <i class="bx bx-printer"></i>
+    <span>Imprimir ticket</span>
+</a>
                             <button type="button" class="btn btn-light border text-muted" disabled>
                                 <i class="bx bx-lock-alt"></i>
                                 <span>Edición bloqueada</span>
