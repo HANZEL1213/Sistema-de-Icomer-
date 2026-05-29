@@ -184,3 +184,229 @@
         font-size: 11px;
     }
 }
+/* =========================================================
+   💳 MODAL PAGO - ESTILO ADMIN PRO LIMPIO
+   ========================================================= */
+
+.modal-admin-clean {
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+/* HEADER */
+
+.modal-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 20px 24px;
+}
+
+.modal-header h5 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.modal-header small {
+    font-size: 12px;
+}
+
+.btn-close:focus,
+.btn-close:focus-visible,
+.btn-metodo-admin:focus,
+.btn-metodo-admin:focus-visible,
+.extra-toggle:focus,
+.extra-toggle:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* TOTAL */
+
+.total-admin {
+    color: var(--color-primary);
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+/* MÉTODO DE PAGO */
+
+.btn-metodo-admin {
+    border: 2px solid #dee2e6;
+    background: #ffffff;
+    padding: 14px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+}
+
+.btn-metodo-admin i {
+    font-size: 22px;
+    color: var(--color-gray);
+    transition: 0.2s;
+}
+
+.btn-metodo-admin span {
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+
+.btn-metodo-admin:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-3px);
+}
+
+.btn-metodo-admin:hover i,
+.btn-metodo-admin:hover span {
+    color: var(--color-primary);
+}
+
+.btn-metodo-admin.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.btn-metodo-admin.active i {
+    color: #fff;
+}
+
+.btn-metodo-admin:active {
+    transform: scale(0.97);
+}
+
+/* INPUT CANTIDAD */
+
+#productQuantity {
+    border-radius: 8px;
+}
+
+/* BUSCADOR */
+
+#searchResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 9999;
+    border-radius: 8px;
+}
+
+#searchResults .list-group-item {
+    cursor: pointer;
+}
+
+#searchResults .list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* VUELTO */
+
+.vuelto-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    margin-top: 12px;
+}
+
+/* OPCIONES DISCRETAS EN MODAL */
+
+.payment-extra-compact {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+}
+
+.extra-item + .extra-item {
+    border-top: 1px solid #e9ecef;
+}
+
+.extra-toggle {
+    width: 100%;
+    border: 0;
+    background: #fff;
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.extra-toggle span {
+    font-weight: 600;
+    color: #343a40;
+    font-size: 14px;
+}
+
+.extra-toggle span i {
+    color: var(--color-primary);
+    margin-right: 5px;
+}
+
+.extra-toggle small {
+    color: #adb5bd;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.extra-icon {
+    color: #adb5bd;
+    font-size: 20px;
+    transition: transform .25s ease;
+}
+
+.extra-content {
+    display: none;
+    padding: 14px;
+    border-top: 1px solid #e9ecef;
+    background: #fff;
+}
+
+.extra-content.show {
+    display: block;
+}
+
+/* FOOTER */
+
+.modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 18px 24px;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+    .btn-metodo-admin {
+        padding: 10px 6px;
+    }
+
+    .btn-metodo-admin i {
+        font-size: 18px;
+    }
+
+    .btn-metodo-admin span {
+        font-size: 11px;
+    }
+}

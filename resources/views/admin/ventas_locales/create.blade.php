@@ -6,16 +6,21 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/modules/ventas_ficicas.css') }}">
 
-@php
-    $productosJs = $productos->map(fn ($p) => [
-        'id' => $p->id_producto,
-        'nombre' => $p->nombre,
-        'codigo_barras' => $p->codigo,
-        'sku' => $p->sku,
-        'precio_venta' => (float) $p->precio,
-        'stock' => (int) $p->stock_actual,
-    ])->values()->all();
-@endphp
+    @php
+        $productosJs = $productos
+            ->map(
+                fn($p) => [
+                    'id' => $p->id_producto,
+                    'nombre' => $p->nombre,
+                    'codigo_barras' => $p->codigo,
+                    'sku' => $p->sku,
+                    'precio_venta' => (float) $p->precio,
+                    'stock' => (int) $p->stock_actual,
+                ],
+            )
+            ->values()
+            ->all();
+    @endphp
 
 
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -75,59 +80,6 @@
                     {{-- IZQUIERDA --}}
                     <div class="col-lg-8">
 
-                        {{-- DATOS GENERALES --}}
-                        <div class="card border-0 bg-light mb-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <i class="bx bx-receipt fs-4 text-primary"></i>
-                                    <h5 class="fw-bold mb-0">Datos Generales</h5>
-                                </div>
-
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="fw-semibold mb-2">Número de Ticket</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i class="bx bx-barcode"></i>
-                                            </span>
-                                            <input type="text"
-                                                name="numero_ticket"
-                                                class="form-control @error('numero_ticket') is-invalid @enderror"
-                                                value="{{ old('numero_ticket') }}"
-                                                placeholder="Ej. TICKET-0001"
-                                                maxlength="30"
-                                                required>
-                                        </div>
-                                        @error('numero_ticket')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="fw-semibold mb-2">Cajero</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i class="bx bx-user"></i>
-                                            </span>
-                                            <select name="id_usuario_cajero"
-                                                class="form-select @error('id_usuario_cajero') is-invalid @enderror"
-                                                required>
-                                                <option value="">Seleccione un cajero</option>
-                                                @foreach ($usuarios as $usuario)
-                                                    <option value="{{ $usuario->id_usuario }}"
-                                                        {{ old('id_usuario_cajero') == $usuario->id_usuario ? 'selected' : '' }}>
-                                                        {{ $usuario->nombre }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        @error('id_usuario_cajero')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                         {{-- PRODUCTOS --}}
                         <div class="card border-0 bg-light mb-4">
@@ -142,7 +94,8 @@
 
                                         <div class="col-md-6 position-relative">
                                             <label class="fw-semibold mb-2">
-                                                <i class="bx bx-search-alt text-primary"></i> Buscar Producto
+                                                <i class="bx bx-search-alt text-primary"></i>
+                                                Buscar Producto <span class="text-danger">*</span>
                                             </label>
 
                                             <div class="input-group">
@@ -150,14 +103,10 @@
                                                     <i class="bx bx-barcode text-muted"></i>
                                                 </span>
 
-                                                <input type="text"
-                                                    id="searchProduct"
-                                                    class="form-control"
-                                                    placeholder="Nombre, código o SKU..."
-                                                    autocomplete="off">
+                                                <input type="text" id="searchProduct" class="form-control"
+                                                    placeholder="Nombre, código o SKU..." autocomplete="off">
 
-                                                <button type="button"
-                                                    id="btnClearSearch"
+                                                <button type="button" id="btnClearSearch"
                                                     class="btn btn-outline-secondary">
                                                     <i class="bx bx-eraser"></i>
                                                 </button>
@@ -168,19 +117,14 @@
 
                                         <div class="col-md-3">
                                             <label class="fw-semibold mb-2">
-                                                <i class="bx bx-plus-circle text-success"></i> Cantidad
+                                                Cantidad <span class="text-danger">*</span>
                                             </label>
-                                            <input type="number"
-                                                id="productQuantity"
-                                                class="form-control text-center"
-                                                value="1"
-                                                min="1">
+                                            <input type="number" id="productQuantity" class="form-control text-center"
+                                                value="1" min="1">
                                         </div>
 
                                         <div class="col-md-3">
-                                            <button type="button"
-                                                id="btnAddProduct"
-                                                class="btn btn-primary-custom w-100">
+                                            <button type="button" id="btnAddProduct" class="btn btn-primary-custom w-100">
                                                 <i class="bx bx-cart-add"></i> Agregar
                                             </button>
                                         </div>
@@ -222,74 +166,7 @@
                             </div>
                         </div>
 
-                        {{-- NOTAS --}}
-                        <div class="card border-0 bg-light mb-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <i class="bx bx-note fs-4 text-warning"></i>
-                                    <h5 class="fw-bold mb-0">Notas de la Venta</h5>
-                                </div>
 
-                                <div class="form-floating">
-                                    <textarea name="notas"
-                                        id="notasVenta"
-                                        class="form-control @error('notas') is-invalid @enderror"
-                                        placeholder="Información adicional"
-                                        style="height:100px">{{ old('notas') }}</textarea>
-                                    <label for="notasVenta">Información adicional (opcional)</label>
-                                </div>
-                                @error('notas')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- CLIENTE --}}
-                        <div class="card border-0 bg-light">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center gap-2 mb-3">
-                                    <i class="bx bx-user fs-4 text-info"></i>
-                                    <h5 class="fw-bold mb-0">Información del Cliente</h5>
-                                    <small class="text-muted fw-normal">(Opcional)</small>
-                                </div>
-
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="fw-semibold mb-2">Nombre / Razón Social</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i class="bx bx-user-circle"></i>
-                                            </span>
-                                            <input type="text"
-                                                name="nombre_cliente"
-                                                class="form-control @error('nombre_cliente') is-invalid @enderror"
-                                                value="{{ old('nombre_cliente') }}"
-                                                placeholder="Consumidor final">
-                                        </div>
-                                        @error('nombre_cliente')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="fw-semibold mb-2">Teléfono</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i class="bx bx-phone"></i>
-                                            </span>
-                                            <input type="text"
-                                                name="telefono_cliente"
-                                                class="form-control @error('telefono_cliente') is-invalid @enderror"
-                                                value="{{ old('telefono_cliente') }}"
-                                                placeholder="8888-8888">
-                                        </div>
-                                        @error('telefono_cliente')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
                     </div>
 
@@ -322,13 +199,9 @@
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-white">₡</span>
-                                        <input type="number"
-                                            id="descuentoInput"
-                                            name="descuento"
+                                        <input type="number" id="descuentoInput" name="descuento"
                                             class="form-control text-end fw-bold @error('descuento') is-invalid @enderror"
-                                            value="{{ old('descuento', 0) }}"
-                                            step="0.01"
-                                            min="0">
+                                            value="{{ old('descuento', 0) }}" step="0.01" min="0">
                                     </div>
                                     @error('descuento')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -359,8 +232,7 @@
                                     <div class="text-danger small mb-3">{{ $message }}</div>
                                 @enderror
 
-                                <button type="button"
-                                    id="btnProcesar"
+                                <button type="button" id="btnProcesar"
                                     class="btn btn-primary-custom w-100 py-3 fw-bold text-uppercase">
                                     <i class="bx bx-check-double fs-5 align-middle"></i>
                                     <span class="align-middle">Registrar Venta</span>
@@ -370,153 +242,289 @@
 
                     </div>
                 </div>
+{{-- MODAL PAGO --}}
+<div class="modal fade" id="modalPago" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modal-admin-clean">
 
-                {{-- MODAL PAGO --}}
-                <div class="modal fade" id="modalPago" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg">
-                        <div class="modal-content modal-admin-clean">
+            <div class="modal-header">
+                <div>
+                    <h5 class="text-uppercase mb-1">Finalizar Venta</h5>
+                    <small class="text-muted">Complete la información del pago</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
 
-                            <div class="modal-header">
-                                <div>
-                                    <h5 class="text-uppercase mb-1">Finalizar Venta</h5>
-                                    <small class="text-muted">Complete la información del pago</small>
-                                </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
+            <div class="modal-body">
 
-                            <div class="modal-body">
+                {{-- TOTAL --}}
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body text-center">
+                        <small class="text-muted text-uppercase d-block mb-1">
+                            Monto Total a Recibir
+                        </small>
 
-                                <div class="card border-0 bg-light mb-4">
-                                    <div class="card-body text-center">
-                                        <small class="text-muted text-uppercase d-block mb-1">
-                                            Monto Total a Recibir
-                                        </small>
-                                        <h2 class="fw-bold total-admin mb-0">
-                                            ₡ <span id="modalTotalLabel">0.00</span>
-                                        </h2>
-                                    </div>
-                                </div>
+                        <h2 class="fw-bold total-admin mb-0">
+                            ₡ <span id="modalTotalLabel">0.00</span>
+                        </h2>
+                    </div>
+                </div>
 
-                                <div class="card border-0 bg-light mb-4">
-                                    <div class="card-body">
+                {{-- MÉTODOS --}}
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body">
 
-                                        <label class="fw-semibold mb-3 d-block">Método de Pago</label>
+                        <label class="fw-semibold mb-3 d-block">
+                            Método de Pago
+                        </label>
 
-                                        <div class="row g-3">
-                                            <div class="col-3">
-                                                <button type="button" class="btn-metodo-admin w-100 metodo-btn active" data-metodo="efectivo">
-                                                    <i class="bx bx-money"></i>
-                                                    <span>Efectivo</span>
-                                                </button>
-                                            </div>
+                        <div class="row g-3">
 
-                                            <div class="col-3">
-                                                <button type="button" class="btn-metodo-admin w-100 metodo-btn" data-metodo="tarjeta">
-                                                    <i class="bx bx-credit-card"></i>
-                                                    <span>Tarjeta</span>
-                                                </button>
-                                            </div>
-
-                                            <div class="col-3">
-                                                <button type="button" class="btn-metodo-admin w-100 metodo-btn" data-metodo="sinpe">
-                                                    <i class="bx bx-mobile-alt"></i>
-                                                    <span>SINPE</span>
-                                                </button>
-                                            </div>
-
-                                            <div class="col-3">
-                                                <button type="button" class="btn-metodo-admin w-100 metodo-btn" data-metodo="mixto">
-                                                    <i class="bx bx-shuffle"></i>
-                                                    <span>Mixto</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <input type="hidden" id="metodoPagoInput" value="efectivo">
-                                    </div>
-                                </div>
-
-                                <div class="card border-0 bg-light">
-                                    <div class="card-body">
-
-                                        <div id="efectivoFields">
-                                            <label class="fw-semibold mb-2">Monto Recibido</label>
-                                            <div class="input-group mb-3">
-                                                <span class="input-group-text">₡</span>
-                                                <input type="number" id="montoRecibido" class="form-control" placeholder="0.00" step="0.01">
-                                            </div>
-
-                                            <div class="vuelto-box">
-                                                <span>Vuelto:</span>
-                                                <strong>₡ <span id="vueltoLabel">0.00</span></strong>
-                                            </div>
-                                        </div>
-
-                                        <div id="referenciaFields" class="d-none">
-                                            <label class="fw-semibold mb-2">Número de Comprobante</label>
-                                            <input type="text"
-                                                id="referenciaPago"
-                                                class="form-control"
-                                                placeholder="Referencia de transacción">
-                                        </div>
-
-                                        <div id="mixtoFields" class="d-none">
-                                            <div class="row g-3">
-                                                <div class="col-6">
-                                                    <label class="fw-semibold mb-2">Efectivo</label>
-                                                    <input type="number"
-                                                        id="mixtoEfectivo"
-                                                        class="form-control"
-                                                        placeholder="0.00"
-                                                        step="0.01">
-                                                </div>
-
-                                                <div class="col-6">
-                                                    <label class="fw-semibold mb-2">Tarjeta / SINPE</label>
-                                                    <input type="number"
-                                                        id="mixtoDigital"
-                                                        class="form-control"
-                                                        placeholder="0.00"
-                                                        step="0.01">
-                                                </div>
-                                            </div>
-
-                                            <div id="mixtoWarning" class="mt-2 small text-muted"></div>
-
-                                            <div id="mixtoVueltoInfo" class="mt-3 vuelto-box d-none">
-                                                Vuelto en efectivo:
-                                                <strong>₡ <span id="mixtoVueltoSpan">0.00</span></strong>
-                                            </div>
-
-                                            <div class="mt-3">
-                                                <label class="fw-semibold mb-2">Referencia digital (opcional)</label>
-                                                <input type="text"
-                                                    id="mixtoReferencia"
-                                                    class="form-control"
-                                                    placeholder="Comprobante de la parte digital">
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="modal-footer">
+                            <div class="col-3">
                                 <button type="button"
-                                    class="btn btn-secondary-custom btn-back"
-                                    data-bs-dismiss="modal">
-                                    Cancelar
+                                    class="btn-metodo-admin w-100 metodo-btn active"
+                                    data-metodo="efectivo">
+                                    <i class="bx bx-money"></i>
+                                    <span>Efectivo</span>
                                 </button>
+                            </div>
 
-                                <button type="submit" class="btn btn-primary-custom">
-                                    Confirmar Venta
+                            <div class="col-3">
+                                <button type="button"
+                                    class="btn-metodo-admin w-100 metodo-btn"
+                                    data-metodo="tarjeta">
+                                    <i class="bx bx-credit-card"></i>
+                                    <span>Tarjeta</span>
+                                </button>
+                            </div>
+
+                            <div class="col-3">
+                                <button type="button"
+                                    class="btn-metodo-admin w-100 metodo-btn"
+                                    data-metodo="sinpe">
+                                    <i class="bx bx-mobile-alt"></i>
+                                    <span>SINPE</span>
+                                </button>
+                            </div>
+
+                            <div class="col-3">
+                                <button type="button"
+                                    class="btn-metodo-admin w-100 metodo-btn"
+                                    data-metodo="mixto">
+                                    <i class="bx bx-shuffle"></i>
+                                    <span>Mixto</span>
                                 </button>
                             </div>
 
                         </div>
+
+                        <input type="hidden" id="metodoPagoInput" value="efectivo">
+
                     </div>
                 </div>
 
+                {{-- DATOS DEL PAGO --}}
+                <div class="card border-0 bg-light mb-3">
+                    <div class="card-body">
+
+                        <div id="efectivoFields">
+
+                            <label class="fw-semibold mb-2">
+                                Monto Recibido
+                            </label>
+
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">₡</span>
+                                <input type="number"
+                                    id="montoRecibido"
+                                    class="form-control"
+                                    placeholder="0.00"
+                                    step="0.01">
+                            </div>
+
+                            <div class="vuelto-box">
+                                <span>Vuelto:</span>
+                                <strong>
+                                    ₡ <span id="vueltoLabel">0.00</span>
+                                </strong>
+                            </div>
+
+                        </div>
+
+                        <div id="referenciaFields" class="d-none">
+
+                            <label class="fw-semibold mb-2">
+                                Número de Comprobante
+                            </label>
+
+                            <input type="text"
+                                id="referenciaPago"
+                                class="form-control"
+                                placeholder="Referencia de transacción">
+
+                        </div>
+
+                        <div id="mixtoFields" class="d-none">
+
+                            <div class="row g-3">
+
+                                <div class="col-6">
+                                    <label class="fw-semibold mb-2">
+                                        Efectivo
+                                    </label>
+
+                                    <input type="number"
+                                        id="mixtoEfectivo"
+                                        class="form-control"
+                                        placeholder="0.00"
+                                        step="0.01">
+                                </div>
+
+                                <div class="col-6">
+                                    <label class="fw-semibold mb-2">
+                                        Tarjeta / SINPE
+                                    </label>
+
+                                    <input type="number"
+                                        id="mixtoDigital"
+                                        class="form-control"
+                                        placeholder="0.00"
+                                        step="0.01">
+                                </div>
+
+                            </div>
+
+                            <div id="mixtoWarning" class="mt-2 small text-muted"></div>
+
+                            <div id="mixtoVueltoInfo"
+                                class="mt-3 vuelto-box d-none">
+
+                                Vuelto en efectivo:
+
+                                <strong>
+                                    ₡ <span id="mixtoVueltoSpan">0.00</span>
+                                </strong>
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <label class="fw-semibold mb-2">
+                                    Referencia digital (opcional)
+                                </label>
+
+                                <input type="text"
+                                    id="mixtoReferencia"
+                                    class="form-control"
+                                    placeholder="Comprobante de la parte digital">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                {{-- CLIENTE Y NOTAS --}}
+                <div class="payment-extra-compact">
+
+                    <div class="extra-item">
+
+                        <button type="button"
+                            class="extra-toggle"
+                            id="toggleClienteModal">
+
+                            <span>
+                                <i class="bx bx-user"></i>
+                                Cliente
+                            </span>
+
+                            <small>Opcional</small>
+
+                            <i class="bx bx-chevron-down extra-icon"
+                                id="toggleClienteModalIcon"></i>
+
+                        </button>
+
+                        <div class="extra-content"
+                            id="clienteModalContent">
+
+                            <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <input type="text"
+                                        name="nombre_cliente"
+                                        class="form-control"
+                                        placeholder="Nombre del cliente">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <input type="text"
+                                        name="telefono_cliente"
+                                        class="form-control"
+                                        placeholder="Teléfono">
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="extra-item">
+
+                        <button type="button"
+                            class="extra-toggle"
+                            id="toggleNotasModal">
+
+                            <span>
+                                <i class="bx bx-note"></i>
+                                Notas
+                            </span>
+
+                            <small>Opcional</small>
+
+                            <i class="bx bx-chevron-down extra-icon"
+                                id="toggleNotasModalIcon"></i>
+
+                        </button>
+
+                        <div class="extra-content"
+                            id="notasModalContent">
+
+                            <textarea
+                                name="notas"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Información adicional de la venta"></textarea>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                    class="btn btn-secondary-custom btn-back"
+                    data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                    class="btn btn-primary-custom">
+                    Confirmar Venta
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+         
             </form>
 
         </div>
@@ -532,4 +540,23 @@
         };
     </script>
     <script src="{{ asset('assets/js/modules/ventas_ficicas.js') }}"></script>
+    <script>
+        function initToggleCard(toggleId, contentId, iconId) {
+            const toggle = document.getElementById(toggleId);
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+
+            if (!toggle || !content || !icon) return;
+
+            toggle.addEventListener('click', function() {
+                const isOpen = content.style.display === 'block';
+
+                content.style.display = isOpen ? 'none' : 'block';
+                icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+
+        initToggleCard('toggleNotasVenta', 'notasVentaContent', 'toggleNotasVentaIcon');
+        initToggleCard('toggleClienteVenta', 'clienteVentaContent', 'toggleClienteVentaIcon');
+    </script>
 @endpush

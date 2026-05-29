@@ -526,3 +526,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
     calcularTotales();
 });
+
+function initToggleCard(toggleId, contentId, iconId) {
+
+    const toggle = document.getElementById(toggleId);
+    const content = document.getElementById(contentId);
+    const icon = document.getElementById(iconId);
+
+    if (!toggle || !content || !icon) return;
+
+    toggle.addEventListener('click', () => {
+
+        const isOpen = content.classList.contains('show');
+
+        content.classList.toggle('show');
+
+        icon.style.transform = isOpen
+            ? 'rotate(0deg)'
+            : 'rotate(180deg)';
+    });
+}
+
+initToggleCard(
+    'toggleNotasModal',
+    'notasModalContent',
+    'toggleNotasModalIcon'
+);
+
+initToggleCard(
+    'toggleClienteModal',
+    'clienteModalContent',
+    'toggleClienteModalIcon'
+);

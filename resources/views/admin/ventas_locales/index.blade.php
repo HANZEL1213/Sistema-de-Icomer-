@@ -187,10 +187,10 @@
                                             <i class="bx bx-show"></i>
                                         </a>
 
-                                        <button type="button" class="btn-action btn-edit" title="Editar deshabilitado"
+                                        {{-- <button type="button" class="btn-action btn-edit" title="Editar deshabilitado"
                                             disabled>
                                             <i class="bx bx-edit"></i>
-                                        </button>
+                                        </button> --}}
 
                                         <button type="button" class="btn-action btn-edit" title="Imprimir próximamente">
                                             <i class="bx bx-printer"></i>
