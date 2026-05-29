@@ -5,7 +5,7 @@
 
 @section('content')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_verificado.css') }}">
+  
 
 
     @php
@@ -912,4 +912,8 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/modules/pedidos.js') }}"></script>
+@endpush
+
+@push('styles')
+     <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_verificado.css') }}">
 @endpush

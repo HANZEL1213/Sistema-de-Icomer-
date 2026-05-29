@@ -4,7 +4,7 @@
 @section('title', 'Detalle del Pedido')
 
 @section('content')
-  <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_show.css') }}">
+  
 
     @php
         $estadoConfig = [
@@ -805,4 +805,8 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/modules/pedidos.js') }}"></script>
+@endpush
+
+@push('styles')
+   <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_show.css') }}">
 @endpush

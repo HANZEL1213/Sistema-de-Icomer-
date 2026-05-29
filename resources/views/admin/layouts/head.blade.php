@@ -36,4 +36,6 @@
  {{-- CSS GLOBAL de edit create --}}
    <link rel="stylesheet" href="{{ asset('assets/css/admin-forms.css') }}">
 
+   @stack('styles')
+   
 <title>@yield('title', 'Admin | Tienda Online')</title>
