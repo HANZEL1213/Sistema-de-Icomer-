@@ -48,6 +48,11 @@
                         Ingresa tus datos, selecciona una zona disponible y confirma tu pedido.
                         Después podrás subir el comprobante de pago.
                     </p>
+                    <p class="small mt-2 mb-0">
+                        Los campos marcados con
+                        <span class="text-danger">*</span>
+                        son obligatorios.
+                    </p>
                 </div>
             </div>
 
@@ -72,7 +77,9 @@
                                 <div class="row g-3">
 
                                     <div class="col-12 col-md-6">
-                                        <label class="store-form-label">Nombre completo</label>
+                                        <label class="store-form-label">
+                                            Nombre completo <span class="text-danger">*</span>
+                                        </label>
 
                                         <input type="text" name="nombre_cliente" value="{{ old('nombre_cliente') }}"
                                             class="form-control store-filter-control @error('nombre_cliente') is-invalid @enderror"
@@ -84,7 +91,9 @@
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <label class="store-form-label">Teléfono</label>
+                                        <label class="store-form-label">
+                                            Teléfono <span class="text-danger">*</span>
+                                        </label>
 
                                         <input type="text" name="telefono_cliente" value="{{ old('telefono_cliente') }}"
                                             class="form-control store-filter-control @error('telefono_cliente') is-invalid @enderror"
@@ -184,7 +193,9 @@
                                 <div class="row g-3">
 
                                     <div class="col-12 col-md-4">
-                                        <label class="store-form-label">Provincia</label>
+                                        <label class="store-form-label">
+                                            Provincia <span class="text-danger">*</span>
+                                        </label>
 
                                         <select name="id_provincia" id="checkoutProvincia"
                                             class="form-select store-filter-control @error('id_provincia') is-invalid @enderror">
@@ -204,7 +215,9 @@
                                     </div>
 
                                     <div class="col-12 col-md-4">
-                                        <label class="store-form-label">Cantón</label>
+                                        <label class="store-form-label">
+                                            Cantón <span class="text-danger">*</span>
+                                        </label>
 
                                         <select name="id_canton" id="checkoutCanton"
                                             class="form-select store-filter-control @error('id_canton') is-invalid @enderror">
@@ -217,7 +230,9 @@
                                     </div>
 
                                     <div class="col-12 col-md-4">
-                                        <label class="store-form-label">Distrito</label>
+                                        <label class="store-form-label">
+                                            Distrito <span class="text-danger">*</span>
+                                        </label>
 
                                         <select name="id_distrito" id="checkoutDistrito"
                                             class="form-select store-filter-control @error('id_distrito') is-invalid @enderror">
@@ -230,7 +245,9 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="store-form-label">Dirección exacta</label>
+                                        <label class="store-form-label">
+                                            Dirección exacta <span class="text-danger">*</span>
+                                        </label>
 
                                         <textarea name="direccion_envio"
                                             class="form-control store-filter-control @error('direccion_envio') is-invalid @enderror" rows="4"
@@ -506,6 +523,7 @@
                                     <div class="col-12">
                                         <label class="store-form-label">
                                             Número de comprobante o referencia
+                                            <span class="text-danger">*</span>
                                         </label>
 
                                         <input type="text" name="numero_comprobante"
@@ -525,8 +543,8 @@
                                     <div class="col-12">
                                         <label class="store-form-label">
                                             Imagen del comprobante
+                                            <span class="text-danger">*</span>
                                         </label>
-
                                         <input type="file" name="comprobante_pago" id="checkoutComprobanteInput"
                                             accept="image/png,image/jpeg,image/jpg,image/webp"
                                             class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror">
