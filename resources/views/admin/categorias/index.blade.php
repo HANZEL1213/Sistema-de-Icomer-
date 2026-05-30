@@ -79,7 +79,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="5"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
@@ -146,9 +147,9 @@
                                     @endif
                                 </td>
 
-                                <td>
+                                <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('Y-m-d') }}
+                                        {{ optional($item->created_at)->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ optional($item->created_at)->format('H:i') }}

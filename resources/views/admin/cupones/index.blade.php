@@ -74,7 +74,8 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                    <table id="tabla_index" data-order-column="8"
+                        class="table table-hover table-bordered align-middle text-center w-100">
 
                         <thead class="table-light">
                             <tr>
@@ -131,7 +132,7 @@
                                     <td>
                                         @if ($cupon->inicia_en)
                                             <div class="fw-semibold">
-                                                {{ $cupon->inicia_en->format('Y-m-d') }}
+                                                {{ $cupon->inicia_en->format('d/m/Y') }}
                                             </div>
                                             <small class="text-muted">
                                                 {{ $cupon->inicia_en->format('H:i') }}
@@ -144,7 +145,7 @@
                                     <td>
                                         @if ($cupon->termina_en)
                                             <div class="fw-semibold">
-                                                {{ $cupon->termina_en->format('Y-m-d') }}
+                                                {{ $cupon->termina_en->format('d/m/Y') }}
                                             </div>
                                             <small class="text-muted">
                                                 {{ $cupon->termina_en->format('H:i') }}
@@ -166,9 +167,9 @@
                                         @endif
                                     </td>
 
-                                    <td>
+                                    <td data-order="{{ optional($cupon->created_at)->format('Y-m-d H:i:s') }}">
                                         <div class="fw-semibold">
-                                            {{ optional($cupon->created_at)->format('Y-m-d') }}
+                                            {{ optional($cupon->created_at)->format('d/m/Y') }}
                                         </div>
                                         <small class="text-muted">
                                             {{ optional($cupon->created_at)->format('H:i') }}

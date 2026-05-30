@@ -5,7 +5,7 @@
 
 @section('content')
 
-  
+
 
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -271,7 +271,8 @@
             {{-- TABLA --}}
             <div class="orders-table-view d-none">
                 <div class="table-responsive">
-                    <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                    <table id="tabla_index" data-order-column="7"
+                        class="table table-hover table-bordered align-middle text-center w-100">
                         <thead class="table-light">
                             <tr>
                                 <th class="fw-semibold">ID</th>
@@ -442,9 +443,9 @@
                                         ₡{{ number_format((float) $item->total, 2, '.', ',') }}
                                     </td>
 
-                                    <td>
+                                    <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
                                         <div class="small">
-                                            {{ optional($item->created_at)->format('Y-m-d') }}
+                                            {{ optional($item->created_at)->format('d/m/Y') }}
                                         </div>
                                         <div class="small text-muted">
                                             {{ optional($item->created_at)->format('H:i') }}
@@ -506,4 +507,3 @@
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_index.css') }}">
 @endpush
-

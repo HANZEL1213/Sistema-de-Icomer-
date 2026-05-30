@@ -250,7 +250,7 @@
                                 {{-- INICIO --}}
                                 <td>
                                     <div class="fw-semibold">
-                                        {{ $item->inicia_en->format('Y-m-d') }}
+                                        {{ $item->inicia_en->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ $item->inicia_en->format('H:i') }}
@@ -260,7 +260,7 @@
                                 {{-- FIN --}}
                                 <td>
                                     <div class="fw-semibold">
-                                        {{ $item->termina_en->format('Y-m-d') }}
+                                        {{ $item->termina_en->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ $item->termina_en->format('H:i') }}

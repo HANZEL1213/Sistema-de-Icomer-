@@ -80,7 +80,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="6"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
@@ -152,15 +153,14 @@
                                 </td>
 
                                 {{-- Registro --}}
-                                <td>
+                                <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('Y-m-d') }}
+                                        {{ optional($item->created_at)->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ optional($item->created_at)->format('H:i') }}
                                     </small>
                                 </td>
-
                                 {{-- Acciones --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
@@ -229,6 +229,6 @@
         </div>
 
     </div>
-    
+
 
 @endsection

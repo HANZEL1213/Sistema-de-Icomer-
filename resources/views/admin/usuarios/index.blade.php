@@ -80,7 +80,10 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+              <table
+    id="tabla_index"
+    data-order-column="6"
+    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
@@ -127,7 +130,7 @@
                                         </span>
                                         <div>
                                             <small class="text-muted">
-                                                {{ $usuario->correo_verificado_en->format('Y-m-d') }}
+                                             {{ $usuario->correo_verificado_en->format('d/m/Y') }}
                                             </small>
                                         </div>
                                     @else
@@ -149,14 +152,14 @@
                                     @endif
                                 </td>
 
-                                <td>
-                                    <div class="fw-semibold">
-                                        {{ optional($usuario->created_at)->format('Y-m-d') }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ optional($usuario->created_at)->format('H:i') }}
-                                    </small>
-                                </td>
+                              <td data-order="{{ optional($usuario->created_at)->format('Y-m-d H:i:s') }}">
+    <div class="fw-semibold">
+        {{ optional($usuario->created_at)->format('d/m/Y') }}
+    </div>
+    <small class="text-muted">
+        {{ optional($usuario->created_at)->format('H:i') }}
+    </small>
+</td>
 
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">

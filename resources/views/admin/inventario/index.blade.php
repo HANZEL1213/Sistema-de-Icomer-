@@ -81,7 +81,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="7"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
@@ -169,7 +170,7 @@
                                 </td>
 
                                 {{-- Fecha --}}
-                                <td>
+                                <td data-order="{{ $mov->created_at?->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
                                         {{ $mov->created_at?->format('d/m/Y') }}
                                     </div>

@@ -80,7 +80,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="5"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
@@ -135,9 +136,9 @@
                                     @endif
                                 </td>
 
-                                <td>
+                                <td data-order="{{ optional($rol->created_at)->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
-                                        {{ optional($rol->created_at)->format('Y-m-d') }}
+                                        {{ optional($rol->created_at)->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ optional($rol->created_at)->format('H:i') }}
@@ -147,7 +148,8 @@
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
 
-                                        <a class="btn-action btn-view" href="{{ route('admin.roles.show', $rol->id_rol) }}">
+                                        <a class="btn-action btn-view"
+                                            href="{{ route('admin.roles.show', $rol->id_rol) }}">
                                             <i class="bx bx-show"></i>
                                         </a>
 

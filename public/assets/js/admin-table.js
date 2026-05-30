@@ -9,22 +9,27 @@
     // ✅ Evitar doble init
     if ($.fn.DataTable.isDataTable("#tabla_index")) return;
 
-    const table = $("#tabla_index").DataTable({
-      responsive: true,
-      dom: "rt",
-      paging: true,
-      pageLength: 10,
-      language: {
-        url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json",
-      },
-      drawCallback: function () {
-        updatePagination();
-      },
-      initComplete: function () {
-        setTimeout(updatePagination, 60);
-      },
-    });
+const orderColumn = parseInt(
+  $("#tabla_index").data("order-column") ?? 0,
+  10
+);
 
+const table = $("#tabla_index").DataTable({
+  responsive: true,
+  dom: "rt",
+  paging: true,
+  pageLength: 10,
+  order: [[orderColumn, "desc"]],
+  language: {
+    url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json",
+  },
+  drawCallback: function () {
+    updatePagination();
+  },
+  initComplete: function () {
+    setTimeout(updatePagination, 60);
+  },
+});
     // 🔍 Buscar
     $("#searchInput").on("keyup", function () {
       table.search(this.value).draw();

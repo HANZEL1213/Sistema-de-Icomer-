@@ -66,7 +66,10 @@
             </div>
 
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+               <table
+    id="tabla_index"
+    data-order-column="8"
+    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
@@ -157,14 +160,14 @@
                                     @endif
                                 </td>
 
-                                <td>
-                                    <div class="fw-semibold">
-                                        {{ $pago->enviado_en?->format('d/m/Y') ?: '—' }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ $pago->enviado_en?->format('H:i') ?: '—' }}
-                                    </small>
-                                </td>
+                               <td data-order="{{ $pago->enviado_en?->format('Y-m-d H:i:s') }}">
+    <div class="fw-semibold">
+        {{ $pago->enviado_en?->format('d/m/Y') ?: '—' }}
+    </div>
+    <small class="text-muted">
+        {{ $pago->enviado_en?->format('H:i') ?: '—' }}
+    </small>
+</td>
 
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">

@@ -76,7 +76,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="7"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
@@ -171,9 +172,9 @@
                                     ₡{{ number_format($item->total, 2) }}
                                 </td>
 
-                                <td>
+                                <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('Y-m-d') }}
+                                        {{ optional($item->created_at)->format('d/m/Y') }}
                                     </div>
                                     <small class="text-muted">
                                         {{ optional($item->created_at)->format('H:i') }}
@@ -192,12 +193,11 @@
                                             <i class="bx bx-edit"></i>
                                         </button> --}}
 
-                                   <a class="btn-action btn-edit"
-   title="Imprimir Ticket"
-   href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
-   target="_blank">
-    <i class="bx bx-printer"></i>
-</a>
+                                        <a class="btn-action btn-edit" title="Imprimir Ticket"
+                                            href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
+                                            target="_blank">
+                                            <i class="bx bx-printer"></i>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>

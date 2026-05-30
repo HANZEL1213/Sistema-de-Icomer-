@@ -79,7 +79,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="2"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">Clave</th>
@@ -100,11 +101,10 @@
                                 <td class="text-start fw-semibold">
                                     {{ $conf->valor ?? '—' }}
                                 </td>
-
-                                <td class="text-muted fw-semibold">
+                                <td class="text-muted fw-semibold"
+                                    data-order="{{ optional($conf->updated_at)->format('Y-m-d H:i:s') }}">
                                     {{ optional($conf->updated_at)->format('d/m/Y H:i') }}
                                 </td>
-
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
 

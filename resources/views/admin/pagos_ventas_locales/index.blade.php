@@ -61,11 +61,8 @@
                 <div class="search-container ms-auto">
                     <div class="search-box" role="search">
                         <i class="bx bx-search search-icon"></i>
-                        <input type="text"
-                               id="searchInput"
-                               class="search-input"
-                               placeholder="Buscar ticket, cliente, método, referencia..."
-                               autocomplete="off">
+                        <input type="text" id="searchInput" class="search-input"
+                            placeholder="Buscar ticket, cliente, método, referencia..." autocomplete="off">
                         <div class="search-actions">
                             <button class="btn-search-clear" id="clearSearch" type="button">
                                 <i class="bx bx-x"></i>
@@ -77,7 +74,8 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
+                <table id="tabla_index" data-order-column="6"
+                    class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
@@ -92,8 +90,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach($items as $pago)
-
+                        @foreach ($items as $pago)
                             <tr>
                                 <td class="text-muted fw-semibold">
                                     {{ $pago->id_pago_venta_local }}
@@ -156,28 +153,25 @@
                                 </td>
 
                                 {{-- Fecha --}}
-                                <td>
+                                <td data-order="{{ optional($pago->created_at)->format('Y-m-d H:i:s') }}">
                                     <div class="fw-semibold">
-                                        {{ optional($pago->created_at)->format('Y-m-d') }}
+                                        {{ optional($pago->created_at)->format('d/m/Y') }}
                                     </div>
                                     <div class="text-muted small">
                                         {{ optional($pago->created_at)->format('H:i') }}
                                     </div>
                                 </td>
-
                                 {{-- Acciones --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         <a href="{{ route('admin.pagos-ventas-locales.show', $pago->id_pago_venta_local) }}"
-                                           class="btn-action btn-view"
-                                           title="Ver pago">
+                                            class="btn-action btn-view" title="Ver pago">
                                             <i class="bx bx-show"></i>
                                         </a>
                                     </div>
                                 </td>
 
                             </tr>
-
                         @endforeach
                     </tbody>
 
