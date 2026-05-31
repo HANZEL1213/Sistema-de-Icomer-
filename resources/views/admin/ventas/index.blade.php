@@ -232,3 +232,8 @@
     </div>
 
 @endsection
+
+
+@push('scripts')
+    <script src="{{ asset('assets/js/modules/ventas.js') }}"></script>
+@endpush
