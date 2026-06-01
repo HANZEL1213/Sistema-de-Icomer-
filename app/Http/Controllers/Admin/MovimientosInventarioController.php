@@ -34,21 +34,25 @@ class MovimientosInventarioController extends Controller
     /* ============================================
        ➕ CREAR
     ============================================ */
-    public function create()
-    {
-        $productos = Producto::orderBy('nombre')->get();
-        $pedidos = Pedido::orderByDesc('id_pedido')->get();
-        $ventasLocales = VentaLocal::orderByDesc('id_venta_local')->get();
-        $usuarios = Usuario::orderBy('nombre')->get();
+public function create()
+{
+    $productos = Producto::with('imagenPrincipal')
+        ->orderBy('nombre')
+        ->get();
 
-        return view('admin.inventario.create', compact(
-            'productos',
-            'pedidos',
-            'ventasLocales',
-            'usuarios'
-        ));
-    }
+    $pedidos = Pedido::orderByDesc('id_pedido')->get();
 
+    $ventasLocales = VentaLocal::orderByDesc('id_venta_local')->get();
+
+    $usuarios = Usuario::orderBy('nombre')->get();
+
+    return view('admin.inventario.create', compact(
+        'productos',
+        'pedidos',
+        'ventasLocales',
+        'usuarios'
+    ));
+}
     /* ============================================
        💾 GUARDAR
     ============================================ */

@@ -1,0 +1,132 @@
+/* ==========================================
+   BUSCADOR DE PRODUCTOS - INVENTARIO
+========================================== */
+
+#inventoryProductResults {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.inventory-product-option {
+    box-sizing: border-box;
+    border: 0 !important;
+    border-left: 4px solid transparent !important;
+    padding: 10px 12px !important;
+    background: #fff !important;
+    color: #212529 !important;
+    transition: background .15s ease,
+                color .15s ease,
+                border-color .15s ease;
+}
+
+.inventory-product-option > .d-flex {
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    min-width: 0;
+}
+
+.inventory-product-option:hover,
+.inventory-product-option.inventory-search-selected,
+.inventory-product-option.active {
+    background: #e9f2ff !important;
+    border-left-color: var(--color-primary) !important;
+    color: #212529 !important;
+    box-shadow: none !important;
+}
+
+/* ==========================================
+   IMAGEN
+========================================== */
+
+.inventory-product-img-box {
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px;
+    max-width: 48px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.inventory-product-img-box img,
+.inventory-product-img {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    display: block !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+}
+
+.inventory-product-no-img {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #adb5bd;
+    font-size: 22px;
+}
+
+/* ==========================================
+   TEXTO
+========================================== */
+
+.inventory-product-option .flex-grow-1 {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.inventory-product-option .fw-semibold,
+.inventory-product-option small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inventory-product-option small,
+.inventory-product-option .text-muted {
+    color: #6c757d !important;
+}
+
+/* ==========================================
+   BADGE STOCK
+========================================== */
+
+.inventory-product-option .badge {
+    font-size: 11px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    background: var(--color-primary) !important;
+    color: #fff !important;
+    border: 1px solid var(--color-primary) !important;
+
+    transition: all .15s ease;
+}
+
+.inventory-product-option:hover .badge,
+.inventory-product-option.inventory-search-selected .badge,
+.inventory-product-option.active .badge {
+    background: #fff !important;
+    color: #212529 !important;
+    border-color: #cfe2ff !important;
+}

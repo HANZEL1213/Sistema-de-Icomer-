@@ -4,7 +4,10 @@
 @section('title', 'Nuevo Movimiento')
 
 @section('content')
-
+    {{-- CSS dashboard.bladee --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/inventario.css') }}">
+   
+   
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -50,31 +53,70 @@
 
                     {{-- COLUMNA IZQUIERDA --}}
                     <div class="col-md-6">
+{{-- Producto --}}
+@php
+    $productosBusqueda = $productos->map(function ($producto) {
+        return [
+            'id' => $producto->id_producto,
+            'nombre' => $producto->nombre,
+            'sku' => $producto->sku ?? '',
+            'codigo_barras' => $producto->codigo ?? '',
+            'stock' => (int) $producto->stock_actual,
+            'imagen_url' => $producto->imagenPrincipal?->ruta
+                ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                : null,
+        ];
+    })->values();
+@endphp
 
-                        {{-- Producto --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Producto <span class="text-danger">*</span></label>
-                                <div class="input-group custom-dark-input">
-                                    <span class="input-group-text">
-                                        <i class="bx bx-package"></i>
-                                    </span>
-                                    <select name="id_producto"
-                                        class="form-select @error('id_producto') is-invalid @enderror" required>
-                                        <option value="">Seleccione un producto</option>
-                                        @foreach ($productos as $producto)
-                                            <option value="{{ $producto->id_producto }}"
-                                                {{ old('id_producto') == $producto->id_producto ? 'selected' : '' }}>
-                                                {{ $producto->nombre }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('id_producto')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+<div class="card border-0 bg-light mb-3">
+    <div class="card-body">
+
+        <label class="fw-semibold mb-2">
+            Producto <span class="text-danger">*</span>
+        </label>
+
+        <input type="hidden"
+               name="id_producto"
+               id="id_producto"
+               value="{{ old('id_producto') }}"
+               required>
+
+        <div class="position-relative">
+            <div class="input-group custom-dark-input">
+                <span class="input-group-text">
+                    <i class="bx bx-package"></i>
+                </span>
+
+                <input type="text"
+                       id="inventoryProductSearch"
+                       class="form-control @error('id_producto') is-invalid @enderror"
+                       placeholder="Buscar producto por nombre, SKU o código..."
+                       autocomplete="off">
+            </div>
+
+            <div id="inventoryProductResults"
+                 class="list-group position-absolute w-100 shadow-sm"
+                 style="
+                    display: none;
+                    z-index: 1050;
+                    max-height: 360px;
+                    overflow-y: auto;
+                    border-radius: 14px;
+                 ">
+            </div>
+        </div>
+
+        <div id="inventoryProductSelected" class="mt-3"></div>
+
+        @error('id_producto')
+            <div class="invalid-feedback d-block">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+</div>
 
                         {{-- Tipo de Movimiento --}}
                         <div class="card border-0 bg-light mb-3">
@@ -261,5 +303,11 @@
 @endsection
 
 @push('scripts')
+    <script>
+        window.InventarioProductos = @json($productosBusqueda);
+    </script>
+
     <script src="{{ asset('assets/js/modules/inventario.js') }}"></script>
 @endpush
+
+
