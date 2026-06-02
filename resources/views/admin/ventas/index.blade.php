@@ -77,7 +77,7 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" data-order-column="7"
+                <table id="tabla_index" data-order-column="8"
                     class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
@@ -87,109 +87,151 @@
                             <th class="fw-semibold">Cliente / Cajero</th>
                             <th class="fw-semibold">Subtotal</th>
                             <th class="fw-semibold">Descuento</th>
-                            <th class="fw-semibold">Total</th>
-                            <th class="fw-semibold">Fecha</th>
+                          <th class="fw-semibold">Total</th>
+<th class="fw-semibold">Promos</th>
+<th class="fw-semibold">Fecha</th>
                             <th class="fw-semibold">Acciones</th>
                         </tr>
                     </thead>
+<tbody>
+    @foreach ($items as $item)
+        @php
+            $esOnline = $item->canal === 'online';
 
-                    <tbody>
-                        @foreach ($items as $item)
-                            @php
-                                $esOnline = $item->canal === 'online';
+            $referencia = $esOnline
+                ? ($item->pedido?->numero_pedido ?: 'Sin pedido')
+                : ($item->ventaLocal?->numero_ticket ?: 'Sin ticket');
 
-                                $referencia = $esOnline
-                                    ? ($item->pedido?->numero_pedido ?:
-                                    'Sin pedido')
-                                    : ($item->ventaLocal?->numero_ticket ?:
-                                    'Sin ticket');
+            $nombrePrincipal = $esOnline
+                ? ($item->pedido?->nombre_cliente
+                    ?: ($item->pedido?->usuario?->nombre ?: 'Sin cliente'))
+                : ($item->ventaLocal?->nombre_cliente ?: 'Cliente mostrador');
 
-                                $nombrePrincipal = $esOnline
-                                    ? ($item->pedido?->nombre_cliente ?:
-                                    ($item->pedido?->usuario?->nombre ?:
-                                    'Sin cliente'))
-                                    : ($item->ventaLocal?->nombre_cliente ?:
-                                    'Cliente mostrador');
+            $subtexto = $esOnline
+                ? ($item->pedido?->usuario?->correo ?: 'Venta online')
+                : ($item->ventaLocal?->cajero?->nombre
+                    ? 'Cajero: ' . $item->ventaLocal->cajero->nombre
+                    : 'Venta local');
 
-                                $subtexto = $esOnline
-                                    ? ($item->pedido?->usuario?->correo ?:
-                                    'Venta online')
-                                    : ($item->ventaLocal?->cajero?->nombre
-                                        ? 'Cajero: ' . $item->ventaLocal->cajero->nombre
-                                        : 'Venta local');
+            $subtotal = $esOnline
+                ? (float) ($item->pedido?->subtotal ?? 0)
+                : (float) ($item->ventaLocal?->subtotal ?? 0);
 
-                                $subtotal = $esOnline
-                                    ? (float) ($item->pedido?->subtotal ?? 0)
-                                    : (float) ($item->ventaLocal?->subtotal ?? 0);
+            $descuento = $esOnline
+                ? (float) ($item->pedido?->descuento ?? 0)
+                : (float) ($item->ventaLocal?->descuento ?? 0);
 
-                                $descuento = $esOnline
-                                    ? (float) ($item->pedido?->descuento ?? 0)
-                                    : (float) ($item->ventaLocal?->descuento ?? 0);
+            $total = $esOnline
+                ? (float) ($item->pedido?->total ?? 0)
+                : (float) ($item->ventaLocal?->total ?? 0);
 
-                                $total = $esOnline
-                                    ? (float) ($item->pedido?->total ?? 0)
-                                    : (float) ($item->ventaLocal?->total ?? 0);
-                            @endphp
+            $detalleVenta = $esOnline
+                ? ($item->pedido?->detalle ?? collect())
+                : ($item->ventaLocal?->detalle ?? collect());
 
-                            <tr>
-                                <td class="text-muted fw-semibold">{{ $item->id_venta }}</td>
+            $tienePromociones = $detalleVenta->contains(function ($d) {
+                return $d->promocion_aplicada ?? false;
+            });
+        @endphp
 
-                                <td class="fw-semibold">
-                                    @if ($esOnline)
-                                        <span class="status-badge status-active">
-                                            <i class="bx bx-globe me-1"></i>Online
-                                        </span>
-                                    @else
-                                        <span class="status-badge status-inactive">
-                                            <i class="bx bx-store me-1"></i>Física
-                                        </span>
-                                    @endif
-                                </td>
+        <tr>
+            <td class="text-muted fw-semibold">
+                {{ $item->id_venta }}
+            </td>
 
-                                <td class="text-start">
-                                    <div class="fw-semibold">{{ $referencia }}</div>
-                                </td>
+            <td class="fw-semibold">
+                @if ($esOnline)
+                    <span class="status-badge status-active">
+                        <i class="bx bx-globe me-1"></i>Online
+                    </span>
+                @else
+                    <span class="status-badge status-inactive">
+                        <i class="bx bx-store me-1"></i>Física
+                    </span>
+                @endif
+            </td>
 
-                                <td class="text-start">
-                                    <div class="fw-semibold">{{ $nombrePrincipal }}</div>
-                                    <small class="text-muted">{{ $subtexto }}</small>
-                                </td>
+            <td class="text-start">
+                <div class="fw-semibold">
+                    {{ $referencia }}
+                </div>
+            </td>
 
-                                <td class="fw-semibold">₡{{ number_format($subtotal, 2) }}</td>
-                                <td class="fw-semibold text-success">₡{{ number_format($descuento, 2) }}</td>
-                                <td class="fw-semibold">₡{{ number_format($total, 2) }}</td>
+            <td class="text-start">
+                <div class="fw-semibold">
+                    {{ $nombrePrincipal }}
+                </div>
 
-                                <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
-                                    <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('d/m/Y') ?: '—' }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ optional($item->created_at)->format('H:i') ?: '—' }}
-                                    </small>
-                                </td>
+                <small class="text-muted">
+                    {{ $subtexto }}
+                </small>
+            </td>
 
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                        @if ($esOnline && $item->pedido)
-                                            <a class="btn-action btn-view" title="Ver pedido"
-                                                href="{{ route('admin.pedidos.show', $item->pedido->id_pedido) }}">
-                                                <i class="bx bx-show"></i>
-                                            </a>
-                                        @elseif(!$esOnline && $item->ventaLocal)
-                                            <a class="btn-action btn-view" title="Ver venta local"
-                                                href="{{ route('admin.ventas-locales.show', $item->ventaLocal->id_venta_local) }}">
-                                                <i class="bx bx-show"></i>
-                                            </a>
-                                        @else
-                                            <button type="button" class="btn-action btn-view opacity-50" disabled>
-                                                <i class="bx bx-show"></i>
-                                            </button>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+            <td class="fw-semibold">
+                ₡{{ number_format($subtotal, 2) }}
+            </td>
+
+            <td class="fw-semibold text-success">
+                ₡{{ number_format($descuento, 2) }}
+            </td>
+
+            <td class="fw-semibold">
+                ₡{{ number_format($total, 2) }}
+            </td>
+
+            {{-- NUEVA COLUMNA PROMOS --}}
+            <td>
+                @if($tienePromociones)
+                    <span class="status-badge status-danger">
+                        <i class="bx bx-purchase-tag-alt me-1"></i>
+                        PROMO
+                    </span>
+                @else
+                    <span class="text-muted">—</span>
+                @endif
+            </td>
+
+            <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
+                <div class="fw-semibold">
+                    {{ optional($item->created_at)->format('d/m/Y') ?: '—' }}
+                </div>
+
+                <small class="text-muted">
+                    {{ optional($item->created_at)->format('H:i') ?: '—' }}
+                </small>
+            </td>
+
+            <td>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                    @if ($esOnline && $item->pedido)
+                        <a class="btn-action btn-view"
+                            title="Ver pedido"
+                            href="{{ route('admin.pedidos.show', $item->pedido->id_pedido) }}">
+                            <i class="bx bx-show"></i>
+                        </a>
+
+                    @elseif(!$esOnline && $item->ventaLocal)
+                        <a class="btn-action btn-view"
+                            title="Ver venta local"
+                            href="{{ route('admin.ventas-locales.show', $item->ventaLocal->id_venta_local) }}">
+                            <i class="bx bx-show"></i>
+                        </a>
+
+                    @else
+                        <button type="button"
+                            class="btn-action btn-view opacity-50"
+                            disabled>
+                            <i class="bx bx-show"></i>
+                        </button>
+                    @endif
+
+                </div>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
+                
                 </table>
             </div>
 

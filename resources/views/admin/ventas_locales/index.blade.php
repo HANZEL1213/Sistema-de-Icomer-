@@ -76,7 +76,7 @@
 
             {{-- Tabla --}}
             <div class="table-responsive">
-                <table id="tabla_index" data-order-column="7"
+                <table id="tabla_index" data-order-column="8"
                     class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
