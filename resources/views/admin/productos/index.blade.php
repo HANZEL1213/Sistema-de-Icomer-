@@ -4,7 +4,7 @@
 @section('title', 'Productos')
 
 @section('content')
-
+ <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -84,16 +84,16 @@
                         <tr>
                             <th class="fw-semibold">ID</th>
                             <th class="fw-semibold">Producto</th>
-                            <th class="fw-semibold">Slug</th>
+                            {{-- <th class="fw-semibold">Slug</th>
                             <th class="fw-semibold">Código</th>
-                            <th class="fw-semibold">SKU</th>
+                            <th class="fw-semibold">SKU</th> --}}
                             <th class="fw-semibold">Marca</th>
                             <th class="fw-semibold">Categoría</th>
                             <th class="fw-semibold">Precio</th>
                             <th class="fw-semibold">Stock</th>
                             <th class="fw-semibold">Estado</th>
                             <th class="fw-semibold">Destacado</th>
-                           
+
                             <th class="fw-semibold">Acciones</th>
                         </tr>
                     </thead>
@@ -140,23 +140,23 @@
                                 </td>
 
                                 {{-- SLUG --}}
-                                <td>
+                                {{-- <td>
                                     @if ($item->slug)
                                         <span class="order-badge">{{ $item->slug }}</span>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
-                                </td>
+                                </td> --}}
 
                                 {{-- CÓDIGO --}}
-                                <td class="fw-semibold">
+                                {{-- <td class="fw-semibold">
                                     {{ $item->codigo ?: '—' }}
-                                </td>
+                                </td> --}}
 
                                 {{-- SKU --}}
-                                <td class="fw-semibold">
+                                {{-- <td class="fw-semibold">
                                     {{ $item->sku ?: '—' }}
-                                </td>
+                                </td> --}}
 
                                 {{-- MARCA --}}
                                 <td>
@@ -167,11 +167,35 @@
                                 <td>
                                     {{ $item->categoriaPrincipal?->nombre ?: '—' }}
                                 </td>
+{{-- PRECIO --}}
+<td class="fw-semibold">
+    @if ($item->descuento_activo && $item->precio_descuento)
+        @php
+            $ahorro = $item->precio - $item->precio_descuento;
+            $porcentaje = $item->precio > 0
+                ? round(($ahorro / $item->precio) * 100)
+                : 0;
+        @endphp
 
-                                {{-- PRECIO --}}
-                                <td class="fw-semibold">
-                                    ₡{{ number_format((float) $item->precio, 2, '.', ',') }}
-                                </td>
+        <div class="index-price-discount">
+            <span class="index-discount-badge">
+                -{{ $porcentaje }}%
+            </span>
+
+            <span class="index-old-price">
+                ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
+            </span>
+
+            <span class="index-current-price">
+                ₡{{ number_format((float) $item->precio_descuento, 0, ',', '.') }}
+            </span>
+        </div>
+    @else
+        <span class="index-normal-price">
+            ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
+        </span>
+    @endif
+</td>
 
                                 {{-- STOCK --}}
                                 <td>
@@ -210,7 +234,7 @@
                                 </td>
 
                                 {{-- REGISTRO --}}
-                            
+
                                 {{-- ACCIONES --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">

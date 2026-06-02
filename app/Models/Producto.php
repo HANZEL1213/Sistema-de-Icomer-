@@ -12,7 +12,7 @@ class Producto extends Model
     protected $table = 'productos';
     protected $primaryKey = 'id_producto';
 
- protected $fillable = [
+protected $fillable = [
     'id_marca',
     'nombre',
     'slug',
@@ -20,14 +20,21 @@ class Producto extends Model
     'sku',
     'descripcion',
     'precio',
+    'descuento_activo',
+    'precio_descuento',
+    'descuento_inicio',
+    'descuento_fin',
     'stock_actual',
     'activo',
     'destacado',
     'id_categoria_principal',
 ];
-
 protected $casts = [
     'precio' => 'decimal:2',
+    'descuento_activo' => 'boolean',
+    'precio_descuento' => 'decimal:2',
+    'descuento_inicio' => 'datetime',
+    'descuento_fin' => 'datetime',
     'stock_actual' => 'integer',
     'activo' => 'boolean',
     'destacado' => 'boolean',

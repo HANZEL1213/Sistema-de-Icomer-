@@ -42,9 +42,10 @@ class ProductosController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        $productosRelacionados = Producto::whereNull('deleted_at')
-            ->orderBy('nombre')
-            ->get();
+      $productosRelacionados = Producto::with('imagenPrincipal')
+    ->whereNull('deleted_at')
+    ->orderBy('nombre')
+    ->get();
 
         return view('admin.productos.create', compact(
             'marcas',
@@ -75,9 +76,24 @@ class ProductosController extends Controller
                 'max:80',
                 Rule::unique('productos', 'sku')->whereNull('deleted_at'),
             ],
-           'descripcion' => 'nullable|string',
-'precio' => 'required|numeric|min:0',
+'descripcion' => 'nullable|string',
+
+'precio' => 'required|integer|min:0',
+
+'descuento_activo' => 'nullable|boolean',
+
+'precio_descuento' => [
+    'nullable',
+    'integer',
+    'min:0',
+    'lt:precio',
+],
+
+'descuento_inicio' => 'nullable|date',
+'descuento_fin' => 'nullable|date|after_or_equal:descuento_inicio',
+
 'stock_actual' => 'required|integer|min:0',
+
 'activo' => 'nullable|boolean',
 'destacado' => 'nullable|boolean',
 
@@ -102,8 +118,11 @@ class ProductosController extends Controller
 
             'imagenes' => 'nullable|array',
             'imagenes.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-            'principal_index' => 'nullable|integer|min:0',
-        ]);
+   'principal_index' => 'nullable|integer|min:0',
+], [
+    'precio_descuento.lt' =>
+        'El precio con descuento debe ser menor que el precio normal.',
+]);
 
         $rutasSubidas = [];
 
@@ -149,17 +168,34 @@ class ProductosController extends Controller
                 $rutasSubidas,
                 $idCategoriaPrincipal
             ) {
-       $item = Producto::create([
+$item = Producto::create([
     'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
     'nombre' => trim($request->nombre),
     'slug' => $slugGenerado,
     'codigo' => $this->nullIfBlank($request->codigo),
     'sku' => $this->nullIfBlank($request->sku),
     'descripcion' => $this->nullIfBlank($request->descripcion),
+
     'precio' => $request->precio,
+
+    'descuento_activo' => $request->has('descuento_activo') ? 1 : 0,
+'precio_descuento' => $request->has('descuento_activo')
+    ? $this->nullIfBlank($request->precio_descuento)
+    : null,
+
+'descuento_inicio' => $request->has('descuento_activo')
+    ? $this->nullIfBlank($request->descuento_inicio)
+    : null,
+
+'descuento_fin' => $request->has('descuento_activo')
+    ? $this->nullIfBlank($request->descuento_fin)
+    : null,
+
     'stock_actual' => $request->stock_actual,
+
     'activo' => $request->has('activo') ? 1 : 0,
     'destacado' => $request->has('destacado') ? 1 : 0,
+
     'id_categoria_principal' => $idCategoriaPrincipal,
 ]);
 
@@ -217,19 +253,19 @@ class ProductosController extends Controller
     /* ============================================
        👁️ VER
     ============================================ */
-    public function show(string $id)
-    {
-        $item = Producto::with([
-            'marca',
-            'categoriaPrincipal',
-            'categorias',
-            'imagenes',
-            'imagenPrincipal',
-            'relacionados.imagenPrincipal',
-        ])->findOrFail($id);
+public function show(string $id)
+{
+    $item = Producto::with([
+        'marca',
+        'categoriaPrincipal',
+        'categorias',
+        'imagenes',
+        'imagenPrincipal',
+        'relacionados.imagenPrincipal',
+    ])->findOrFail($id);
 
-        return view('admin.productos.show', compact('item'));
-    }
+    return view('admin.productos.show', compact('item'));
+}
 
     /* ============================================
        ✏️ EDITAR
@@ -264,10 +300,11 @@ class ProductosController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        $productosRelacionados = Producto::whereNull('deleted_at')
-            ->where('id_producto', '!=', $item->id_producto)
-            ->orderBy('nombre')
-            ->get();
+    $productosRelacionados = Producto::with('imagenPrincipal')
+    ->whereNull('deleted_at')
+    ->where('id_producto', '!=', $item->id_producto)
+    ->orderBy('nombre')
+    ->get();
 
         return view('admin.productos.edit', compact(
             'item',
@@ -312,12 +349,25 @@ class ProductosController extends Controller
                     ->ignore($id, 'id_producto')
                     ->whereNull('deleted_at'),
             ],
-        'descripcion' => 'nullable|string',
-'precio' => 'required|numeric|min:0',
+'descripcion' => 'nullable|string',
+
+'precio' => 'required|integer|min:0',
+
+'descuento_activo' => 'nullable|boolean',
+
+'precio_descuento' => [
+    'nullable',
+    'integer',
+    'min:0',
+    'lt:precio',
+],
+
+'descuento_inicio' => 'nullable|date',
+'descuento_fin' => 'nullable|date|after_or_equal:descuento_inicio',
+
 'stock_actual' => 'required|integer|min:0',
 'activo' => 'nullable|boolean',
 'destacado' => 'nullable|boolean',
-
 'id_categoria_principal' => [
     'nullable',
     Rule::exists('categorias', 'id_categoria')->where(function ($q) use ($item) {
@@ -360,9 +410,11 @@ class ProductosController extends Controller
             'imagenes_eliminadas.*' => 'integer',
 
             'imagenes_existentes_orden' => 'nullable|array',
-            'imagenes_existentes_orden.*' => 'integer',
-        ]);
-
+    'imagenes_existentes_orden.*' => 'integer',
+], [
+    'precio_descuento.lt' =>
+        'El precio con descuento debe ser menor que el precio normal.',
+]);
         $rutasSubidas = [];
         $rutasFisicasAEliminar = [];
 
@@ -443,20 +495,37 @@ class ProductosController extends Controller
                     $imagenPrincipalExistente = null;
                 }
 
-               $item->update([
+$item->update([
     'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
     'nombre' => trim($request->nombre),
     'slug' => $slugGenerado,
     'codigo' => $this->nullIfBlank($request->codigo),
     'sku' => $this->nullIfBlank($request->sku),
     'descripcion' => $this->nullIfBlank($request->descripcion),
+
     'precio' => $request->precio,
+
+    'descuento_activo' => $request->has('descuento_activo') ? 1 : 0,
+
+    'precio_descuento' => $request->has('descuento_activo')
+        ? $this->nullIfBlank($request->precio_descuento)
+        : null,
+
+    'descuento_inicio' => $request->has('descuento_activo')
+        ? $this->nullIfBlank($request->descuento_inicio)
+        : null,
+
+    'descuento_fin' => $request->has('descuento_activo')
+        ? $this->nullIfBlank($request->descuento_fin)
+        : null,
+
     'stock_actual' => $request->stock_actual,
+
     'activo' => $request->has('activo') ? 1 : 0,
     'destacado' => $request->has('destacado') ? 1 : 0,
+
     'id_categoria_principal' => $idCategoriaPrincipal,
 ]);
-
                 $item->categorias()->sync($categoriasSync);
                 $item->relacionados()->sync($relacionados);
 

@@ -259,9 +259,67 @@
             <div class="col-lg-4">
                 <span class="info-label">Precio del producto</span>
 
-                <div class="summary-price-box">
-                    ₡{{ number_format((float) $item->precio, 0) }}
-                </div>
+            @if ($item->descuento_activo && $item->precio_descuento)
+
+    @php
+        $ahorro = $item->precio - $item->precio_descuento;
+        $porcentaje = $item->precio > 0
+            ? round(($ahorro / $item->precio) * 100)
+            : 0;
+    @endphp
+
+    <div class="discount-price-card">
+
+        <div class="discount-badge">
+            <i class="bx bx-purchase-tag-alt"></i>
+     -{{ $porcentaje }}% OFF
+        </div>
+
+        <div class="discount-old-price">
+            ₡{{ number_format((float) $item->precio, 0) }}
+        </div>
+
+        <div class="summary-price-box discount-current-price">
+            ₡{{ number_format((float) $item->precio_descuento, 0) }}
+        </div>
+
+        <div class="discount-saving">
+            Ahorro de ₡{{ number_format($ahorro, 0) }}
+        </div>
+
+        @if ($item->descuento_inicio || $item->descuento_fin)
+
+            <div class="discount-dates">
+
+                @if ($item->descuento_inicio)
+                    <div>
+                        <i class="bx bx-calendar-event"></i>
+                        Inicio:
+                        {{ $item->descuento_inicio->format('d/m/Y H:i') }}
+                    </div>
+                @endif
+
+                @if ($item->descuento_fin)
+                    <div>
+                        <i class="bx bx-calendar-x"></i>
+                        Finaliza:
+                        {{ $item->descuento_fin->format('d/m/Y H:i') }}
+                    </div>
+                @endif
+
+            </div>
+
+        @endif
+
+    </div>
+
+@else
+
+    <div class="summary-price-box">
+        ₡{{ number_format((float) $item->precio, 0) }}
+    </div>
+
+@endif
 
                 @if ($item->precio > 500000)
                     <div class="mt-2">

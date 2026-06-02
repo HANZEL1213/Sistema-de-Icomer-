@@ -259,4 +259,26 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+
+/* =========================================
+   EVITAR CAMBIO ACCIDENTAL EN INPUTS NUMBER
+========================================= */
+document.addEventListener('focusin', function (e) {
+
+    if (e.target.matches('input[type="number"]')) {
+
+        e.target.addEventListener('wheel', bloquearScroll, {
+            passive: false
+        });
+
+    }
+
+});
+
+function bloquearScroll(e) {
+
+    e.preventDefault();
+
+}
+    
 });

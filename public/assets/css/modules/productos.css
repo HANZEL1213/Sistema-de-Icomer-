@@ -624,3 +624,141 @@
         font-size: 1.5rem;
     }
 }
+
+/* =========================================
+   DESCUENTO SHOW PRODUCTO
+========================================= */
+
+.discount-price-card {
+    position: relative;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+    border: 1px solid #bbf7d0;
+    border-radius: 16px;
+    padding: 1rem;
+    overflow: hidden;
+}
+
+.discount-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    color: #fff;
+
+    padding: .45rem .85rem;
+    border-radius: 999px;
+
+    font-size: .8rem;
+    font-weight: 700;
+
+    margin-bottom: .75rem;
+}
+
+.discount-old-price {
+    font-size: .95rem;
+    color: #6b7280;
+    text-decoration: line-through;
+    margin-bottom: .35rem;
+}
+
+.discount-current-price {
+    border-color: #86efac;
+    color: #15803d;
+    background: #fff;
+}
+
+.discount-saving {
+    margin-top: .75rem;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #15803d;
+}
+
+.discount-dates {
+    margin-top: 1rem;
+    padding-top: .9rem;
+    border-top: 1px dashed #bbf7d0;
+
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+
+    font-size: .82rem;
+    color: #475569;
+}
+
+.discount-dates div {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+}
+
+
+/* =========================================
+   PRECIO CON DESCUENTO - INDEX PRODUCTOS
+========================================= */
+
+.index-price-discount {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.index-discount-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+
+    background: #dcfce7;
+    color: #15803d;
+
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.index-old-price {
+    color: #9ca3af;
+    font-size: 0.78rem;
+    text-decoration: line-through;
+}
+
+.index-current-price {
+    color: #15803d;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.index-normal-price {
+    color: #111827;
+    font-weight: 700;
+}
+
+
+.discount-preview-admin {
+    border: 1px solid #bbf7d0;
+    background: linear-gradient(135deg, #f0fdf4, #ffffff);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+}
+
+.discount-preview-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #16a34a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    margin-bottom: 0.45rem;
+}
+
+.discount-preview-text {
+    font-size: 0.85rem;
+    color: #475569;
+}

@@ -779,4 +779,169 @@ if (destacadoSwitch && destacadoTexto) {
 
     actualizarDestacado();
 }
+
+
+
+
+
+/* =========================================
+   DESCUENTO PRODUCTO
+========================================= */
+const descuentoSwitch = document.getElementById('descuentoSwitch');
+const descuentoTexto = document.getElementById('descuentoTexto');
+const descuentoCampos = document.getElementById('descuentoCampos');
+const precioInput = document.querySelector('input[name="precio"]');
+const precioDescuentoInput = document.getElementById('precio_descuento');
+const descuentoPreview = document.getElementById('descuentoPreview');
+const descuentoPreviewPorcentaje = document.getElementById('descuentoPreviewPorcentaje');
+const descuentoPreviewAhorro = document.getElementById('descuentoPreviewAhorro');
+const productoForm = precioInput ? precioInput.closest('form') : null;
+
+function formatoColones(valor) {
+    return '₡' + Math.round(valor).toLocaleString('es-CR');
+}
+
+function limpiarErrorDescuento() {
+    if (!precioDescuentoInput) return;
+
+    precioDescuentoInput.classList.remove('is-invalid');
+
+    const errorActual = document.getElementById('precioDescuentoJsError');
+
+    if (errorActual) {
+        errorActual.remove();
+    }
+}
+
+function mostrarErrorDescuento(mensaje) {
+    if (!precioDescuentoInput) return;
+
+    limpiarErrorDescuento();
+
+    precioDescuentoInput.classList.add('is-invalid');
+
+    const error = document.createElement('div');
+    error.id = 'precioDescuentoJsError';
+    error.className = 'invalid-feedback d-block';
+    error.textContent = mensaje;
+
+    const grupoInput = precioDescuentoInput.closest('.input-group');
+
+    if (grupoInput) {
+        grupoInput.insertAdjacentElement('afterend', error);
+    } else {
+        precioDescuentoInput.insertAdjacentElement('afterend', error);
+    }
+}
+
+function descuentoEsValido() {
+    if (!descuentoSwitch || !precioInput || !precioDescuentoInput) {
+        return true;
+    }
+
+    if (!descuentoSwitch.checked) {
+        limpiarErrorDescuento();
+        return true;
+    }
+
+    const precio = parseFloat(precioInput.value || 0);
+    const precioDescuento = parseFloat(precioDescuentoInput.value || 0);
+
+    if (precioDescuento <= 0) {
+        limpiarErrorDescuento();
+        return true;
+    }
+
+    if (precio <= 0) {
+        limpiarErrorDescuento();
+        return true;
+    }
+
+    if (precioDescuento >= precio) {
+        mostrarErrorDescuento('El precio con descuento debe ser menor que el precio normal.');
+        descuentoPreview.style.display = 'none';
+        return false;
+    }
+
+    limpiarErrorDescuento();
+    return true;
+}
+
+function actualizarPreviewDescuento() {
+    if (
+        !descuentoSwitch ||
+        !precioInput ||
+        !precioDescuentoInput ||
+        !descuentoPreview ||
+        !descuentoPreviewPorcentaje ||
+        !descuentoPreviewAhorro
+    ) return;
+
+    const precio = parseFloat(precioInput.value || 0);
+    const precioDescuento = parseFloat(precioDescuentoInput.value || 0);
+
+    if (!descuentoEsValido()) {
+        descuentoPreview.style.display = 'none';
+        return;
+    }
+
+    if (
+        !descuentoSwitch.checked ||
+        precio <= 0 ||
+        precioDescuento <= 0
+    ) {
+        descuentoPreview.style.display = 'none';
+        return;
+    }
+
+    const ahorro = precio - precioDescuento;
+    const porcentaje = Math.round((ahorro / precio) * 100);
+
+    descuentoPreviewPorcentaje.textContent = `-${porcentaje}% OFF`;
+    descuentoPreviewAhorro.textContent = formatoColones(ahorro);
+    descuentoPreview.style.display = 'block';
+}
+
+function actualizarDescuentoProducto() {
+    if (!descuentoSwitch || !descuentoTexto || !descuentoCampos) return;
+
+    if (descuentoSwitch.checked) {
+        descuentoTexto.classList.remove('bg-secondary');
+        descuentoTexto.classList.add('bg-success');
+        descuentoTexto.innerHTML = '<i class="bx bx-check-circle me-1"></i> Con descuento';
+        descuentoCampos.style.display = 'block';
+    } else {
+        descuentoTexto.classList.remove('bg-success');
+        descuentoTexto.classList.add('bg-secondary');
+        descuentoTexto.innerHTML = '<i class="bx bx-x-circle me-1"></i> Sin descuento';
+        descuentoCampos.style.display = 'none';
+        limpiarErrorDescuento();
+    }
+
+    actualizarPreviewDescuento();
+}
+
+if (descuentoSwitch) {
+    descuentoSwitch.addEventListener('change', actualizarDescuentoProducto);
+}
+
+if (precioInput) {
+    precioInput.addEventListener('input', actualizarPreviewDescuento);
+}
+
+if (precioDescuentoInput) {
+    precioDescuentoInput.addEventListener('input', actualizarPreviewDescuento);
+}
+
+if (productoForm) {
+    productoForm.addEventListener('submit', function (e) {
+        if (!descuentoEsValido()) {
+            e.preventDefault();
+            precioDescuentoInput.focus();
+        }
+    });
+}
+
+actualizarDescuentoProducto();
+
 });
