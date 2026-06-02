@@ -139,4 +139,17 @@ protected $casts = [
             'notas' => $notas,
         ]);
     }
+
+
+    public function tienePromocionActiva(): bool
+{
+    return $this->descuento_activo && $this->precio_descuento !== null;
+}
+
+public function precioVenta(): float
+{
+    return $this->tienePromocionActiva()
+        ? round((float) $this->precio_descuento, 2)
+        : round((float) $this->precio, 2);
+}
 }

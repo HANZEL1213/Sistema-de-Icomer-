@@ -14,7 +14,9 @@
                 'nombre' => $p->nombre,
                 'codigo_barras' => $p->codigo,
                 'sku' => $p->sku,
-                'precio_venta' => (float) $p->precio,
+               'precio_venta' => $p->precioVenta(),
+'precio_normal' => (float) $p->precio,
+'tiene_promocion' => $p->tienePromocionActiva(),
                 'stock' => (int) $p->stock_actual,
                 'imagen_url' => $p->imagenPrincipal?->ruta
                     ? asset('storage/' . $p->imagenPrincipal->ruta)

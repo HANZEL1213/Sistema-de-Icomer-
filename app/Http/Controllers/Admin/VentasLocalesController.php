@@ -40,15 +40,16 @@ public function create()
     $productos = Producto::with('imagenPrincipal')
         ->where('activo', 1)
         ->orderBy('nombre')
-        ->get([
-            'id_producto',
-            'nombre',
-            'sku',
-            'codigo',
-            'precio',
-            'stock_actual',
-        ]);
-
+->get([
+    'id_producto',
+    'nombre',
+    'sku',
+    'codigo',
+    'precio',
+    'descuento_activo',
+    'precio_descuento',
+    'stock_actual',
+]);
     return view('admin.ventas_locales.create', compact('productos'));
 }
 
@@ -133,21 +134,23 @@ public function store(Request $request)
                     ]);
                 }
 
-                $precioUnitario = round((float) $producto->precio, 2);
+              $precioUnitario = $producto->precioVenta();
                 $totalLinea = round($precioUnitario * $cantidad, 2);
 
                 $subtotal += $totalLinea;
 
-                $detalleRows[] = [
-                    'id_producto' => $producto->id_producto,
-                    'nombre_producto' => $producto->nombre,
-                    'sku_snapshot' => $producto->sku,
-                    'precio_unitario' => $precioUnitario,
-                    'cantidad' => $cantidad,
-                    'total_linea' => $totalLinea,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ];
+       $detalleRows[] = [
+    'id_producto' => $producto->id_producto,
+    'nombre_producto' => $producto->nombre,
+    'sku_snapshot' => $producto->sku,
+    'precio_unitario' => $precioUnitario,
+    'cantidad' => $cantidad,
+    'total_linea' => $totalLinea,
+    'promocion_aplicada' => $producto->tienePromocionActiva() ? 1 : 0,
+    'precio_original' => round((float) $producto->precio, 2),
+    'created_at' => $now,
+    'updated_at' => $now,
+];
             }
 
             $subtotal = round($subtotal, 2);

@@ -26,10 +26,6 @@ class VentaLocal extends Model
         'total' => 'decimal:2',
     ];
 
-    /* ============================================
-       RELACIONES
-    ============================================ */
-
     public function cajero()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario_cajero', 'id_usuario');
@@ -54,6 +50,4 @@ class VentaLocal extends Model
     {
         return $this->hasMany(MovimientoInventario::class, 'id_venta_local', 'id_venta_local');
     }
-
-
-    }
+}

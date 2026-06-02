@@ -167,15 +167,44 @@
                     {{ $d->nombre_producto }}
                 </div>
 
-                <div class="row small">
-                    <span>
-                        {{ $d->cantidad }} x ₡{{ number_format((float) $d->precio_unitario, 2, '.', ',') }}
-                    </span>
+        @php
+    $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
+    $precioVenta = (float) $d->precio_unitario;
+    $tienePromo = (bool) ($d->promocion_aplicada ?? false);
 
-                    <span>
-                        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
-                    </span>
-                </div>
+    $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
+    $porcentaje = $tienePromo && $precioOriginal > 0
+        ? round(($ahorro / $precioOriginal) * 100)
+        : 0;
+@endphp
+
+@if ($tienePromo)
+    <div class="small">
+        PROMO -{{ $porcentaje }}% OFF
+    </div>
+
+    <div class="row small">
+        <span>
+            Antes: ₡{{ number_format($precioOriginal, 2, '.', ',') }}
+        </span>
+    </div>
+@endif
+
+<div class="row small">
+    <span>
+        {{ $d->cantidad }} x ₡{{ number_format($precioVenta, 2, '.', ',') }}
+    </span>
+
+    <span>
+        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
+    </span>
+</div>
+
+@if ($tienePromo)
+    <div class="small">
+        Ahorro unitario: ₡{{ number_format($ahorro, 2, '.', ',') }}
+    </div>
+@endif
 
                 @if ($d->sku_snapshot)
                     <div class="small">

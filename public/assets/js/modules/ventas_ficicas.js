@@ -61,73 +61,120 @@ document.addEventListener('DOMContentLoaded', function () {
             maximumFractionDigits: 2
         });
     }
+function searchProducts(query) {
+    const term = String(query || '').trim().toLowerCase();
 
-    function searchProducts(query) {
-        if (!query.trim()) {
-            searchResults.style.display = 'none';
-            currentProductSelected = null;
-            return;
-        }
-
-        const filtered = productos.filter(p =>
-            (p.nombre || '').toLowerCase().includes(query.toLowerCase()) ||
-            (p.codigo_barras || '').toLowerCase().includes(query.toLowerCase()) ||
-            (p.sku || '').toLowerCase().includes(query.toLowerCase())
-        );
-
-        if (filtered.length === 0) {
-            searchResults.innerHTML =
-                '<div class="list-group-item text-muted text-center"><i class="bx bx-search-alt"></i> No se encontraron productos</div>';
-            searchResults.style.display = 'block';
-            selectedIndex = -1;
-            return;
-        }
-
-     searchResults.innerHTML = filtered.map(p => `
-    <a href="#" class="list-group-item list-group-item-action" data-product='${JSON.stringify(p)}'>
-        <div class="search-product-item">
-
-            ${p.imagen_url ? `
-                <img 
-                    src="${escapeHtml(p.imagen_url)}" 
-                    alt="${escapeHtml(p.nombre)}" 
-                    class="search-product-img"
-                >
-            ` : `
-                <div class="search-product-img search-product-no-img">
-                    <i class="bx bx-image"></i>
-                </div>
-            `}
-
-            <div class="search-product-info">
-                <strong>${escapeHtml(p.nombre)}</strong>
-                ${(p.codigo_barras || p.sku) ? `<br><small class="text-muted">${escapeHtml(p.codigo_barras || p.sku)}</small>` : ''}
-            </div>
-
-            <div class="search-product-price">
-                <span class="badge bg-primary">₡ ${formatMoney(p.precio_venta)}</span>
-                <br><small class="text-muted">Stock: ${p.stock}</small>
-            </div>
-
-        </div>
-    </a>
-`).join('');
-
-        searchResults.style.display = 'block';
-selectedIndex = -1;
-        document.querySelectorAll('.list-group-item[data-product]').forEach(el => {
-            el.addEventListener('click', function (e) {
-                e.preventDefault();
-                const p = JSON.parse(this.dataset.product);
-                currentProductSelected = p;
-                addProductFromSearch(p, parseInt(productQuantity.value) || 1);
-                searchInput.value = '';
-                searchResults.style.display = 'none';
-                productQuantity.value = 1;
-                currentProductSelected = null;
-            });
-        });
+    if (!term) {
+        searchResults.style.display = 'none';
+        searchResults.innerHTML = '';
+        currentProductSelected = null;
+        selectedIndex = -1;
+        return;
     }
+
+    const filtered = productos.filter(p =>
+        (p.nombre || '').toLowerCase().includes(term) ||
+        (p.codigo_barras || '').toLowerCase().includes(term) ||
+        (p.sku || '').toLowerCase().includes(term)
+    );
+
+    if (filtered.length === 0) {
+        searchResults.innerHTML = `
+            <div class="list-group-item text-muted text-center">
+                <i class="bx bx-search-alt"></i>
+                No se encontraron productos
+            </div>
+        `;
+        searchResults.style.display = 'block';
+        currentProductSelected = null;
+        selectedIndex = -1;
+        return;
+    }
+
+    searchResults.innerHTML = filtered.map(p => {
+        const nombre = escapeHtml(p.nombre);
+        const codigoSku = escapeHtml(p.codigo_barras || p.sku || '');
+        const imagenUrl = p.imagen_url ? escapeHtml(p.imagen_url) : null;
+        const precioVenta = Number(p.precio_venta || 0);
+        const precioNormal = Number(p.precio_normal || precioVenta);
+        const tienePromocion = Boolean(p.tiene_promocion);
+
+        return `
+            <a href="#" class="list-group-item list-group-item-action" data-product='${escapeHtml(JSON.stringify(p))}'>
+                <div class="search-product-item">
+
+                    ${imagenUrl ? `
+                        <img 
+                            src="${imagenUrl}" 
+                            alt="${nombre}" 
+                            class="search-product-img"
+                        >
+                    ` : `
+                        <div class="search-product-img search-product-no-img">
+                            <i class="bx bx-image"></i>
+                        </div>
+                    `}
+
+                    <div class="search-product-info">
+                        <strong>${nombre}</strong>
+
+                        ${codigoSku ? `
+                            <br>
+                            <small class="text-muted">${codigoSku}</small>
+                        ` : ''}
+
+                        ${tienePromocion ? `
+                            <br>
+                            <small class="badge bg-danger mt-1">Promoción activa</small>
+                        ` : ''}
+                    </div>
+
+                    <div class="search-product-price text-end">
+                        ${tienePromocion ? `
+                            <span class="badge bg-danger">
+                                Promo ₡ ${formatMoney(precioVenta)}
+                            </span>
+                            <br>
+                            <small class="text-muted text-decoration-line-through">
+                                ₡ ${formatMoney(precioNormal)}
+                            </small>
+                        ` : `
+                            <span class="badge bg-primary">
+                                ₡ ${formatMoney(precioVenta)}
+                            </span>
+                        `}
+
+                        <br>
+                        <small class="text-muted">Stock: ${p.stock}</small>
+                    </div>
+
+                </div>
+            </a>
+        `;
+    }).join('');
+
+    searchResults.style.display = 'block';
+    selectedIndex = -1;
+    currentProductSelected = null;
+
+    document.querySelectorAll('.list-group-item[data-product]').forEach(el => {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            const p = JSON.parse(this.dataset.product);
+
+            currentProductSelected = p;
+            addProductFromSearch(p, parseInt(productQuantity.value) || 1);
+
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            productQuantity.value = 1;
+            currentProductSelected = null;
+            selectedIndex = -1;
+        });
+    });
+}
+
 function updateSelection() {
     const items = searchResults.querySelectorAll('.list-group-item[data-product]');
 
@@ -189,10 +236,22 @@ function updateSelection() {
         row.dataset.stock = String(productData.stock);
 
         row.innerHTML = `
-            <td class="text-start">
-                <div class="fw-semibold">${escapeHtml(productData.nombre)}</div>
-                <small class="text-muted">Stock disponible: ${productData.stock}</small>
-            </td>
+          <td class="text-start">
+    <div class="fw-semibold">
+        ${escapeHtml(productData.nombre)}
+    </div>
+
+    ${productData.tiene_promocion ? `
+        <small class="badge bg-danger">
+            Promoción aplicada
+        </small>
+        <br>
+    ` : ''}
+
+    <small class="text-muted">
+        Stock disponible: ${productData.stock}
+    </small>
+</td>
             <td>
                 <small class="text-muted">${escapeHtml(productData.codigo_barras || productData.sku || 'N/A')}</small>
             </td>

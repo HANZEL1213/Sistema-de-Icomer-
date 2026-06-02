@@ -84,125 +84,159 @@
                             <th>N° Ticket</th>
                             <th>Cliente</th>
                             <th>Cajero</th>
-                            <th>Ítems</th>
-                            <th>Pago</th>
-                            <th>Total</th>
+                         <th>Ítems</th>
+<th>Promos</th>
+<th>Pago</th>
+<th>Total</th>
                             <th>Fecha</th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
 
-                    <tbody>
-                        @foreach ($items as $item)
-                            @php
-                                $pagos = $item->pagos ?? collect();
-                                $montoPagado = (float) $pagos->sum('monto');
-                                $totalVenta = (float) $item->total;
+               <tbody>
+    @foreach ($items as $item)
+        @php
+            $pagos = $item->pagos ?? collect();
+            $detalle = $item->detalle ?? collect();
 
-                                $estaPagado = abs($montoPagado - $totalVenta) < 0.01 || $montoPagado > $totalVenta;
+            $montoPagado = (float) $pagos->sum('monto');
+            $totalVenta = (float) $item->total;
 
-                                $pagoBadgeClass = $estaPagado ? 'status-active' : 'status-warning';
-                                $pagoIcon = $estaPagado ? 'bx-check-circle' : 'bx-time-five';
-                                $pagoLabel = $estaPagado ? 'PAGADO' : 'INCOMPLETO';
+            $estaPagado = abs($montoPagado - $totalVenta) < 0.01 || $montoPagado > $totalVenta;
 
-                                $metodosUsados = $pagos
-                                    ->pluck('metodo')
-                                    ->filter()
-                                    ->unique()
-                                    ->map(fn($m) => strtoupper($m))
-                                    ->implode(' + ');
-                                $metodosUsados = $metodosUsados ?: 'SIN PAGO';
+            $pagoBadgeClass = $estaPagado ? 'status-active' : 'status-warning';
+            $pagoIcon = $estaPagado ? 'bx-check-circle' : 'bx-time-five';
+            $pagoLabel = $estaPagado ? 'PAGADO' : 'INCOMPLETO';
 
-                                $clienteNombre = $item->nombre_cliente ?: 'Cliente no registrado';
-                                $clienteTelefono = $item->telefono_cliente ?: 'Sin teléfono';
-                                $cantidadItems = (int) ($item->cantidad_items ?? 0);
-                                $notas = $item->notas ?: 'Sin nota';
-                            @endphp
+            $metodosUsados = $pagos
+                ->pluck('metodo')
+                ->filter()
+                ->unique()
+                ->map(fn($m) => strtoupper($m))
+                ->implode(' + ');
 
-                            <tr>
-                                <td class="fw-semibold text-muted">{{ $item->id_venta_local }}</td>
+            $metodosUsados = $metodosUsados ?: 'SIN PAGO';
 
-                                <td class="text-start">
-                                    <div class="fw-semibold">{{ $item->numero_ticket }}</div>
+            $clienteNombre = $item->nombre_cliente ?: 'Cliente no registrado';
+            $clienteTelefono = $item->telefono_cliente ?: 'Sin teléfono';
+            $cantidadItems = (int) ($item->cantidad_items ?? 0);
+            $notas = $item->notas ?: 'Sin nota';
 
-                                    <small class="text-muted">
-                                        Subtotal: ₡{{ number_format($item->subtotal, 2) }}
-                                    </small>
+            $tienePromociones = $detalle->contains(function ($d) {
+                return $d->promocion_aplicada ?? false;
+            });
+        @endphp
 
-                                    @if ((float) $item->descuento > 0)
-                                        <div class="small text-success">
-                                            Descuento: ₡{{ number_format($item->descuento, 2) }}
-                                        </div>
-                                    @endif
+        <tr>
+            <td class="fw-semibold text-muted">
+                {{ $item->id_venta_local }}
+            </td>
 
-                                    <div class="small text-muted">
-                                        Nota: {{ $notas }}
-                                    </div>
-                                </td>
+            <td class="text-start">
+                <div class="fw-semibold">
+                    {{ $item->numero_ticket }}
+                </div>
 
-                                <td class="text-start">
-                                    <div class="fw-semibold">{{ $clienteNombre }}</div>
-                                    <small class="text-muted">{{ $clienteTelefono }}</small>
-                                </td>
+                <small class="text-muted">
+                    Subtotal: ₡{{ number_format($item->subtotal, 2) }}
+                </small>
 
-                                <td>
-                                    <span class="status-badge status-info">
-                                        <i class="bx bx-user me-1"></i>
-                                        {{ strtoupper($item->cajero?->nombre ?? 'SIN CAJERO') }}
-                                    </span>
-                                </td>
+                @if ((float) $item->descuento > 0)
+                    <div class="small text-success">
+                        Descuento: ₡{{ number_format($item->descuento, 2) }}
+                    </div>
+                @endif
 
-                                <td>
-                                    <span class="fw-semibold">{{ $cantidadItems }}</span>
-                                    <div class="small text-muted">producto(s)</div>
-                                </td>
+                <div class="small text-muted">
+                    Nota: {{ $notas }}
+                </div>
+            </td>
 
-                                <td>
-                                    <span class="status-badge {{ $pagoBadgeClass }}">
-                                        <i class="bx {{ $pagoIcon }} me-1"></i>
-                                        {{ $pagoLabel }}
-                                    </span>
+            <td class="text-start">
+                <div class="fw-semibold">
+                    {{ $clienteNombre }}
+                </div>
 
-                                    <div class="small text-muted mt-1">
-                                        {{ $metodosUsados }}
-                                    </div>
-                                </td>
+                <small class="text-muted">
+                    {{ $clienteTelefono }}
+                </small>
+            </td>
 
-                                <td class="fw-bold">
-                                    ₡{{ number_format($item->total, 2) }}
-                                </td>
+            <td>
+                <span class="status-badge status-info">
+                    <i class="bx bx-user me-1"></i>
+                    {{ strtoupper($item->cajero?->nombre ?? 'SIN CAJERO') }}
+                </span>
+            </td>
 
-                                <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
-                                    <div class="fw-semibold">
-                                        {{ optional($item->created_at)->format('d/m/Y') }}
-                                    </div>
-                                    <small class="text-muted">
-                                        {{ optional($item->created_at)->format('H:i') }}
-                                    </small>
-                                </td>
+            <td>
+                <span class="fw-semibold">
+                    {{ $cantidadItems }}
+                </span>
 
-                                <td>
-                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
-                                        <a class="btn-action btn-view" title="Ver"
-                                            href="{{ route('admin.ventas-locales.show', $item->id_venta_local) }}">
-                                            <i class="bx bx-show"></i>
-                                        </a>
+                <div class="small text-muted">
+                    producto(s)
+                </div>
+            </td>
 
-                                        {{-- <button type="button" class="btn-action btn-edit" title="Editar deshabilitado"
-                                            disabled>
-                                            <i class="bx bx-edit"></i>
-                                        </button> --}}
+            {{-- NUEVA COLUMNA PROMOCIONES --}}
+            <td>
+                @if($tienePromociones)
+                    <span class="status-badge status-danger">
+                        <i class="bx bx-purchase-tag-alt me-1"></i>
+                        PROMO
+                    </span>
+                @else
+                    <span class="text-muted">—</span>
+                @endif
+            </td>
 
-                                        <a class="btn-action btn-edit" title="Imprimir Ticket"
-                                            href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
-                                            target="_blank">
-                                            <i class="bx bx-printer"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+            <td>
+                <span class="status-badge {{ $pagoBadgeClass }}">
+                    <i class="bx {{ $pagoIcon }} me-1"></i>
+                    {{ $pagoLabel }}
+                </span>
+
+                <div class="small text-muted mt-1">
+                    {{ $metodosUsados }}
+                </div>
+            </td>
+
+            <td class="fw-bold">
+                ₡{{ number_format($item->total, 2) }}
+            </td>
+
+            <td data-order="{{ optional($item->created_at)->format('Y-m-d H:i:s') }}">
+                <div class="fw-semibold">
+                    {{ optional($item->created_at)->format('d/m/Y') }}
+                </div>
+
+                <small class="text-muted">
+                    {{ optional($item->created_at)->format('H:i') }}
+                </small>
+            </td>
+
+            <td>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+
+                    <a class="btn-action btn-view"
+                        title="Ver"
+                        href="{{ route('admin.ventas-locales.show', $item->id_venta_local) }}">
+                        <i class="bx bx-show"></i>
+                    </a>
+
+                    <a class="btn-action btn-edit"
+                        title="Imprimir Ticket"
+                        href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
+                        target="_blank">
+                        <i class="bx bx-printer"></i>
+                    </a>
+
+                </div>
+            </td>
+        </tr>
+    @endforeach
+</tbody>
 
                 </table>
             </div>

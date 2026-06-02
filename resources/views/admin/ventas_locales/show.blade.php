@@ -392,12 +392,61 @@
                             <tbody>
                                 @forelse ($detalle as $d)
                                     <tr>
-                                        <td>{{ $d->nombre_producto }}</td>
-                                        <td>{{ $d->sku_snapshot ?: '—' }}</td>
-                                        <td>₡{{ number_format((float) $d->precio_unitario, 2, '.', ',') }}</td>
-                                        <td>{{ $d->cantidad }}</td>
-                                        <td class="fw-bold">₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
-                                        </td>
+                              @php
+    $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
+    $precioVenta = (float) $d->precio_unitario;
+    $tienePromo = (bool) ($d->promocion_aplicada ?? false);
+
+    $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
+    $porcentaje = $tienePromo && $precioOriginal > 0
+        ? round(($ahorro / $precioOriginal) * 100)
+        : 0;
+@endphp
+
+<tr>
+    <td>
+        <div class="fw-semibold">{{ $d->nombre_producto }}</div>
+
+        @if ($tienePromo)
+            <span class="badge bg-danger mt-1">
+                <i class="bx bx-purchase-tag-alt"></i>
+                Promoción aplicada
+            </span>
+        @endif
+    </td>
+
+    <td>{{ $d->sku_snapshot ?: '—' }}</td>
+
+    <td>
+        @if ($tienePromo)
+            <div class="d-flex flex-column gap-1">
+                <span class="badge bg-danger">
+                    -{{ $porcentaje }}% OFF
+                </span>
+
+                <small class="text-muted text-decoration-line-through">
+                    ₡{{ number_format($precioOriginal, 2, '.', ',') }}
+                </small>
+
+                <strong class="text-danger">
+                    ₡{{ number_format($precioVenta, 2, '.', ',') }}
+                </strong>
+
+                <small class="text-success">
+                    Ahorro: ₡{{ number_format($ahorro, 2, '.', ',') }}
+                </small>
+            </div>
+        @else
+            ₡{{ number_format($precioVenta, 2, '.', ',') }}
+        @endif
+    </td>
+
+    <td>{{ $d->cantidad }}</td>
+
+    <td class="fw-bold">
+        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
+    </td>
+</tr>
                                     </tr>
                                 @empty
                                     <tr>
