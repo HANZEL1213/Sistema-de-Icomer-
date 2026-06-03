@@ -257,14 +257,54 @@
                     <img src="{{ $imagenProducto }}" alt="{{ $item->nombre_producto }}">
                 </div>
 
-                <div class="store-checkout-product-info">
-                    <h5>{{ $item->nombre_producto }}</h5>
-                    <span>Cantidad: {{ $item->cantidad }}</span>
-                </div>
+@php
+    $precioUnitario = (float) $item->precio_unitario;
+    $cantidad = (int) $item->cantidad;
 
-                <div class="store-checkout-product-price">
-                    ₡{{ number_format($item->total_linea, 2) }}
-                </div>
+    $precioOriginal = (float) ($item->producto?->precio ?? $precioUnitario);
+
+    $tienePromo = $precioOriginal > $precioUnitario;
+
+    $porcentaje = $tienePromo && $precioOriginal > 0
+        ? round((($precioOriginal - $precioUnitario) / $precioOriginal) * 100)
+        : 0;
+@endphp
+
+<div class="store-checkout-product-info">
+
+    <h5>{{ $item->nombre_producto }}</h5>
+
+    @if($tienePromo)
+        <span class="badge bg-danger text-white mb-1">
+            -{{ $porcentaje }}% OFF
+        </span>
+    @endif
+
+    <span>
+        Cantidad: {{ $cantidad }}
+    </span>
+
+</div>
+
+<div class="store-checkout-product-price">
+
+    @if($tienePromo)
+
+        <div class="text-muted text-decoration-line-through small">
+            ₡{{ number_format($precioOriginal * $cantidad, 2) }}
+        </div>
+
+        <strong class="text-danger">
+            ₡{{ number_format($item->total_linea, 2) }}
+        </strong>
+
+    @else
+
+        ₡{{ number_format($item->total_linea, 2) }}
+
+    @endif
+
+</div>
 
             </div>
         @endforeach

@@ -58,100 +58,138 @@
 
                             <div class="store-cart-items">
 
-                                @foreach ($carrito as $item)
-                                    @php
-                                        $imagen = $item['imagen']
-                                            ? asset('storage/' . $item['imagen'])
-                                            : asset('assets/img/no-image.png');
-                                    @endphp
+                            @foreach ($carrito as $item)
+    @php
+        $imagen = $item['imagen']
+            ? asset('storage/' . $item['imagen'])
+            : asset('assets/img/no-image.png');
 
-                                    <article class="store-cart-item">
+        $tienePromo = $item['tiene_promocion'] ?? false;
+        $precioVenta = (float) ($item['precio'] ?? 0);
+        $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
+        $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
+        $ahorro = (float) ($item['ahorro'] ?? 0);
+    @endphp
 
-                                        <div class="store-cart-item-image">
-                                            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
-                                        </div>
+    <article class="store-cart-item">
 
-                                        <div class="store-cart-item-info">
+        <div class="store-cart-item-image">
+            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
+        </div>
 
-                                            <div class="store-cart-item-meta">
-                                                {{ $item['marca'] ?? 'Sin marca' }}
-                                                ·
-                                                {{ $item['categoria'] ?? 'Sin categoría' }}
-                                            </div>
+        <div class="store-cart-item-info">
 
-                                            <h3 class="store-cart-item-title">
-                                                <a href="{{ route('tienda.productos.show', $item['slug']) }}">
-                                                    {{ $item['nombre'] }}
-                                                </a>
-                                            </h3>
+            <div class="store-cart-item-meta">
+                {{ $item['marca'] ?? 'Sin marca' }}
+                ·
+                {{ $item['categoria'] ?? 'Sin categoría' }}
+            </div>
 
-                                            <div class="store-cart-item-stock">
-                                                <i class="bi bi-check-circle"></i>
-                                                Disponible · {{ $item['stock'] }} unidades
-                                            </div>
+            <h3 class="store-cart-item-title">
+                <a href="{{ route('tienda.productos.show', $item['slug']) }}">
+                    {{ $item['nombre'] }}
+                </a>
+            </h3>
 
-                                            <div class="store-cart-mobile-price">
-                                                ₡{{ number_format($item['precio'], 2) }}
-                                            </div>
+            @if ($tienePromo)
+                <span class="badge bg-danger mb-2">
+                    Promoción aplicada
+                </span>
+            @endif
 
-                                        </div>
+            <div class="store-cart-item-stock">
+                <i class="bi bi-check-circle"></i>
+                Disponible · {{ $item['stock'] }} unidades
+            </div>
 
-                                        <div class="store-cart-item-controls">
+            <div class="store-cart-mobile-price">
+                @if ($tienePromo)
+                    <span class="badge bg-danger mb-1">
+                        -{{ $porcentaje }}% OFF
+                    </span>
 
-                                            <div class="store-cart-price d-none d-md-block">
-                                                ₡{{ number_format($item['precio'], 2) }}
-                                            </div>
+                    <div class="text-muted text-decoration-line-through small">
+                        ₡{{ number_format($precioNormal, 2) }}
+                    </div>
 
-                                            <form action="{{ route('tienda.carrito.actualizar', $item['id_producto']) }}"
-                                                method="POST" class="store-cart-qty-form">
+                    <strong class="text-danger">
+                        ₡{{ number_format($precioVenta, 2) }}
+                    </strong>
+                @else
+                    ₡{{ number_format($precioVenta, 2) }}
+                @endif
+            </div>
 
-                                                @csrf
-                                                @method('PATCH')
+        </div>
 
-                                                <div class="store-cart-qty-control">
+        <div class="store-cart-item-controls">
 
-                                                    <button type="button" data-cart-qty="minus"
-                                                        data-target="cartQty{{ $item['id_producto'] }}">
-                                                        <i class="bi bi-dash"></i>
-                                                    </button>
+            <div class="store-cart-price d-none d-md-block">
+                @if ($tienePromo)
+                    <span class="badge bg-danger mb-1">
+                        -{{ $porcentaje }}% OFF
+                    </span>
 
-                                                    <input type="number" name="cantidad"
-                                                        id="cartQty{{ $item['id_producto'] }}"
-                                                        value="{{ $item['cantidad'] }}" min="1"
-                                                        max="{{ $item['stock'] }}">
+                    <div class="text-muted text-decoration-line-through small">
+                        ₡{{ number_format($precioNormal, 2) }}
+                    </div>
 
-                                                    <button type="button" data-cart-qty="plus"
-                                                        data-target="cartQty{{ $item['id_producto'] }}">
-                                                        <i class="bi bi-plus"></i>
-                                                    </button>
+                    <strong class="text-danger">
+                        ₡{{ number_format($precioVenta, 2) }}
+                    </strong>
+                @else
+                    ₡{{ number_format($precioVenta, 2) }}
+                @endif
+            </div>
 
-                                                </div>
+            <form action="{{ route('tienda.carrito.actualizar', $item['id_producto']) }}"
+                method="POST" class="store-cart-qty-form">
 
-                                             
+                @csrf
+                @method('PATCH')
 
-                                            </form>
+                <div class="store-cart-qty-control">
 
-                                            <div class="store-cart-line-total">
-                                                ₡{{ number_format($item['precio'] * $item['cantidad'], 2) }}
-                                            </div>
+                    <button type="button" data-cart-qty="minus"
+                        data-target="cartQty{{ $item['id_producto'] }}">
+                        <i class="bi bi-dash"></i>
+                    </button>
 
-                                            <form action="{{ route('tienda.carrito.eliminar', $item['id_producto']) }}"
-                                                method="POST" class="store-cart-remove-form">
+                    <input type="number" name="cantidad"
+                        id="cartQty{{ $item['id_producto'] }}"
+                        value="{{ $item['cantidad'] }}" min="1"
+                        max="{{ $item['stock'] }}">
 
-                                                @csrf
-                                                @method('DELETE')
+                    <button type="button" data-cart-qty="plus"
+                        data-target="cartQty{{ $item['id_producto'] }}">
+                        <i class="bi bi-plus"></i>
+                    </button>
 
-                                                <button type="submit" class="store-cart-remove-btn">
-                                                    <i class="bi bi-trash3"></i>
-                                                    <span>Quitar</span>
-                                                </button>
+                </div>
 
-                                            </form>
+            </form>
 
-                                        </div>
+            <div class="store-cart-line-total">
+                ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+            </div>
 
-                                    </article>
-                                @endforeach
+            <form action="{{ route('tienda.carrito.eliminar', $item['id_producto']) }}"
+                method="POST" class="store-cart-remove-form">
+
+                @csrf
+                @method('DELETE')
+
+                <button type="submit" class="store-cart-remove-btn">
+                    <i class="bi bi-trash3"></i>
+                    <span>Quitar</span>
+                </button>
+
+            </form>
+
+        </div>
+
+    </article>
+@endforeach
 
                             </div>
 
@@ -173,208 +211,191 @@
 
                     </div>
 
-                  <div class="col-12 col-lg-4">
+                    <div class="col-12 col-lg-4">
 
-    <aside class="store-cart-summary-card">
+                        <aside class="store-cart-summary-card">
 
-        <div class="store-cart-summary-header">
-            <h2>Resumen</h2>
+                            <div class="store-cart-summary-header">
+                                <h2>Resumen</h2>
 
-            <span>
-                {{ $carrito->sum('cantidad') }} artículos
-            </span>
-        </div>
+                                <span>
+                                    {{ $carrito->sum('cantidad') }} artículos
+                                </span>
+                            </div>
 
-        {{-- CUPÓN --}}
-        <div class="store-cart-coupon-box">
+                            {{-- CUPÓN --}}
+                            <div class="store-cart-coupon-box">
 
-            <label class="store-form-label">
-                Cupón de descuento
-            </label>
+                                <label class="store-form-label">
+                                    Cupón de descuento
+                                </label>
 
-            @if($cuponAplicado)
+                                @if ($cuponAplicado)
 
-                <div class="bg-light rounded-4 p-3 border">
+                                    <div class="bg-light rounded-4 p-3 border">
 
-                    <div class="d-flex justify-content-between align-items-start gap-3">
+                                        <div class="d-flex justify-content-between align-items-start gap-3">
 
-                        <div>
+                                            <div>
 
-                            <span class="badge bg-success mb-2">
-                                Cupón aplicado
-                            </span>
+                                                <span class="badge bg-success mb-2">
+                                                    Cupón aplicado
+                                                </span>
 
-                            <h6 class="fw-bold mb-1">
-                                {{ $cuponAplicado['codigo'] }}
-                            </h6>
+                                                <h6 class="fw-bold mb-1">
+                                                    {{ $cuponAplicado['codigo'] }}
+                                                </h6>
 
-                            <small class="text-muted d-block">
-                                Descuento aplicado:
-                                ₡{{ number_format($descuento, 2) }}
-                            </small>
+                                                <small class="text-muted d-block">
+                                                    Descuento aplicado:
+                                                    ₡{{ number_format($descuento, 2) }}
+                                                </small>
 
-                            @if($cuponAplicado['tipo'] === 'porcentaje')
+                                                @if ($cuponAplicado['tipo'] === 'porcentaje')
+                                                    <small class="text-success">
+                                                        {{ number_format($cuponAplicado['valor'], 0) }}% OFF
+                                                    </small>
+                                                @else
+                                                    <small class="text-success">
+                                                        ₡{{ number_format($cuponAplicado['valor'], 2) }} OFF
+                                                    </small>
+                                                @endif
 
-                                <small class="text-success">
-                                    {{ number_format($cuponAplicado['valor'], 0) }}% OFF
-                                </small>
+                                            </div>
 
-                            @else
+                                            <form action="{{ route('tienda.carrito.cupon.eliminar') }}" method="POST">
 
-                                <small class="text-success">
-                                    ₡{{ number_format($cuponAplicado['valor'], 2) }} OFF
-                                </small>
+                                                @csrf
+                                                @method('DELETE')
 
-                            @endif
+                                                <button type="submit" class="btn btn-store-outline btn-sm">
 
-                        </div>
+                                                    <i class="bi bi-x-lg"></i>
 
-                        <form action="{{ route('tienda.carrito.cupon.eliminar') }}"
-                              method="POST">
+                                                </button>
 
-                            @csrf
-                            @method('DELETE')
+                                            </form>
 
-                            <button type="submit"
-                                    class="btn btn-store-outline btn-sm">
+                                        </div>
 
-                                <i class="bi bi-x-lg"></i>
+                                    </div>
+                                @else
+                                    <form action="{{ route('tienda.carrito.cupon.aplicar') }}" method="POST">
 
-                            </button>
+                                        @csrf
 
-                        </form>
+                                        <div class="store-cart-coupon-control">
+
+                                            <input type="text" name="codigo_cupon" value="{{ old('codigo_cupon') }}"
+                                                class="form-control store-filter-control @error('codigo_cupon') is-invalid @enderror"
+                                                placeholder="Ingresa tu cupón" autocomplete="off">
+
+                                            <button class="btn btn-store-outline" type="submit">
+                                                Aplicar
+                                            </button>
+
+                                        </div>
+
+                                        @error('codigo_cupon')
+                                            <div class="text-danger small mt-2">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+
+                                    </form>
+
+                                @endif
+
+                            </div>
+
+                            {{-- TOTALES --}}
+                            <div class="store-cart-total-list">
+
+                                <div class="store-cart-total-row">
+                                    <span>Subtotal</span>
+
+                                    <strong>
+                                        ₡{{ number_format($subtotal, 2) }}
+                                    </strong>
+                                </div>
+
+                                <div class="store-cart-total-row">
+                                    <span>Envío</span>
+
+                                    <strong>
+                                        Se calcula en checkout
+                                    </strong>
+                                </div>
+
+                                <div class="store-cart-total-row text-success">
+                                    <span>Cupon de Descuento</span>
+
+                                    <strong>
+                                        -₡{{ number_format($descuento, 2) }}
+                                    </strong>
+                                </div>
+
+                                <div class="store-cart-total-row total">
+                                    <span>Total estimado</span>
+
+                                    <strong>
+                                        ₡{{ number_format($total, 2) }}
+                                    </strong>
+                                </div>
+
+                            </div>
+
+                            <a href="{{ route('tienda.checkout.index') }}"
+                                class="btn btn-store-primary store-cart-checkout-btn">
+
+                                <i class="bi bi-credit-card me-1"></i>
+
+                                Finalizar compra
+
+                            </a>
+
+                            <a href="{{ route('tienda.productos.index') }}"
+                                class="btn btn-store-outline store-cart-continue-btn">
+
+                                Seguir comprando
+
+                            </a>
+
+                            <form action="{{ route('tienda.carrito.vaciar') }}" method="POST">
+
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit" class="btn btn-store-danger w-100 mt-2">
+
+                                    Vaciar carrito
+
+                                </button>
+
+                            </form>
+
+                            <div class="store-cart-summary-benefits">
+
+                                <div>
+                                    <i class="bi bi-lock"></i>
+                                    Pago seguro
+                                </div>
+
+                                <div>
+                                    <i class="bi bi-truck"></i>
+                                    Envío disponible
+                                </div>
+
+                                <div>
+                                    <i class="bi bi-receipt"></i>
+                                    Pedido rastreable
+                                </div>
+
+                            </div>
+
+                        </aside>
 
                     </div>
-
-                </div>
-
-            @else
-
-                <form action="{{ route('tienda.carrito.cupon.aplicar') }}"
-                      method="POST">
-
-                    @csrf
-
-                    <div class="store-cart-coupon-control">
-
-                        <input type="text"
-                               name="codigo_cupon"
-                               value="{{ old('codigo_cupon') }}"
-                               class="form-control store-filter-control @error('codigo_cupon') is-invalid @enderror"
-                               placeholder="Ingresa tu cupón"
-                               autocomplete="off">
-
-                        <button class="btn btn-store-outline"
-                                type="submit">
-                            Aplicar
-                        </button>
-
-                    </div>
-
-                    @error('codigo_cupon')
-
-                        <div class="text-danger small mt-2">
-                            {{ $message }}
-                        </div>
-
-                    @enderror
-
-                </form>
-
-            @endif
-
-        </div>
-
-        {{-- TOTALES --}}
-        <div class="store-cart-total-list">
-
-            <div class="store-cart-total-row">
-                <span>Subtotal</span>
-
-                <strong>
-                    ₡{{ number_format($subtotal, 2) }}
-                </strong>
-            </div>
-
-            <div class="store-cart-total-row">
-                <span>Envío</span>
-
-                <strong>
-                    Se calcula en checkout
-                </strong>
-            </div>
-
-            <div class="store-cart-total-row text-success">
-                <span>Descuento</span>
-
-                <strong>
-                    -₡{{ number_format($descuento, 2) }}
-                </strong>
-            </div>
-
-            <div class="store-cart-total-row total">
-                <span>Total estimado</span>
-
-                <strong>
-                    ₡{{ number_format($total, 2) }}
-                </strong>
-            </div>
-
-        </div>
-
-        <a href="{{ route('tienda.checkout.index') }}"
-           class="btn btn-store-primary store-cart-checkout-btn">
-
-            <i class="bi bi-credit-card me-1"></i>
-
-            Finalizar compra
-
-        </a>
-
-        <a href="{{ route('tienda.productos.index') }}"
-           class="btn btn-store-outline store-cart-continue-btn">
-
-            Seguir comprando
-
-        </a>
-
-        <form action="{{ route('tienda.carrito.vaciar') }}"
-              method="POST">
-
-            @csrf
-            @method('DELETE')
-
-            <button type="submit"
-                    class="btn btn-store-danger w-100 mt-2">
-
-                Vaciar carrito
-
-            </button>
-
-        </form>
-
-        <div class="store-cart-summary-benefits">
-
-            <div>
-                <i class="bi bi-lock"></i>
-                Pago seguro
-            </div>
-
-            <div>
-                <i class="bi bi-truck"></i>
-                Envío disponible
-            </div>
-
-            <div>
-                <i class="bi bi-receipt"></i>
-                Pedido rastreable
-            </div>
-
-        </div>
-
-    </aside>
-
-</div>
 
                 </div>
             @else
@@ -405,59 +426,59 @@
 @endsection
 
 @push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    const qtyButtons = document.querySelectorAll('[data-cart-qty]');
+            const qtyButtons = document.querySelectorAll('[data-cart-qty]');
 
-    qtyButtons.forEach((button) => {
+            qtyButtons.forEach((button) => {
 
-        button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
 
-            const targetId = this.dataset.target;
-            const action = this.dataset.cartQty;
+                    const targetId = this.dataset.target;
+                    const action = this.dataset.cartQty;
 
-            const input = document.getElementById(targetId);
+                    const input = document.getElementById(targetId);
 
-            if (!input) return;
+                    if (!input) return;
 
-            const form = input.closest('form');
+                    const form = input.closest('form');
 
-            const min = parseInt(input.min || 1);
-            const max = parseInt(input.max || 999);
+                    const min = parseInt(input.min || 1);
+                    const max = parseInt(input.max || 999);
 
-            let value = parseInt(input.value || 1);
+                    let value = parseInt(input.value || 1);
 
-            if (action === 'minus') {
-                value = Math.max(min, value - 1);
-            }
+                    if (action === 'minus') {
+                        value = Math.max(min, value - 1);
+                    }
 
-            if (action === 'plus') {
-                value = Math.min(max, value + 1);
-            }
+                    if (action === 'plus') {
+                        value = Math.min(max, value + 1);
+                    }
 
-            input.value = value;
+                    input.value = value;
 
-            form.submit();
+                    form.submit();
+
+                });
+
+            });
+
+            const qtyInputs = document.querySelectorAll('.store-cart-qty-control input');
+
+            qtyInputs.forEach((input) => {
+
+                input.addEventListener('change', function() {
+
+                    const form = this.closest('form');
+
+                    form.submit();
+
+                });
+
+            });
 
         });
-
-    });
-
-    const qtyInputs = document.querySelectorAll('.store-cart-qty-control input');
-
-    qtyInputs.forEach((input) => {
-
-        input.addEventListener('change', function () {
-
-            const form = this.closest('form');
-
-            form.submit();
-
-        });
-
-    });
-
-});
-</script>
+    </script>
 @endpush

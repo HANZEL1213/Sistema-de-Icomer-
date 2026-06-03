@@ -582,31 +582,48 @@
                             <div class="store-checkout-summary-header">
                                 <h2>Resumen del pedido</h2>
                             </div>
+<div class="store-checkout-products">
+    @foreach ($carrito as $item)
+        @php
+            $imagen = $item['imagen']
+                ? asset('storage/' . $item['imagen'])
+                : asset('assets/img/no-image.png');
 
-                            <div class="store-checkout-products">
-                                @foreach ($carrito as $item)
-                                    @php
-                                        $imagen = $item['imagen']
-                                            ? asset('storage/' . $item['imagen'])
-                                            : asset('assets/img/no-image.png');
-                                    @endphp
+            $tienePromo = $item['tiene_promocion'] ?? false;
+            $precioVenta = (float) ($item['precio'] ?? 0);
+            $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
+            $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
+        @endphp
 
-                                    <div class="store-checkout-product">
-                                        <div class="store-checkout-product-image">
-                                            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
-                                        </div>
+        <div class="store-checkout-product">
+            <div class="store-checkout-product-image">
+                <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
+            </div>
 
-                                        <div class="store-checkout-product-info">
-                                            <h5>{{ $item['nombre'] }}</h5>
-                                            <span>Cantidad: {{ $item['cantidad'] }}</span>
-                                        </div>
+            <div class="store-checkout-product-info">
+                <h5>{{ $item['nombre'] }}</h5>
 
-                                        <div class="store-checkout-product-price">
-                                            ₡{{ number_format($item['precio'] * $item['cantidad'], 2) }}
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
+            
+
+                <span>Cantidad: {{ $item['cantidad'] }}</span>
+            </div>
+
+            <div class="store-checkout-product-price">
+                @if ($tienePromo)
+                    <div class="text-muted text-decoration-line-through small">
+                        ₡{{ number_format($precioNormal * $item['cantidad'], 2) }}
+                    </div>
+
+                    <strong class="text-danger">
+                        ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+                    </strong>
+                @else
+                    ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+                @endif
+            </div>
+        </div>
+    @endforeach
+</div>
 
                             {{-- CUPÓN APLICADO --}}
                             @if ($cuponAplicado)
@@ -679,7 +696,7 @@
                                 </div>
 
                                 <div class="store-checkout-total-row text-success">
-                                    <span>Descuento</span>
+                                    <span>Cupon de Descuento</span>
 
                                     <strong id="checkoutDescuentoText">
                                         -₡{{ number_format($descuento, 2) }}

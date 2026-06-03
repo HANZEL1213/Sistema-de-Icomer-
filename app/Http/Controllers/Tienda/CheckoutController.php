@@ -18,7 +18,6 @@ class CheckoutController extends Controller
 {
 
 
-
 public function index()
 {
     $carrito = collect(session('carrito', []));
@@ -37,11 +36,6 @@ public function index()
     $descuento = 0;
     $cuponAplicado = session('cupon');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CUPÓN APLICADO DESDE EL CARRITO
-    |--------------------------------------------------------------------------
-    */
     if ($cuponAplicado) {
         $cupon = Cupon::where('codigo', $cuponAplicado['codigo'])->first();
 
@@ -63,11 +57,6 @@ public function index()
     $subtotalConDescuento = max($subtotal - $descuento, 0);
     $total = $subtotalConDescuento + $envio;
 
-    /*
-    |--------------------------------------------------------------------------
-    | SOLO PROVINCIAS CON ENVÍOS ACTIVOS
-    |--------------------------------------------------------------------------
-    */
     $provincias = DB::table('provincias')
         ->join(
             'zonas_envio',
@@ -95,6 +84,7 @@ public function index()
         'cuponAplicado'
     ));
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -218,7 +208,7 @@ public function confirmar(Request $request)
                     ->with('error', "Stock insuficiente para {$producto->nombre}.");
             }
 
-            $subtotal += $producto->precio * $item['cantidad'];
+           $subtotal += $producto->precioVenta() * $item['cantidad'];
         }
 
         // === Lógica de envío ===
@@ -351,16 +341,18 @@ foreach ($carrito as $item) {
 
     $producto = Producto::findOrFail($item['id_producto']);
 
-    DetallePedido::create([
-        'id_pedido' => $pedido->id_pedido,
-        'id_producto' => $producto->id_producto,
-        'nombre_producto' => $producto->nombre,
-        'sku_snapshot' => $producto->sku,
-        'precio_unitario' => $producto->precio,
-        'cantidad' => $item['cantidad'],
-        'total_linea' => $producto->precio * $item['cantidad'],
-    ]);
+  DetallePedido::create([
+    'id_pedido' => $pedido->id_pedido,
+    'id_producto' => $producto->id_producto,
+    'nombre_producto' => $producto->nombre,
+    'sku_snapshot' => $producto->sku,
 
+    'precio_unitario' => $producto->precioVenta(),
+
+    'cantidad' => $item['cantidad'],
+
+    'total_linea' => $producto->precioVenta() * $item['cantidad'],
+]);
     $producto->registrarSalidaInventario(
         $item['cantidad'],
         'Pedido online',

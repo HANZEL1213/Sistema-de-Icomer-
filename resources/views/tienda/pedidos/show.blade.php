@@ -169,35 +169,97 @@
                                         <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
                                     </div>
 
-                                    <div class="store-order-show-product-info">
+                          @php
+    $precioVenta = (float) $detalle->precio_unitario;
 
-                                        @if ($producto?->sku)
-                                            <span>
-                                                {{ $producto->sku }}
-                                            </span>
-                                        @endif
+    $precioNormal = (float) ($producto?->precio ?? $precioVenta);
 
-                                        <h3>
-                                            {{ $detalle->nombre_producto }}
-                                        </h3>
+    $tienePromo = $precioNormal > $precioVenta;
 
-                                        <p>
-                                            Cantidad:
-                                            {{ $detalle->cantidad }}
+    $porcentaje = $tienePromo && $precioNormal > 0
+        ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
+        : 0;
 
-                                            · Precio unitario:
+    $totalLinea = $precioVenta * $detalle->cantidad;
+@endphp
 
-                                            ₡{{ number_format($detalle->precio_unitario, 2) }}
-                                        </p>
+<div class="store-order-show-product-info">
 
-                                    </div>
+    @if ($producto?->sku)
+        <span>
+            {{ $producto->sku }}
+        </span>
+    @endif
+
+    <h3>
+        {{ $detalle->nombre_producto }}
+    </h3>
+
+    @if($tienePromo)
+        <span class="badge bg-danger text-white mb-2">
+            -{{ $porcentaje }}% OFF
+        </span>
+    @endif
+
+    <p>
+
+        Cantidad:
+        {{ $detalle->cantidad }}
+
+        <br>
+
+        Precio unitario:
+
+        @if($tienePromo)
+
+            <span class="text-muted text-decoration-line-through">
+                ₡{{ number_format($precioNormal, 2) }}
+            </span>
+
+            <strong class="text-danger">
+                ₡{{ number_format($precioVenta, 2) }}
+            </strong>
+
+        @else
+
+            ₡{{ number_format($precioVenta, 2) }}
+
+        @endif
+
+    </p>
+
+</div>
+
+<div class="store-order-show-product-total">
+
+    <span>Total línea</span>
+
+    @if($tienePromo)
+
+        <div class="text-muted text-decoration-line-through small">
+            ₡{{ number_format($precioNormal * $detalle->cantidad, 2) }}
+        </div>
+
+        <strong class="text-danger">
+            ₡{{ number_format($totalLinea, 2) }}
+        </strong>
+
+    @else
+
+        <strong>
+            ₡{{ number_format($totalLinea, 2) }}
+        </strong>
+
+    @endif
+
+</div>
 
                                     <div class="store-order-show-product-total">
 
                                         <span>Total línea</span>
 
                                         <strong>
-                                            ₡{{ number_format($detalle->subtotal, 2) }}
+                              ₡{{ number_format($detalle->total_linea, 2) }}
                                         </strong>
 
                                     </div>

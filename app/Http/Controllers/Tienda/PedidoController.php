@@ -13,7 +13,7 @@ class PedidoController extends Controller
         $usuario = Auth::user();
 
         $pedidos = Pedido::with([
-                'detalle',
+                'detalle.producto.imagenPrincipal',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',
@@ -43,7 +43,7 @@ class PedidoController extends Controller
     public function seguimiento($codigo)
     {
         $pedido = Pedido::with([
-                'detalle',
+                'detalle.producto.imagenPrincipal',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',
