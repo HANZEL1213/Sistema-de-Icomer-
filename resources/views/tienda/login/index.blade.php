@@ -46,10 +46,10 @@
                 <div class="store-auth-options">
                     <label>
                         <input type="checkbox" name="remember">
-                        Recordarme
+                        Recuérdame
                     </label>
 
-                    <a href="#">Olvidé mi contraseña</a>
+                    <a href="{{ route('tienda.auth.password.forgot') }}">Olvidé mi contraseña</a>
                 </div>
 
                 <button type="submit" class="store-auth-submit">

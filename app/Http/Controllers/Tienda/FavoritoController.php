@@ -28,7 +28,7 @@ class FavoritoController extends Controller
 
         if (Auth::check()) {
 
-            $favorito = Favorito::where('id_usuario', Auth::id())
+            $favorito = Favorito::where('id_usuario', Auth::user()->id_usuario)
                 ->where('id_producto', $producto->id_producto)
                 ->first();
 
@@ -45,7 +45,7 @@ class FavoritoController extends Controller
             }
 
             Favorito::create([
-                'id_usuario'  => Auth::id(),
+                'id_usuario'  => Auth::user()->id_usuario,
                 'id_producto' => $producto->id_producto,
             ]);
 
@@ -105,7 +105,7 @@ class FavoritoController extends Controller
         if (Auth::check()) {
 
             $favoritos = Favorito::with('producto.imagenPrincipal')
-                ->where('id_usuario', Auth::id())
+                ->where('id_usuario', Auth::user()->id_usuario)
                 ->latest()
                 ->get();
 
@@ -133,7 +133,7 @@ class FavoritoController extends Controller
 
             if (Auth::check()) {
 
-                $query->where('id_usuario', Auth::id());
+                $query->where('id_usuario', Auth::user()->id_usuario);
 
             } else {
 

@@ -47,7 +47,7 @@
                         <a href="{{ route('tienda.cuenta') }}"
                         class="store-topbar-link">
 
-                            {{ Str::limit(Auth::user()->nombre, 10) }}
+                           Hola, {{ Str::limit(Auth::user()->nombre, 10) }}
                         </a>
                     @else
                         <a href="{{ route('tienda.auth.login') }}"

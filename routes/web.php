@@ -18,6 +18,7 @@ use App\Http\Controllers\Tienda\{
     FavoritoController,
     PedidoController,
     PagoPedidoController,
+    PasswordResetController,
     TiendaAuthController,
 };
 
@@ -61,21 +62,26 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
     Route::get('/login', [TiendaAuthController::class, 'showLogin'])
         ->name('login');
 
-    Route::post('/registro', [TiendaAuthController::class, 'register'])
-        ->name('register.post');
-});
-
-
-Route::prefix('auth')->name('tienda.auth.')->group(function () {
-
-    Route::get('/login', [TiendaAuthController::class, 'showLogin'])
-        ->name('login');
-
     Route::post('/login', [TiendaAuthController::class, 'login'])
         ->name('login.post');
 
+    Route::post('/registro', [TiendaAuthController::class, 'register'])
+        ->name('register.post');
+
     Route::post('/logout', [TiendaAuthController::class, 'logout'])
         ->name('logout');
+
+     Route::get('/password/forgot', [PasswordResetController::class, 'showForgot'])
+        ->name('password.forgot');
+
+    Route::post('/password/email', [PasswordResetController::class, 'sendLink'])
+        ->name('password.email');
+
+    Route::get('/password/reset/{token}', [PasswordResetController::class, 'showReset'])
+        ->name('password.reset');
+
+    Route::post('/password/reset', [PasswordResetController::class, 'reset'])
+        ->name('password.update');
 });
 
 

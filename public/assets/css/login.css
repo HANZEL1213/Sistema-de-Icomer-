@@ -87,6 +87,10 @@ body {
     margin-bottom: 14px;
 }
 
+.store-auth-logo i {
+    font-size: 24px;
+}
+
 .store-auth-header h1 {
     font-size: 26px;
     font-weight: 700;
@@ -267,6 +271,14 @@ body {
     .store-auth-social {
         grid-template-columns: 1fr;
     }
+}
+
+.store-auth-field-error {
+    display: block;
+    margin-top: 7px;
+    color: #b02a37;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 /* ==========================================================

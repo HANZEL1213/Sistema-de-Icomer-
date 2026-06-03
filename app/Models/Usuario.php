@@ -24,6 +24,7 @@ class Usuario extends Authenticatable
         'provider',
         'provider_id',
         'avatar',
+        'remember_token',
     ];
 
     protected $hidden = [
@@ -34,6 +35,12 @@ class Usuario extends Authenticatable
         'activo' => 'boolean',
         'correo_verificado_en' => 'datetime',
     ];
+
+
+    public function getEmailForPasswordReset()
+    {
+        return $this->correo;
+    }
 
     public function rol()
     {

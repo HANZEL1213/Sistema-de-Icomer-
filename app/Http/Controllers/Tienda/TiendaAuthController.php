@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
+use App\Models\Favorito;
 use App\Models\Rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,12 +71,22 @@ class TiendaAuthController extends Controller
             'password' => ['required'],
         ]);
 
+        $sessionIdInvitado = $request->session()->getId();
+
         $remember = $request->boolean('remember');
+
+        $usuario = Usuario::where('correo', $credenciales['correo'])->first();
+
+        if ($usuario && ! $usuario->activo) {
+            return back()
+                ->withErrors(['correo' => 'Tu cuenta está inactiva. Contacta con soporte.'])
+                ->onlyInput('correo');
+        }
 
         if (! Auth::attempt([
             'correo' => $credenciales['correo'],
             'password' => $credenciales['password'],
-            'activo' => 1,
+            // 'activo' => 1,
         ], $remember)) {
             return back()
                 ->withErrors([
@@ -83,9 +94,31 @@ class TiendaAuthController extends Controller
                 ])
                 ->onlyInput('correo');
         }
+
         $request->session()->regenerate();
 
         $usuario = Auth::user();
+
+        Favorito::where('session_id', $sessionIdInvitado)
+        // ->whereNull('id_usuario')
+        ->get()
+        ->each(function ($favorito) use ($usuario) {
+
+            $existe = Favorito::where('id_usuario', $usuario->id_usuario)
+                ->where('id_producto', $favorito->id_producto)
+                ->exists();
+
+            if ($existe) {
+                $favorito->delete();
+                return;
+            }
+
+            $favorito->update([
+                'id_usuario' => $usuario->id_usuario,
+                'session_id' => null,
+            ]);
+
+        });
 
         if (! $usuario->rol || ! in_array(strtolower($usuario->rol->nombre), ['cliente', 'admin'])) {
             Auth::logout();
@@ -105,7 +138,7 @@ class TiendaAuthController extends Controller
     {
         Auth::logout();
 
-        $request->session()->invalidate();
+        // $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->route('tienda.home');
