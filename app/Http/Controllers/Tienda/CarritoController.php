@@ -115,72 +115,93 @@ public function index()
         'cuponAplicado'
     ));
 }
-    public function agregar(Request $request, Producto $producto)
-    {
-        abort_if(!$producto->activo || $producto->deleted_at, 404);
+   public function agregar(Request $request, Producto $producto)
+{
+    abort_if(!$producto->activo || $producto->deleted_at, 404);
 
-        $request->validate([
-            'cantidad' => ['nullable', 'integer', 'min:1'],
-        ]);
+    $request->validate([
+        'cantidad' => ['nullable', 'integer', 'min:1'],
+    ]);
 
-        $cantidad = (int) ($request->cantidad ?? 1);
+    $cantidad = (int) ($request->cantidad ?? 1);
 
-        if ($producto->stock_actual <= 0) {
-            return back()->with('error', 'Este producto no tiene stock disponible.');
+    if ($producto->stock_actual <= 0) {
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este producto no tiene stock disponible.',
+            ], 422);
         }
 
-        $carrito = session('carrito', []);
-
-        $id = $producto->id_producto;
-
-        $cantidadActual = $carrito[$id]['cantidad'] ?? 0;
-        $nuevaCantidad = $cantidadActual + $cantidad;
-
-        if ($nuevaCantidad > $producto->stock_actual) {
-            return back()->with('error', 'No puedes agregar más unidades que el stock disponible.');
-        }
-
-        $imagen = $producto->imagenPrincipal
-            ? $producto->imagenPrincipal->ruta
-            : null;
-
-$precioVenta = $producto->precioVenta();
-$precioNormal = round((float) $producto->precio, 2);
-$tienePromocion = $producto->tienePromocionActiva();
-
-$ahorro = $tienePromocion
-    ? max(0, $precioNormal - $precioVenta)
-    : 0;
-
-$porcentajeDescuento = $tienePromocion && $precioNormal > 0
-    ? round(($ahorro / $precioNormal) * 100)
-    : 0;
-
-$carrito[$id] = [
-    'id_producto' => $producto->id_producto,
-    'nombre' => $producto->nombre,
-    'slug' => $producto->slug,
-
-    'precio' => $precioVenta,
-    'precio_normal' => $precioNormal,
-    'tiene_promocion' => $tienePromocion,
-    'ahorro' => $ahorro,
-    'porcentaje_descuento' => $porcentajeDescuento,
-
-    'cantidad' => $nuevaCantidad,
-    'stock' => $producto->stock_actual,
-    'imagen' => $imagen,
-    'marca' => $producto->marca?->nombre,
-    'categoria' => $producto->categoriaPrincipal?->nombre,
-];
-
-        session(['carrito' => $carrito]);
-
-      return back()
-    ->with('success', 'Producto agregado al carrito.');
+        return back()->with('error', 'Este producto no tiene stock disponible.');
     }
 
+    $carrito = session('carrito', []);
 
+    $id = $producto->id_producto;
+
+    $cantidadActual = $carrito[$id]['cantidad'] ?? 0;
+    $nuevaCantidad = $cantidadActual + $cantidad;
+
+    if ($nuevaCantidad > $producto->stock_actual) {
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No puedes agregar más unidades que el stock disponible.',
+            ], 422);
+        }
+
+        return back()->with('error', 'No puedes agregar más unidades que el stock disponible.');
+    }
+
+    $imagen = $producto->imagenPrincipal
+        ? $producto->imagenPrincipal->ruta
+        : null;
+
+    $precioVenta = $producto->precioVenta();
+    $precioNormal = round((float) $producto->precio, 2);
+    $tienePromocion = $producto->tienePromocionActiva();
+
+    $ahorro = $tienePromocion
+        ? max(0, $precioNormal - $precioVenta)
+        : 0;
+
+    $porcentajeDescuento = $tienePromocion && $precioNormal > 0
+        ? round(($ahorro / $precioNormal) * 100)
+        : 0;
+
+    $carrito[$id] = [
+        'id_producto' => $producto->id_producto,
+        'nombre' => $producto->nombre,
+        'slug' => $producto->slug,
+
+        'precio' => $precioVenta,
+        'precio_normal' => $precioNormal,
+        'tiene_promocion' => $tienePromocion,
+        'ahorro' => $ahorro,
+        'porcentaje_descuento' => $porcentajeDescuento,
+
+        'cantidad' => $nuevaCantidad,
+        'stock' => $producto->stock_actual,
+        'imagen' => $imagen,
+        'marca' => $producto->marca?->nombre,
+        'categoria' => $producto->categoriaPrincipal?->nombre,
+    ];
+
+    session(['carrito' => $carrito]);
+
+    $totalItemsCarrito = collect($carrito)->sum('cantidad');
+
+    if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto agregado al carrito.',
+            'total_items' => $totalItemsCarrito,
+        ]);
+    }
+
+    return back()->with('success', 'Producto agregado al carrito.');
+}
 public function actualizar(Request $request, Producto $producto)
 {
     $request->validate([

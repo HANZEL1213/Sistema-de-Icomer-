@@ -6,7 +6,11 @@
 @section('meta_description', $categoria->descripcion)
 
 @section('content')
+ <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
 
+  @php
+    $carritoIds = collect(session('carrito', []))->keys()->toArray();
+@endphp
 <section class="store-category-show-page">
 
     {{-- HERO --}}
@@ -114,6 +118,9 @@
         <div class="row g-3 g-md-4">
 
             @forelse($productos as $producto)
+@php
+    $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
+@endphp
 
                 <div class="col-6 col-md-4 col-xl-3">
 
@@ -234,12 +241,28 @@
 
                                 </div>
 
-                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                                   class="store-product-action">
+                           <div class="d-flex gap-2">
 
-                                    <i class="bi bi-eye"></i>
+    <button
+        type="button"
+        class="store-product-action js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
+        data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
+        data-product-id="{{ $producto->id_producto }}"
+        title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
+        {{ $producto->stock_actual <= 0 || $productoEnCarrito ? 'disabled' : '' }}>
 
-                                </a>
+        <i class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
+
+    </button>
+
+    <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+        class="store-product-action">
+
+        <i class="bi bi-eye"></i>
+
+    </a>
+
+</div>
 
                             </div>
 
@@ -278,3 +301,7 @@
 </section>
 
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('assets/js/carrito.js') }}"></script>
+@endpush

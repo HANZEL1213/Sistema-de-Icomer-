@@ -159,13 +159,11 @@
 
                         <i class="bi bi-cart3 fs-5"></i>
 
-                        @if ($cantidadCarrito > 0)
-                            <span class="store-cart-badge">
-                                {{ $cantidadCarrito }}
-                            </span>
-                        @endif
-
-                    </a>
+ <span
+    class="store-cart-badge js-cart-count"
+    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+    {{ $cantidadCarrito }}
+</span>             </a>
 
                     {{-- FAVORITOS MOBILE --}}
                     <a href="{{ route('tienda.favoritos.index') }}"
@@ -353,12 +351,11 @@
                     <span>Carrito</span>
 
                     <span class="d-inline-flex align-items-center gap-2">
-                        @if ($cantidadCarrito > 0)
-                            <span class="store-offcanvas-count">
-                                {{ $cantidadCarrito }}
-                            </span>
-                        @endif
-
+               <span
+    class="store-offcanvas-count js-cart-count"
+    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+    {{ $cantidadCarrito }}
+</span>
                         <i class="bi bi-cart3"></i>
                     </span>
                 </a>
@@ -432,11 +429,11 @@
 
                     </span>
 
-                    @if ($cantidadCarrito > 0)
-                        <span class="store-mobile-bottom-badge">
-                            {{ $cantidadCarrito }}
-                        </span>
-                    @endif
+              <span
+    class="store-mobile-bottom-badge js-cart-count"
+    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+    {{ $cantidadCarrito }}
+</span>
 
                 </a>
 

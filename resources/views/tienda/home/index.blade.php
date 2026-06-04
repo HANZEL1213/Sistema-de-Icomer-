@@ -4,6 +4,8 @@
 
 @section('content')
 
+ <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+
     @php
         $placeholder = asset('assets/img/no-image.png');
     @endphp
@@ -701,118 +703,6 @@
     </section>
 
 @endsection
-
 @push('scripts')
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        let productosPreloadPromise = null;
-        let scrollTimer = null;
-
-        async function cargarMasProductos() {
-            const fila1 = document.querySelector('#homeProductsCarouselOne');
-            const fila2 = document.querySelector('#homeProductsCarouselTwo');
-
-            if (!fila1 || !fila2) return false;
-            if (fila1.dataset.hasMore !== '1') return false;
-
-            if (productosPreloadPromise) {
-                return productosPreloadPromise;
-            }
-
-            const page = parseInt(fila1.dataset.nextPage || '2', 10);
-            const url = `${fila1.dataset.loadUrl}?page=${page}`;
-
-            fila1.dataset.loading = '1';
-
-            productosPreloadPromise = fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    fila1.insertAdjacentHTML('beforeend', data.html_fila_1 || '');
-                    fila2.insertAdjacentHTML('beforeend', data.html_fila_2 || '');
-
-                    fila1.dataset.nextPage = page + 1;
-                    fila1.dataset.hasMore = data.has_more ? '1' : '0';
-
-                    return true;
-                })
-                .catch(error => {
-                    console.error(error);
-                    return false;
-                })
-                .finally(() => {
-                    fila1.dataset.loading = '0';
-                    productosPreloadPromise = null;
-                });
-
-            return productosPreloadPromise;
-        }
-
-        function estaCercaDelFinal(target) {
-            return target.scrollLeft + target.clientWidth >= target.scrollWidth - (target.clientWidth * 1.4);
-        }
-
-        async function moverCarrusel(target, direction) {
-            if (!target) return;
-
-            const esProducto =
-                target.id === 'homeProductsCarouselOne' ||
-                target.id === 'homeProductsCarouselTwo';
-
-            if (esProducto && direction === 1 && estaCercaDelFinal(target)) {
-                await cargarMasProductos();
-            }
-
-            requestAnimationFrame(() => {
-                target.scrollBy({
-                    left: target.clientWidth * 0.85 * direction,
-                    behavior: 'smooth'
-                });
-            });
-
-            if (esProducto && direction === 1) {
-                setTimeout(() => {
-                    if (estaCercaDelFinal(target)) {
-                        cargarMasProductos();
-                    }
-                }, 500);
-            }
-        }
-
-        function activarCargaPorScrollManual() {
-            const carruselesProductos = [
-                document.querySelector('#homeProductsCarouselOne'),
-                document.querySelector('#homeProductsCarouselTwo')
-            ].filter(Boolean);
-
-            carruselesProductos.forEach(function (carousel) {
-                carousel.addEventListener('scroll', function () {
-                    clearTimeout(scrollTimer);
-
-                    scrollTimer = setTimeout(function () {
-                        if (estaCercaDelFinal(carousel)) {
-                            cargarMasProductos();
-                        }
-                    }, 120);
-                }, { passive: true });
-            });
-        }
-
-        document.querySelectorAll('.js-home-carousel-prev, .js-home-carousel-next').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const target = document.querySelector(this.dataset.target);
-                const direction = this.classList.contains('js-home-carousel-next') ? 1 : -1;
-
-                moverCarrusel(target, direction);
-            });
-        });
-
-        activarCargaPorScrollManual();
-    });
-</script>
+    <script src="{{ asset('assets/js/carrito.js') }}"></script>
 @endpush
