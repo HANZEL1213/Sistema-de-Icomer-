@@ -181,7 +181,7 @@
 
                 <button type="submit" class="store-cart-remove-btn">
                     <i class="bi bi-trash3"></i>
-                    <span>Quitar</span>
+                    <span>Borrar</span>
                 </button>
 
             </form>

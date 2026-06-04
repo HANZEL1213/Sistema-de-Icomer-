@@ -110,9 +110,44 @@
                             </p>
                         @endif
 
-                        <div class="store-product-detail-price">
-                            ₡{{ number_format($producto->precio, 2) }}
-                        </div>
+                  @php
+    $tienePromo = $producto->tienePromocionActiva();
+
+    $precioNormal = (float) $producto->precio;
+    $precioVenta = $producto->precioVenta();
+
+    $ahorro = $tienePromo
+        ? max(0, $precioNormal - $precioVenta)
+        : 0;
+
+    $porcentaje = $tienePromo && $precioNormal > 0
+        ? round(($ahorro / $precioNormal) * 100)
+        : 0;
+@endphp
+
+@if($tienePromo)
+
+    <div class="mb-2">
+        <span class="badge bg-danger text-white">
+            -{{ $porcentaje }}% OFF
+        </span>
+    </div>
+
+    <div class="text-muted text-decoration-line-through mb-1">
+        ₡{{ number_format($precioNormal, 2) }}
+    </div>
+
+    <div class="store-product-detail-price text-danger">
+        ₡{{ number_format($precioVenta, 2) }}
+    </div>
+
+@else
+
+    <div class="store-product-detail-price">
+        ₡{{ number_format($precioNormal, 2) }}
+    </div>
+
+@endif
 
                         <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
                             <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
@@ -274,9 +309,42 @@
                                         <div class="store-product-footer">
 
                                             <div>
-                                                <div class="store-product-price">
-                                                    ₡{{ number_format($item->precio, 2) }}
-                                                </div>
+                                           @php
+    $tienePromo = $item->tienePromocionActiva();
+
+    $precioNormal = (float) $item->precio;
+    $precioVenta = $item->precioVenta();
+
+    $ahorro = $tienePromo
+        ? max(0, $precioNormal - $precioVenta)
+        : 0;
+
+    $porcentaje = $tienePromo && $precioNormal > 0
+        ? round(($ahorro / $precioNormal) * 100)
+        : 0;
+@endphp
+
+@if($tienePromo)
+
+    <span class="badge bg-danger mb-1">
+        -{{ $porcentaje }}% OFF
+    </span>
+
+    <div class="text-muted text-decoration-line-through small">
+        ₡{{ number_format($precioNormal, 2) }}
+    </div>
+
+    <div class="store-product-price text-danger">
+        ₡{{ number_format($precioVenta, 2) }}
+    </div>
+
+@else
+
+    <div class="store-product-price">
+        ₡{{ number_format($precioNormal, 2) }}
+    </div>
+
+@endif
 
                                                 <small class="store-product-stock">
                                                     Stock: {{ $stockRelacionado }}

@@ -41,7 +41,7 @@
             <div class="store-detail-breadcrumb mb-4">
                 <a href="{{ route('tienda.home') }}">Inicio</a>
                 <i class="bi bi-chevron-right"></i>
-                <a href="{{ route('tienda.checkout.index') }}">Checkout</a>
+                <a href="{{ route('tienda.checkout.index') }}">Finalizar compra</a>
                 <i class="bi bi-chevron-right"></i>
                 <span>Confirmación</span>
             </div>

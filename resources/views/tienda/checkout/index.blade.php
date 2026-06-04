@@ -1,7 +1,7 @@
 {{-- resources/views/tienda/checkout/index.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Checkout | Tienda')
+@section('title', 'Finalizar compra | Tienda')
 @section('meta_description', 'Finaliza tu compra de forma rápida y segura.')
 
 @section('content')
@@ -15,7 +15,7 @@
                 <i class="bi bi-chevron-right"></i>
                 <a href="{{ route('tienda.carrito.index') }}">Carrito</a>
                 <i class="bi bi-chevron-right"></i>
-                <span>Checkout</span>
+                <span>Finalizar compra</span>
             </div>
 
             @if (session('success'))

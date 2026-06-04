@@ -254,7 +254,7 @@
 
                 <li>
                     <a href="{{ route('tienda.checkout.index') }}" class="store-desktop-nav-link">
-                        Checkout
+                        Finalizar compra
                     </a>
                 </li>
 
