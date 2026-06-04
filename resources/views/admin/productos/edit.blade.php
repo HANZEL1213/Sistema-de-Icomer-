@@ -297,7 +297,7 @@
     min="0"
     name="precio"
                                         class="form-control @error('precio') is-invalid @enderror"
-                                        value="{{ old('precio', $item->precio) }}"
+                                       value="{{ old('precio', $item->precio !== null ? (int) $item->precio : '') }}"
                                         required>
                                 </div>
                                 @error('precio')
@@ -380,7 +380,7 @@
     name="precio_descuento"
                         id="precio_descuento"
                         class="form-control @error('precio_descuento') is-invalid @enderror"
-                        value="{{ old('precio_descuento', $item->precio_descuento) }}">
+                     value="{{ old('precio_descuento', $item->precio_descuento !== null ? (int) $item->precio_descuento : '') }}"
                 </div>
 
                 @error('precio_descuento')

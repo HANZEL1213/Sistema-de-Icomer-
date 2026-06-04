@@ -115,7 +115,7 @@ class ProductoController extends Controller
             'productos',
             'categorias',
             'marcas',
-            'favoritosIds'          // ← Agregado
+            'favoritosIds'         
         ));
     }
 
@@ -130,10 +130,8 @@ class ProductoController extends Controller
             'imagenPrincipal',
 
             'relacionados' => function ($query) {
-
                 $query->where('activo', 1)
                     ->whereNull('deleted_at');
-
             },
 
             'relacionados.marca',
@@ -153,7 +151,6 @@ class ProductoController extends Controller
         ])
         ->where('activo', 1)
         ->whereNull('deleted_at')
-        ->limit(4)
         ->get();
 
     if ($relacionados->isEmpty() && $producto->id_categoria_principal) {
@@ -165,30 +162,17 @@ class ProductoController extends Controller
             ])
             ->where('activo', 1)
             ->whereNull('deleted_at')
-            ->where(
-                'id_categoria_principal',
-                $producto->id_categoria_principal
-            )
-            ->where(
-                'id_producto',
-                '!=',
-                $producto->id_producto
-            )
-            ->limit(4)
+            ->where('id_categoria_principal', $producto->id_categoria_principal)
+            ->where('id_producto', '!=', $producto->id_producto)
             ->get();
     }
 
-    // ✅ Favoritos en la vista de detalle
     $favoritosIds = Favorito::where(function ($query) {
 
         if (Auth::check()) {
-
             $query->where('id_usuario', Auth::id());
-
         } else {
-
             $query->where('session_id', session()->getId());
-
         }
 
     })
