@@ -90,6 +90,7 @@
                             <th class="fw-semibold">Marca</th>
                             <th class="fw-semibold">Categoría</th>
                             <th class="fw-semibold">Precio</th>
+                            <th class="fw-semibold">Promoción</th>
                             <th class="fw-semibold">Stock</th>
                             <th class="fw-semibold">Estado</th>
                             <th class="fw-semibold">Destacado</th>
@@ -194,6 +195,40 @@
         <span class="index-normal-price">
             ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
         </span>
+    @endif
+</td>
+{{-- PROMOCIÓN --}}
+<td>
+    @if (
+        $item->descuento_activo &&
+        $item->precio_descuento &&
+        $item->descuento_inicio &&
+        $item->descuento_fin
+    )
+
+        @php
+            $activaAhora =
+                now()->gte($item->descuento_inicio) &&
+                now()->lte($item->descuento_fin);
+        @endphp
+
+        @if ($activaAhora)
+            <span class="status-badge status-active">
+                <i class="bx bx-purchase-tag-alt me-1"></i>
+                Activa
+            </span>
+        @else
+            <span class="status-badge status-inactive">
+                <i class="bx bx-time-five me-1"></i>
+                Programada
+            </span>
+        @endif
+
+    @else
+     <span class="status-badge status-inactive">
+    <i class="bx bx-x-circle me-1"></i>
+    Desactivada
+</span>
     @endif
 </td>
 

@@ -25,7 +25,7 @@
         </div>
     </div>
 
-   <div class="card card-form">
+    <div class="card card-form">
         <div class="card-body">
 
             {{-- HEADER --}}
@@ -43,8 +43,7 @@
 
             <hr>
 
-            <form method="POST"
-                action="{{ route('admin.productos.update', $item->id_producto) }}"
+            <form method="POST" action="{{ route('admin.productos.update', $item->id_producto) }}"
                 enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -52,20 +51,16 @@
                 @php
                     $categoriasAdicionalesSeleccionadas = old(
                         'categorias_adicionales',
-                        $item->categorias->pluck('id_categoria')->toArray()
+                        $item->categorias->pluck('id_categoria')->toArray(),
                     );
 
                     $relacionadosSeleccionados = old(
                         'relacionados',
-                        $item->relacionados->pluck('id_producto')->toArray()
+                        $item->relacionados->pluck('id_producto')->toArray(),
                     );
 
                     $activoOld = old('activo', $item->activo ? '1' : '0');
-                    $estaActivo =
-                        $activoOld == '1' ||
-                        $activoOld === 1 ||
-                        $activoOld === true ||
-                        $activoOld === 'on';
+                    $estaActivo = $activoOld == '1' || $activoOld === 1 || $activoOld === true || $activoOld === 'on';
                 @endphp
 
                 {{-- Hidden de control para imágenes --}}
@@ -90,48 +85,42 @@
                                 </label>
 
                                 <div class="image-box mb-3">
-                                    <div id="previewContainer"
-                                        class="d-flex flex-wrap gap-2 justify-content-center"
+                                    <div id="previewContainer" class="d-flex flex-wrap gap-2 justify-content-center"
                                         data-mode="edit">
                                         @foreach ($item->imagenes as $img)
                                             @php
-                                                $rutaImg = \Illuminate\Support\Str::startsWith($img->ruta, ['http://', 'https://'])
+                                                $rutaImg = \Illuminate\Support\Str::startsWith($img->ruta, [
+                                                    'http://',
+                                                    'https://',
+                                                ])
                                                     ? $img->ruta
                                                     : asset('storage/' . $img->ruta);
                                             @endphp
 
                                             <div class="image-preview-item existing-image-item"
-                                                data-id="{{ $img->id_imagen_producto }}"
-                                                data-type="existing"
+                                                data-id="{{ $img->id_imagen_producto }}" data-type="existing"
                                                 data-index="{{ $loop->index }}">
                                                 <img src="{{ $rutaImg }}" alt="Imagen producto">
 
-                                                <button type="button"
-                                                    class="btn-remove-image"
-                                                    data-id="{{ $img->id_imagen_producto }}"
-                                                    data-type="existing"
+                                                <button type="button" class="btn-remove-image"
+                                                    data-id="{{ $img->id_imagen_producto }}" data-type="existing"
                                                     title="Eliminar">✕</button>
 
                                                 @if ($img->es_principal)
                                                     <span class="principal-badge">Principal</span>
                                                 @endif
 
-                                                <button type="button"
-                                                    class="btn-set-principal"
-                                                    data-id="{{ $img->id_imagen_producto }}"
-                                                    data-type="existing"
+                                                <button type="button" class="btn-set-principal"
+                                                    data-id="{{ $img->id_imagen_producto }}" data-type="existing"
                                                     title="Marcar como principal">★</button>
                                             </div>
                                         @endforeach
                                     </div>
                                 </div>
 
-                                <input type="file"
-                                    name="imagenes[]"
-                                    id="imagenes"
+                                <input type="file" name="imagenes[]" id="imagenes"
                                     class="form-control @error('imagenes') is-invalid @enderror @error('imagenes.*') is-invalid @enderror"
-                                    accept="image/*"
-                                    multiple>
+                                    accept="image/*" multiple>
 
                                 @error('imagenes')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -155,9 +144,7 @@
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
                                 <div class="form-floating">
-                                    <textarea name="descripcion"
-                                        class="form-control @error('descripcion') is-invalid @enderror"
-                                        id="descripcion"
+                                    <textarea name="descripcion" class="form-control @error('descripcion') is-invalid @enderror" id="descripcion"
                                         style="height: 120px;">{{ old('descripcion', $item->descripcion) }}</textarea>
                                     <label for="descripcion">Descripción</label>
                                 </div>
@@ -171,10 +158,8 @@
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
                                 <div class="form-floating">
-                                    <input type="text"
-                                        name="sku"
-                                        class="form-control @error('sku') is-invalid @enderror"
-                                        id="sku"
+                                    <input type="text" name="sku"
+                                        class="form-control @error('sku') is-invalid @enderror" id="sku"
                                         value="{{ old('sku', $item->sku) }}">
                                     <label for="sku">SKU</label>
                                 </div>
@@ -188,10 +173,8 @@
                         <div class="card border-0 bg-light">
                             <div class="card-body">
                                 <div class="form-floating">
-                                    <input type="text"
-                                        name="codigo"
-                                        class="form-control @error('codigo') is-invalid @enderror"
-                                        id="codigo"
+                                    <input type="text" name="codigo"
+                                        class="form-control @error('codigo') is-invalid @enderror" id="codigo"
                                         value="{{ old('codigo', $item->codigo) }}">
                                     <label for="codigo">Código</label>
                                 </div>
@@ -214,12 +197,9 @@
                                     <span class="input-group-text">
                                         <i class="bx bx-category"></i>
                                     </span>
-                                    <input type="text"
-                                        name="nombre"
-                                        id="nombre"
+                                    <input type="text" name="nombre" id="nombre"
                                         class="form-control @error('nombre') is-invalid @enderror"
-                                        value="{{ old('nombre', $item->nombre) }}"
-                                        required>
+                                        value="{{ old('nombre', $item->nombre) }}" required>
                                 </div>
                                 @error('nombre')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -235,9 +215,7 @@
                                     <span class="input-group-text">
                                         <i class="bx bx-link"></i>
                                     </span>
-                                    <input type="text"
-                                        name="slug"
-                                        id="slug"
+                                    <input type="text" name="slug" id="slug"
                                         class="form-control @error('slug') is-invalid @enderror"
                                         value="{{ old('slug', $item->slug) }}">
                                 </div>
@@ -292,12 +270,9 @@
                                 <label class="fw-semibold mb-2">Precio <span class="text-danger">*</span></label>
                                 <div class="input-group custom-dark-input">
                                     <span class="input-group-text">₡</span>
-                                  <input type="number"
-    step="1"
-    min="0"
-    name="precio"
+                                    <input type="number" step="1" min="0" name="precio"
                                         class="form-control @error('precio') is-invalid @enderror"
-                                       value="{{ old('precio', $item->precio !== null ? (int) $item->precio : '') }}"
+                                        value="{{ old('precio', $item->precio !== null ? (int) $item->precio : '') }}"
                                         required>
                                 </div>
                                 @error('precio')
@@ -305,142 +280,133 @@
                                 @enderror
                             </div>
                         </div>
-{{-- DESCUENTO --}}
-<div class="card border-0 bg-light mb-3">
-    <div class="card-body">
+                        {{-- DESCUENTO --}}
+                    
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body">
 
-        @php
-            $descuentoActivoOld = old('descuento_activo', $item->descuento_activo ? '1' : '0');
-            $descuentoActivo =
-                $descuentoActivoOld == '1' ||
-                $descuentoActivoOld === 1 ||
-                $descuentoActivoOld === true ||
-                $descuentoActivoOld === 'on';
+                                @php
+                                    $descuentoActivoOld = old('descuento_activo', $item->descuento_activo ? '1' : '0');
+                                    $descuentoActivo =
+                                        $descuentoActivoOld == '1' ||
+                                        $descuentoActivoOld === 1 ||
+                                        $descuentoActivoOld === true ||
+                                        $descuentoActivoOld === 'on';
 
-            $descuentoInicioValue = old(
-                'descuento_inicio',
-                $item->descuento_inicio ? $item->descuento_inicio->format('Y-m-d\TH:i') : ''
-            );
+                                    $descuentoInicioValue = old(
+                                        'descuento_inicio',
+                                        $item->descuento_inicio ? $item->descuento_inicio->format('Y-m-d\TH:i') : '',
+                                    );
 
-            $descuentoFinValue = old(
-                'descuento_fin',
-                $item->descuento_fin ? $item->descuento_fin->format('Y-m-d\TH:i') : ''
-            );
+                                    $descuentoFinValue = old(
+                                        'descuento_fin',
+                                        $item->descuento_fin ? $item->descuento_fin->format('Y-m-d\TH:i') : '',
+                                    );
 
-            $ahorroPreview = $item->precio_descuento
-                ? ($item->precio - $item->precio_descuento)
-                : 0;
+                                    $ahorroPreview = $item->precio_descuento
+                                        ? $item->precio - $item->precio_descuento
+                                        : 0;
 
-            $porcentajePreview = $item->precio > 0 && $item->precio_descuento
-                ? round(($ahorroPreview / $item->precio) * 100)
-                : 0;
-        @endphp
+                                    $porcentajePreview =
+                                        $item->precio > 0 && $item->precio_descuento
+                                            ? round(($ahorroPreview / $item->precio) * 100)
+                                            : 0;
+                                @endphp
 
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <label class="fw-semibold d-block mb-1">Descuento</label>
-                <small class="text-muted">
-                    Activa una oferta para este producto.
-                </small>
-            </div>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div>
+                                        <label class="fw-semibold d-block mb-1">Descuento</label>
+                                        <small class="text-muted">Activa una oferta para este producto.</small>
+                                    </div>
 
-            <div class="d-flex align-items-center gap-3">
-                <span id="descuentoTexto"
-                    class="badge estado-badge px-3 py-2 {{ $descuentoActivo ? 'bg-success' : 'bg-secondary' }}">
-                    @if ($descuentoActivo)
-                        <i class="bx bx-check-circle me-1"></i> Con descuento
-                    @else
-                        <i class="bx bx-x-circle me-1"></i> Sin descuento
-                    @endif
-                </span>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span id="descuentoTexto"
+                                            class="badge estado-badge px-3 py-2 {{ $descuentoActivo ? 'bg-success' : 'bg-secondary' }}">
+                                            @if ($descuentoActivo)
+                                                <i class="bx bx-check-circle me-1"></i> Con descuento
+                                            @else
+                                                <i class="bx bx-x-circle me-1"></i> Sin descuento
+                                            @endif
+                                        </span>
 
-                <label class="switch">
-                    <input type="checkbox"
-                        id="descuentoSwitch"
-                        name="descuento_activo"
-                        value="1"
-                        {{ $descuentoActivo ? 'checked' : '' }}>
-                    <span class="slider round"></span>
-                </label>
-            </div>
-        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" id="descuentoSwitch" name="descuento_activo"
+                                                value="1" {{ $descuentoActivo ? 'checked' : '' }}>
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
 
-        <div id="descuentoCampos" style="{{ $descuentoActivo ? 'display:block;' : 'display:none;' }}">
+                                <div id="descuentoCampos"
+                                    style="{{ $descuentoActivo ? 'display:block;' : 'display:none;' }}">
 
-            <hr class="my-3">
+                                    <hr class="my-3">
 
-            <div class="mb-3">
-                <label class="fw-semibold mb-2">Precio con descuento</label>
+                                    <div class="mb-3">
+                                        <label class="fw-semibold mb-2">Precio con descuento</label>
 
-                <div class="input-group custom-dark-input">
-                    <span class="input-group-text">₡</span>
-                   <input type="number"
-    step="1"
-    min="0"
-    name="precio_descuento"
-                        id="precio_descuento"
-                        class="form-control @error('precio_descuento') is-invalid @enderror"
-                     value="{{ old('precio_descuento', $item->precio_descuento !== null ? (int) $item->precio_descuento : '') }}"
-                </div>
+                                        <div class="input-group custom-dark-input">
+                                            <span class="input-group-text">₡</span>
 
-                @error('precio_descuento')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
+                                            <input type="number" step="1" min="0" name="precio_descuento"
+                                                id="precio_descuento"
+                                                class="form-control @error('precio_descuento') is-invalid @enderror"
+                                                value="{{ old('precio_descuento', $item->precio_descuento !== null ? (int) $item->precio_descuento : '') }}">
+                                        </div>
 
-                <div class="discount-preview-admin mt-3"
-                    id="descuentoPreview"
-                    style="{{ $descuentoActivo && $item->precio_descuento ? 'display:block;' : 'display:none;' }}">
+                                        @error('precio_descuento')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @enderror
 
-                    <div class="discount-preview-badge" id="descuentoPreviewPorcentaje">
-                        -{{ $porcentajePreview }}% OFF
-                    </div>
+                                        <div class="discount-preview-admin mt-3" id="descuentoPreview"
+                                            style="{{ $descuentoActivo && $item->precio_descuento ? 'display:block;' : 'display:none;' }}">
 
-                    <div class="discount-preview-text">
-                        Ahorro estimado:
-                        <strong id="descuentoPreviewAhorro">
-                            ₡{{ number_format($ahorroPreview, 0, ',', '.') }}
-                        </strong>
-                    </div>
-                </div>
+                                            <div class="discount-preview-badge" id="descuentoPreviewPorcentaje">
+                                                -{{ $porcentajePreview }}% OFF
+                                            </div>
 
-            </div>
+                                            <div class="discount-preview-text">
+                                                Ahorro estimado:
+                                                <strong id="descuentoPreviewAhorro">
+                                                    ₡{{ number_format($ahorroPreview, 0, ',', '.') }}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
 
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Inicia en</label>
-                    <input type="datetime-local"
-                        name="descuento_inicio"
-                        id="descuento_inicio"
-                        class="form-control @error('descuento_inicio') is-invalid @enderror"
-                        value="{{ $descuentoInicioValue }}">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Inicia en</label>
+                                            <input type="datetime-local" name="descuento_inicio" id="descuento_inicio"
+                                                class="form-control @error('descuento_inicio') is-invalid @enderror"
+                                                value="{{ $descuentoInicioValue }}">
 
-                    @error('descuento_inicio')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
+                                            @error('descuento_inicio')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-                <div class="col-md-6">
-                    <label class="form-label">Termina en</label>
-                    <input type="datetime-local"
-                        name="descuento_fin"
-                        id="descuento_fin"
-                        class="form-control @error('descuento_fin') is-invalid @enderror"
-                        value="{{ $descuentoFinValue }}">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Termina en</label>
+                                            <input type="datetime-local" name="descuento_fin" id="descuento_fin"
+                                                class="form-control @error('descuento_fin') is-invalid @enderror"
+                                                value="{{ $descuentoFinValue }}">
 
-                    @error('descuento_fin')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
+                                            @error('descuento_fin')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
 
-            <small class="text-muted d-block mt-3">
-                Si activa la promoción debe indicar precio de descuento, fecha de inicio y fecha de finalización.
-            </small>
+                                    <small class="text-muted d-block mt-3">
+                                        Si activa la promoción debe indicar precio de descuento, fecha de inicio y fecha de
+                                        finalización.
+                                    </small>
 
-        </div>
+                                </div>
 
-    </div>
-</div>
+                            </div>
+                        </div>
                         {{-- STOCK --}}
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
@@ -449,10 +415,7 @@
                                     <span class="input-group-text">
                                         <i class="bx bx-layer"></i>
                                     </span>
-                                 <input type="number"
-    step="1"
-    min="0"
-    name="stock_actual"
+                                    <input type="number" step="1" min="0" name="stock_actual"
                                         class="form-control @error('stock_actual') is-invalid @enderror"
                                         value="{{ old('stock_actual', $item->stock_actual) }}">
                                 </div>
@@ -479,10 +442,7 @@
                                         @endif
                                     </span>
                                     <label class="switch">
-                                        <input type="checkbox"
-                                            name="activo"
-                                            id="activoSwitch"
-                                            value="1"
+                                        <input type="checkbox" name="activo" id="activoSwitch" value="1"
                                             {{ $estaActivo ? 'checked' : '' }}>
                                         <span class="slider round"></span>
                                     </label>
@@ -493,53 +453,46 @@
 
 
 
-{{-- Destacado --}}
-@php
-    $estaDestacado = old('destacado', $item->destacado);
-@endphp
+                        {{-- Destacado --}}
+                        @php
+                            $estaDestacado = old('destacado', $item->destacado);
+                        @endphp
 
-<div class="card border-0 bg-light mt-3">
-    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div class="card border-0 bg-light mt-3">
+                            <div class="card-body d-flex justify-content-between align-items-center">
 
-        <div>
-            <label class="fw-semibold d-block mb-1">
-                Producto destacado
-            </label>
+                                <div>
+                                    <label class="fw-semibold d-block mb-1">
+                                        Producto destacado
+                                    </label>
 
-            <small class="text-muted">
-                Mostrar este producto en la sección destacada del home
-            </small>
-        </div>
+                                    <small class="text-muted">
+                                        Mostrar este producto en la sección destacada del home
+                                    </small>
+                                </div>
 
-        <div class="d-flex align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-3">
 
-            <span
-                id="destacadoTexto"
-                class="badge estado-badge px-3 py-2 {{ $estaDestacado ? 'bg-success' : 'bg-secondary' }}"
-            >
-                @if ($estaDestacado)
-                    <i class="bx bx-star me-1"></i> Destacado
-                @else
-                    <i class="bx bx-package me-1"></i> Normal
-                @endif
-            </span>
+                                    <span id="destacadoTexto"
+                                        class="badge estado-badge px-3 py-2 {{ $estaDestacado ? 'bg-success' : 'bg-secondary' }}">
+                                        @if ($estaDestacado)
+                                            <i class="bx bx-star me-1"></i> Destacado
+                                        @else
+                                            <i class="bx bx-package me-1"></i> Normal
+                                        @endif
+                                    </span>
 
-            <label class="switch">
-                <input
-                    type="checkbox"
-                    id="destacadoSwitch"
-                    name="destacado"
-                    value="1"
-                    {{ $estaDestacado ? 'checked' : '' }}
-                >
+                                    <label class="switch">
+                                        <input type="checkbox" id="destacadoSwitch" name="destacado" value="1"
+                                            {{ $estaDestacado ? 'checked' : '' }}>
 
-                <span class="slider round"></span>
-            </label>
+                                        <span class="slider round"></span>
+                                    </label>
 
-        </div>
+                                </div>
 
-    </div>
-</div>
+                            </div>
+                        </div>
 
 
 
@@ -552,8 +505,7 @@
                             <div class="card-body">
 
                                 {{-- HEADER COLAPSABLE --}}
-                                <div class="d-flex justify-content-between align-items-center"
-                                    style="cursor: pointer;"
+                                <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;"
                                     id="toggleCategoriasAdicionales">
                                     <div>
                                         <h5 class="fw-bold mb-1">
@@ -588,8 +540,7 @@
                                             <span class="input-group-text bg-white border-end-0">
                                                 <i class="bx bx-search"></i>
                                             </span>
-                                            <input type="text"
-                                                id="searchCategoriaAdicional"
+                                            <input type="text" id="searchCategoriaAdicional"
                                                 class="form-control border-start-0 ps-0"
                                                 placeholder="Buscar categoría por nombre o slug...">
                                         </div>
@@ -663,8 +614,7 @@
                             <div class="card-body">
 
                                 {{-- HEADER COLAPSABLE --}}
-                                <div class="d-flex justify-content-between align-items-center"
-                                    style="cursor: pointer;"
+                                <div class="d-flex justify-content-between align-items-center" style="cursor: pointer;"
                                     id="toggleRelatedProducts">
                                     <div>
                                         <h5 class="fw-bold mb-1">
@@ -672,7 +622,8 @@
                                         </h5>
                                         <small class="text-muted">
                                             Selecciona productos que se mostrarán como sugerencias al cliente.
-                                            <span class="fw-bold text-primary" id="selectedCount">0</span> producto(s) seleccionado(s).
+                                            <span class="fw-bold text-primary" id="selectedCount">0</span> producto(s)
+                                            seleccionado(s).
                                         </small>
                                     </div>
                                     <div>
@@ -685,7 +636,8 @@
                                 <div id="relatedProductsContent" style="display: none; margin-top: 1.5rem;">
 
                                     {{-- Campo real que se enviará al backend --}}
-                                    <select name="relacionados[]" id="productosRelacionadosSelect" class="d-none" multiple>
+                                    <select name="relacionados[]" id="productosRelacionadosSelect" class="d-none"
+                                        multiple>
                                         @foreach ($relacionadosSeleccionados as $relId)
                                             <option value="{{ $relId }}" selected>{{ $relId }}</option>
                                         @endforeach
@@ -697,107 +649,111 @@
                                             <span class="input-group-text bg-white border-end-0">
                                                 <i class="bx bx-search"></i>
                                             </span>
-                                            <input type="text"
-                                                id="searchProductoRel"
+                                            <input type="text" id="searchProductoRel"
                                                 class="form-control border-start-0 ps-0"
                                                 placeholder="Buscar producto por nombre, SKU o código...">
                                         </div>
                                     </div>
 
-                                {{-- Grid productos --}}
-<div class="row g-3" id="productosRelacionadosGrid">
-    @forelse ($productosRelacionados as $productoRel)
+                                    {{-- Grid productos --}}
+                                    <div class="row g-3" id="productosRelacionadosGrid">
+                                        @forelse ($productosRelacionados as $productoRel)
 
-        @php
-            $tieneDescuento =
-                $productoRel->descuento_activo &&
-                $productoRel->precio_descuento &&
-                (!$productoRel->descuento_inicio || now()->gte($productoRel->descuento_inicio)) &&
-                (!$productoRel->descuento_fin || now()->lte($productoRel->descuento_fin));
-        @endphp
+                                            @php
+                                                $tieneDescuento =
+                                                    $productoRel->descuento_activo &&
+                                                    $productoRel->precio_descuento &&
+                                                    (!$productoRel->descuento_inicio ||
+                                                        now()->gte($productoRel->descuento_inicio)) &&
+                                                    (!$productoRel->descuento_fin ||
+                                                        now()->lte($productoRel->descuento_fin));
+                                            @endphp
 
-        <div class="col-sm-6 col-md-4 col-lg-3 producto-rel-item"
-            data-id="{{ $productoRel->id_producto }}"
-            data-nombre="{{ $productoRel->nombre }}"
-            data-sku="{{ $productoRel->sku ?? '' }}"
-            data-codigo="{{ $productoRel->codigo ?? '' }}">
+                                            <div class="col-sm-6 col-md-4 col-lg-3 producto-rel-item"
+                                                data-id="{{ $productoRel->id_producto }}"
+                                                data-nombre="{{ $productoRel->nombre }}"
+                                                data-sku="{{ $productoRel->sku ?? '' }}"
+                                                data-codigo="{{ $productoRel->codigo ?? '' }}">
 
-            <div class="card h-100 border shadow-sm producto-rel-card">
-                <div class="card-body p-3">
+                                                <div class="card h-100 border shadow-sm producto-rel-card">
+                                                    <div class="card-body p-3">
 
-                    <div class="d-flex gap-2 align-items-start">
+                                                        <div class="d-flex gap-2 align-items-start">
 
-                        <div style="width:50px;height:50px;flex:0 0 50px;">
-                            @if ($productoRel->imagenPrincipal)
-                                <img src="{{ asset('storage/' . $productoRel->imagenPrincipal->ruta) }}"
-                                    alt="{{ $productoRel->nombre }}"
-                                    style="width:50px;height:50px;object-fit:cover;border-radius:10px;border:1px solid #dee2e6;">
-                            @else
-                                <div class="d-flex align-items-center justify-content-center bg-light border rounded"
-                                    style="width:50px;height:50px;">
-                                    <i class="bx bx-image text-muted"></i>
-                                </div>
-                            @endif
-                        </div>
+                                                            <div style="width:50px;height:50px;flex:0 0 50px;">
+                                                                @if ($productoRel->imagenPrincipal)
+                                                                    <img src="{{ asset('storage/' . $productoRel->imagenPrincipal->ruta) }}"
+                                                                        alt="{{ $productoRel->nombre }}"
+                                                                        style="width:50px;height:50px;object-fit:cover;border-radius:10px;border:1px solid #dee2e6;">
+                                                                @else
+                                                                    <div class="d-flex align-items-center justify-content-center bg-light border rounded"
+                                                                        style="width:50px;height:50px;">
+                                                                        <i class="bx bx-image text-muted"></i>
+                                                                    </div>
+                                                                @endif
+                                                            </div>
 
-                        <div class="flex-grow-1 overflow-hidden">
-                            <h6 class="card-title fw-bold mb-1 text-truncate"
-                                title="{{ $productoRel->nombre }}">
-                                {{ $productoRel->nombre }}
-                            </h6>
+                                                            <div class="flex-grow-1 overflow-hidden">
+                                                                <h6 class="card-title fw-bold mb-1 text-truncate"
+                                                                    title="{{ $productoRel->nombre }}">
+                                                                    {{ $productoRel->nombre }}
+                                                                </h6>
 
-                            @if ($productoRel->sku)
-                                <div class="small text-muted">
-                                    <i class="bx bx-barcode"></i> {{ $productoRel->sku }}
-                                </div>
-                            @endif
+                                                                @if ($productoRel->sku)
+                                                                    <div class="small text-muted">
+                                                                        <i class="bx bx-barcode"></i>
+                                                                        {{ $productoRel->sku }}
+                                                                    </div>
+                                                                @endif
 
-                            @if ($productoRel->codigo)
-                                <div class="small text-muted">
-                                    <i class="bx bx-purchase-tag"></i> {{ $productoRel->codigo }}
-                                </div>
-                            @endif
+                                                                @if ($productoRel->codigo)
+                                                                    <div class="small text-muted">
+                                                                        <i class="bx bx-purchase-tag"></i>
+                                                                        {{ $productoRel->codigo }}
+                                                                    </div>
+                                                                @endif
 
-                            <div class="mt-2">
-                                @if ($tieneDescuento)
-                                    <div class="fw-bold text-danger">
-                                        ₡{{ number_format($productoRel->precio_descuento, 0, ',', '.') }}
+                                                                <div class="mt-2">
+                                                                    @if ($tieneDescuento)
+                                                                        <div class="fw-bold text-danger">
+                                                                            ₡{{ number_format($productoRel->precio_descuento, 0, ',', '.') }}
+                                                                        </div>
+
+                                                                        <div
+                                                                            class="small text-muted text-decoration-line-through">
+                                                                            ₡{{ number_format($productoRel->precio, 0, ',', '.') }}
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="fw-bold text-primary">
+                                                                            ₡{{ number_format($productoRel->precio, 0, ',', '.') }}
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-check ms-1">
+                                                                <input class="form-check-input product-checkbox"
+                                                                    type="checkbox"
+                                                                    value="{{ $productoRel->id_producto }}"
+                                                                    id="rel_{{ $productoRel->id_producto }}"
+                                                                    {{ collect($relacionadosSeleccionados)->contains($productoRel->id_producto) ? 'checked' : '' }}>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        @empty
+                                            <div class="col-12 text-center py-5">
+                                                <i class="bx bx-package bx-lg text-muted"></i>
+                                                <p class="text-muted mt-2">
+                                                    No hay otros productos disponibles para relacionar.
+                                                </p>
+                                            </div>
+                                        @endforelse
                                     </div>
-
-                                    <div class="small text-muted text-decoration-line-through">
-                                        ₡{{ number_format($productoRel->precio, 0, ',', '.') }}
-                                    </div>
-                                @else
-                                    <div class="fw-bold text-primary">
-                                        ₡{{ number_format($productoRel->precio, 0, ',', '.') }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-check ms-1">
-                            <input class="form-check-input product-checkbox"
-                                type="checkbox"
-                                value="{{ $productoRel->id_producto }}"
-                                id="rel_{{ $productoRel->id_producto }}"
-                                {{ collect($relacionadosSeleccionados)->contains($productoRel->id_producto) ? 'checked' : '' }}>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    @empty
-        <div class="col-12 text-center py-5">
-            <i class="bx bx-package bx-lg text-muted"></i>
-            <p class="text-muted mt-2">
-                No hay otros productos disponibles para relacionar.
-            </p>
-        </div>
-    @endforelse
-</div>
 
                                     {{-- Preview --}}
                                     <div class="mt-3 pt-3 border-top">
@@ -818,7 +774,7 @@
                         Cancelar
                     </a>
                     <button type="submit" class="btn btn-primary-custom">
-                        Actualizar 
+                        Actualizar
                     </button>
                 </div>
 
