@@ -5,6 +5,27 @@
 @section('title', $producto->nombre . ' | Tienda')
 @section('meta_description', $producto->descripcion ?? 'Detalle del producto')
 
+@section('whatsapp_message')
+    @php
+        $precioWhatsapp = $producto->tienePromocionActiva()
+            ? $producto->precioVenta()
+            : $producto->precio;
+
+        $stockWhatsapp = ($producto->stock_actual ?? 0) > 0
+            ? 'Disponible'
+            : 'Agotado';
+
+        $mensajeProductoWhatsapp = "Hola, quiero consultar por este producto:\n\n";
+        $mensajeProductoWhatsapp .= "Producto: {$producto->nombre}\n";
+        $mensajeProductoWhatsapp .= "Precio: ₡" . number_format($precioWhatsapp, 2) . "\n";
+        $mensajeProductoWhatsapp .= "Estado: {$stockWhatsapp}\n";
+        $mensajeProductoWhatsapp .= "Link: " . route('tienda.productos.show', $producto->slug);
+    @endphp
+
+    {{ $mensajeProductoWhatsapp }}
+@endsection
+
+
 @section('content')
 
     @php

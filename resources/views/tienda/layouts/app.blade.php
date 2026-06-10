@@ -27,9 +27,10 @@
             $configTienda['tienda_whatsapp'] ?? '87790346'
         );
 
-        $mensajeWhatsapp = urlencode(
-            ''
-        );
+      $mensajeWhatsapp = urlencode(
+    trim($__env->yieldContent('whatsapp_message'))
+        ?: 'Hola, necesito información sobre la tienda.'
+);
 
         $whatsappLink = "https://wa.me/506{$numeroWhatsapp}?text={$mensajeWhatsapp}";
     @endphp
