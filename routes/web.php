@@ -63,10 +63,30 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
         ->name('login');
 
     Route::post('/login', [TiendaAuthController::class, 'login'])
+        ->middleware('throttle:5,1')
         ->name('login.post');
 
+    Route::get('/registro', [TiendaAuthController::class, 'showRegister'])
+        ->name('register');
+
     Route::post('/registro', [TiendaAuthController::class, 'register'])
+        ->middleware('throttle:3,1')
         ->name('register.post');
+
+    // GOOGLE
+    Route::get('/google', [TiendaAuthController::class, 'redirectToGoogle'])
+        ->name('google.redirect');
+
+    Route::get('/google/callback', [TiendaAuthController::class, 'handleGoogleCallback'])
+        ->name('google.callback');
+
+    // VERIFICAR CORREO
+    Route::get('/email/verificar/{token}', [TiendaAuthController::class, 'verifyEmail'])
+        ->name('email.verify');
+
+    Route::post('/email/reenviar', [TiendaAuthController::class, 'resendVerification'])
+        ->middleware('throttle:2,1')
+        ->name('email.resend');
 
     Route::post('/logout', [TiendaAuthController::class, 'logout'])
         ->name('logout');
@@ -75,6 +95,7 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
         ->name('password.forgot');
 
     Route::post('/password/email', [PasswordResetController::class, 'sendLink'])
+        ->middleware('throttle:3,1')
         ->name('password.email');
 
     Route::get('/password/reset/{token}', [PasswordResetController::class, 'showReset'])
@@ -216,7 +237,9 @@ Route::get(
 
             Route::get('/', 'index')->name('index');
 
-            Route::post('/agregar/{producto}', 'agregar')->name('agregar');
+            Route::post('/agregar/{producto}', 'agregar')
+            ->middleware('throttle:30,1')
+            ->name('agregar');
 
             Route::patch('/actualizar/{producto}', 'actualizar')->name('actualizar');
 
@@ -231,6 +254,7 @@ Route::get(
         */
 
             Route::post('/cupon/aplicar', 'aplicarCupon')
+                ->middleware('throttle:10,1')
                 ->name('cupon.aplicar');
 
             Route::delete('/cupon/eliminar', 'eliminarCupon')
@@ -248,6 +272,7 @@ Route::get(
             ->name('index');
 
         Route::post('/confirmar', [CheckoutController::class, 'confirmar'])
+            ->middleware('throttle:5,1')
             ->name('confirmar');
 
         Route::get('/cantones/{id_provincia}', [CheckoutController::class, 'cantonesDisponibles'])
@@ -262,6 +287,18 @@ Route::get(
         Route::get('/costo-envio/{id_distrito}', [CheckoutController::class, 'costoEnvio'])
             ->name('costo.envio');
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | TERMINOS Y CONDICIONES
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('terminos')->name('terminos.')->group(function () {
+
+        Route::view('/cambios-y-devoluciones', 'tienda.politicas.terminos_condiciones')
+            ->name('condiciones');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Pedidos del cliente
@@ -298,7 +335,7 @@ Route::get(
         Route::post(
             '{codigo}/pago',
             [PagoPedidoController::class, 'store']
-        )->name('store');
+        )->middleware('throttle:5,1')->name('store');
     });
 
     /*

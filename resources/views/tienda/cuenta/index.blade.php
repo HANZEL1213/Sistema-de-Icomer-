@@ -154,11 +154,11 @@
                                 @method('PUT')
 
                                 <div class="account-form-group">
-                                    <label for="nombre">Nombre completo</label>
-                                    <input type="text" id="nombre" name="nombre" maxlength="50"
-                                        value="{{ old('nombre', $usuario->nombre) }}" required>
+                                    <label for="correo">Correo electrónico <span class="text-danger">*</span></label>
+                                    <input type="email" id="correo" name="correo"
+                                        value="{{ old('correo', $usuario->correo) }}" readonly disabled>
 
-                                    @error('nombre')
+                                    @error('correo')
                                         <div class="invalid-feedback d-block">
                                             {{ $message }}
                                         </div>
@@ -166,11 +166,11 @@
                                 </div>
 
                                 <div class="account-form-group">
-                                    <label for="correo">Correo electrónico</label>
-                                    <input type="email" id="correo" name="correo" maxlength="190"
-                                        value="{{ old('correo', $usuario->correo) }}" required>
+                                    <label for="nombre">Nombre de Usuario <span class="text-danger">*</span></label>
+                                    <input type="text" id="nombre" name="nombre" maxlength="50"
+                                        value="{{ old('nombre', $usuario->nombre) }}" required>
 
-                                    @error('correo')
+                                    @error('nombre')
                                         <div class="invalid-feedback d-block">
                                             {{ $message }}
                                         </div>
@@ -215,7 +215,7 @@
                                 @method('PUT')
 
                                 <div class="account-form-group">
-                                    <label for="password_actual">Contraseña actual</label>
+                                    <label for="password_actual">Contraseña actual <span class="text-danger">*</span></label>
                                     <input type="password" id="password_actual" name="password_actual" required>
 
                                     @error('password_actual')
@@ -224,7 +224,7 @@
                                 </div>
 
                                 <div class="account-form-group">
-                                    <label for="password">Nueva contraseña</label>
+                                    <label for="password">Nueva contraseña <span class="text-danger">*</span></label>
                                     <input type="password" id="password" name="password" required>
 
                                     @error('password')
@@ -233,7 +233,7 @@
                                 </div>
 
                                 <div class="account-form-group">
-                                    <label for="password_confirmation">Confirmar contraseña</label>
+                                    <label for="password_confirmation">Confirmar contraseña <span class="text-danger">*</span></label>
                                     <input type="password" id="password_confirmation" name="password_confirmation" required>
                                 </div>
 

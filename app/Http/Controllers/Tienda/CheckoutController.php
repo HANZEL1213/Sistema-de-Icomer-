@@ -159,6 +159,8 @@ public function confirmar(Request $request)
     }
 
     $request->validate([
+        'acepta_terminos' => ['accepted'],
+
         'nombre_cliente' => ['required', 'string', 'max:120'],
         'telefono_cliente' => ['required', 'string', 'max:30'],
         'correo_cliente' => ['nullable', 'email', 'max:190'],
@@ -188,6 +190,8 @@ public function confirmar(Request $request)
             'max:4096',
             'required_without:numero_comprobante',
         ],
+        ], [
+        'acepta_terminos.accepted' => 'Debes aceptar los términos, condiciones y políticas para continuar.',
     ]);
 
     try {
@@ -316,6 +320,10 @@ $pedido = Pedido::create([
 
     'notas' => $request->notas,
     'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
+
+    // 'acepto_terminos' => true,
+    // 'fecha_aceptacion_terminos' => now(),
+    // 'ip_aceptacion_terminos' => $request->ip(),
 ]);
 
 // === Registrar en reporte de ventas ===

@@ -76,17 +76,17 @@
 
                     <a href="{{ route('tienda.home') }}" class="store-logo-link">
                        <div class="store-logo-box">
-    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'T', 0, 1)) }}
+    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
 </div>
 
 <div class="store-logo-text d-none d-sm-flex">
     <span class="store-logo-title">
-        {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}
+        {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
     </span>
 
-    <span class="store-logo-subtitle">
-        {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce premium' }}
-    </span>
+    {{-- <span class="store-logo-subtitle">
+        {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce' }}
+    </span> --}}
 </div>
                     </a>
                 </div>
@@ -272,12 +272,12 @@
         <div class="offcanvas-header border-bottom">
             <div class="store-offcanvas-brand">
                <div class="store-logo-box">
-    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'T', 0, 1)) }}
+    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
 </div>
 
 <div class="store-logo-text d-flex">
     <span class="store-logo-title" id="mobileStoreMenuLabel">
-        {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}
+        {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
     </span>
 
     <span class="store-logo-subtitle">

@@ -95,16 +95,16 @@
                         <div class="d-flex align-items-center gap-3 mb-3">
 
                             <div class="store-footer-logo">
-                                {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'T', 0, 1)) }}
+                                {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
                             </div>
 
                             <div>
                                 <div class="store-footer-brand-name">
-                                    {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}
+                                    {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
                                 </div>
 
                                 <div class="store-footer-brand-subtitle">
-                                    {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce premium' }}
+                                    {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce' }}
                                 </div>
                             </div>
 
@@ -117,22 +117,25 @@
 
                         <div class="store-footer-socials">
 
-                            <a href="{{ $configTienda['tienda_facebook'] ?? '#' }}"
+                            <a href="{{ $configTienda['tienda_facebook'] ?? 'https://www.facebook.com/cora.store.cr' }}"
                                class="store-social-btn"
+                               target="_bank"
                                aria-label="Facebook">
 
                                 <i class="bi bi-facebook"></i>
                             </a>
 
-                            <a href="{{ $configTienda['tienda_instagram'] ?? '#' }}"
+                            <a href="{{ $configTienda['tienda_instagram'] ?? 'https://www.instagram.com/cora.store.cr' }}"
                                class="store-social-btn"
+                               target="_bank"
                                aria-label="Instagram">
 
                                 <i class="bi bi-instagram"></i>
                             </a>
 
-                            <a href="{{ $configTienda['tienda_whatsapp_link'] ?? '#' }}"
+                            <a href="{{ $configTienda['tienda_whatsapp_link'] ?? 'https://wa.me/50687790346?text=Hola,%20quiero%20más%20información%20sobre...' }}"
                                class="store-social-btn"
+                               target="_bank"
                                aria-label="WhatsApp">
 
                                 <i class="bi bi-whatsapp"></i>
@@ -221,6 +224,12 @@
                                 </a>
                             </li>
 
+                            <li>
+                                <a href="{{ route('tienda.terminos.condiciones') }}">
+                                    Términos y condiciones
+                                </a>
+                            </li>
+
                             {{-- <li>
                                 <a href="{{ route('tienda.auth.login') }}">
                                     Mi cuenta
@@ -260,7 +269,7 @@
                                 </span>
 
                                 <span>
-                                    {{ $configTienda['tienda_telefono'] ?? '8888-8888' }}
+                                    {{ $configTienda['tienda_telefono'] ?? '8779-0346' }}
                                 </span>
                             </li>
 
@@ -270,7 +279,7 @@
                                 </span>
 
                                 <span>
-                                    {{ $configTienda['tienda_email'] ?? 'contacto@mitienda.com' }}
+                                    {{ $configTienda['tienda_email'] ?? 'cora.store.cr@gmail.com' }}
                                 </span>
                             </li>
 
@@ -280,7 +289,7 @@
                                 </span>
 
                                 <span>
-                                    {{ $configTienda['tienda_whatsapp'] ?? '8888-8888' }}
+                                    {{ $configTienda['tienda_whatsapp'] ?? '8779-0346' }}
                                 </span>
                             </li>
 
@@ -342,14 +351,18 @@
 
                 <small class="mb-0">
                     © {{ now()->year }}
-                    {{ $configTienda['tienda_nombre'] ?? 'Mi Tienda' }}.
+                    {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}.
                     {{ $configTienda['footer_copyright']
                         ?? 'Todos los derechos reservados.' }}
                 </small>
 
                 <small class="mb-0">
-                    {{ $configTienda['footer_credito']
-                        ?? 'Diseñado para una experiencia e-commerce premium.' }}
+                    Sitio web creado por
+                    <a href="https://jhalix.com"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                        <strong>Jhalix</strong> <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
                 </small>
 
             </div>

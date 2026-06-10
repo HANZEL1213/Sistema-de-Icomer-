@@ -1,6 +1,18 @@
 {{-- resources/views/tienda/checkout/index.blade.php --}}
 @extends('tienda.layouts.app')
 
+<style>
+    .terminos-link {
+    color: var(--bs-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.terminos-link:hover {
+    text-decoration: underline;
+}
+</style>
+
 @section('title', 'Finalizar compra | Tienda')
 @section('meta_description', 'Finaliza tu compra de forma rápida y segura.')
 
@@ -718,6 +730,25 @@
                                 Tu pedido será revisado manualmente después de validar el pago.
                             </div>
 
+                          <div class="form-check mt-4 mb-3">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="acepta_terminos"
+                                id="acepta_terminos"
+                                required>
+
+                          <label class="form-check-label" for="acepta_terminos">
+                                He leído y acepto los
+                                <a href="#"
+                                class="terminos-link"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalTerminos">
+                                    Términos, Condiciones y Políticas de Cora CR.
+                                </a>
+                            </label>
+                        </div>
+
                             <button type="submit" class="btn btn-store-primary store-checkout-submit">
                                 <i class="bi bi-shield-check me-1"></i>
                                 Confirmar pedido
@@ -746,7 +777,88 @@
                 </div>
             </form>
 
+            {{-- MODAL TERMINOS Y CONDICIONES --}}
 
+            <div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold" id="modalTerminosLabel">
+                                Términos, Condiciones y Políticas de Cora CR
+                            </h5>
+
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <h6 class="fw-bold">1. Términos y condiciones</h6>
+                            <p>
+                                Al realizar una compra en Cora CR, el cliente acepta que la información
+                                proporcionada es correcta y que el pedido estará sujeto a verificación
+                                de disponibilidad, pago y datos de entrega.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">2. Pedidos y pagos</h6>
+                            <p>
+                                Todos los pedidos deben ser confirmados mediante el método de pago
+                                disponible. Cora CR podrá cancelar pedidos por falta de inventario,
+                                errores evidentes en precios, información incorrecta o sospecha de fraude.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">3. Envíos y entregas</h6>
+                            <p>
+                                Los tiempos de entrega son estimados y pueden variar por ubicación,
+                                disponibilidad del producto o situaciones externas. El cliente es
+                                responsable de brindar una dirección correcta.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">4. Cambios y devoluciones</h6>
+                            <p>
+                                Los cambios podrán solicitarse dentro del plazo establecido por Cora CR,
+                                siempre que el producto esté en buen estado, sin uso indebido y con su
+                                comprobante de compra.
+                            </p>
+
+                            <p>
+                                No aplican cambios ni devoluciones en productos personalizados, alterados,
+                                usados indebidamente o dañados por el cliente.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">5. Garantías</h6>
+                            <p>
+                                Las garantías cubren únicamente defectos de fabricación. No cubren daños
+                                por golpes, caídas, humedad, mala manipulación o desgaste normal por uso.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">6. Política de privacidad</h6>
+                            <p>
+                                La información del cliente será utilizada para procesar pedidos, coordinar
+                                entregas, brindar soporte y mejorar el servicio. Cora CR no vende ni
+                                comercializa información personal de sus clientes.
+                            </p>
+
+                            <h6 class="fw-bold mt-4">7. Modificaciones</h6>
+                            <p>
+                                Cora CR podrá actualizar estos términos y políticas cuando sea necesario.
+                            </p>
+
+                            <p class="text-muted small mb-0">
+                                Última actualización: {{ now()->format('d/m/Y') }}
+                            </p>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-store-primary" data-bs-dismiss="modal">
+                                Entendido
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
 
         </div>
 

@@ -1,41 +1,81 @@
 @extends('tienda.layouts.app')
 
-@section('title', 'Productos | Tienda')
+@section('title', 'Login | Tienda')
 
 @section('content')
-
 
     <main class="store-auth-page">
 
         <section class="store-auth-card">
 
             @if ($errors->any())
-                <div class="store-auth-alert">
-                    {{ $errors->first() }}
+                <div class="alert alert-danger d-flex justify-content-between align-items-start rounded-4 small mb-3">
+                    <span>{{ $errors->first() }}</span>
+
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            @elseif (session('correo_verificacion') || session('reenviar_verificacion'))
+                @php
+                    $correoVerificacion = session('reenviar_verificacion') ?? session('correo_verificacion');
+                @endphp
+
+                <div class="alert alert-success d-flex justify-content-between align-items-start rounded-4 small mb-3">
+
+                    <div>
+                        <strong>Cuenta creada correctamente.</strong>
+
+                        <div class="mt-1">
+                            Revisa el correo enviado a
+                            <strong>{{ $correoVerificacion }}</strong>
+                            para activar tu cuenta.
+                        </div>
+
+                        <form method="POST" action="{{ route('tienda.auth.email.resend') }}" class="mt-2">
+
+                            @csrf
+
+                            <input type="hidden" name="correo" value="{{ $correoVerificacion }}">
+
+                            <button type="submit" class="btn btn-link btn-sm p-0 fw-semibold">
+                                Reenviar correo de verificación
+                            </button>
+
+                        </form>
+                    </div>
+
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+
                 </div>
             @endif
 
-            {{-- LOGIN --}}
-            <form method="POST" action="{{ route('tienda.auth.login.post') }}" class="store-auth-form is-active"
-                id="storeLoginForm">
+            <form method="POST" action="{{ route('tienda.auth.login.post') }}">
                 @csrf
 
                 <h1 class="store-auth-title">Mi cuenta</h1>
                 <p class="store-auth-text">Ingresa para consultar tus pedidos.</p>
 
                 <div class="store-auth-field">
-                    <label for="correo">Correo electrónico</label>
+                    <label for="login_correo">
+                        Correo electrónico <span class="text-danger">*</span>
+                    </label>
+
                     <div class="store-auth-input">
                         <i class='bx bx-envelope'></i>
-                        <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
+
+                        <input type="email" id="login_correo" name="correo" value="{{ old('correo') }}"
+                            placeholder="correo@ejemplo.com" required>
                     </div>
                 </div>
 
                 <div class="store-auth-field">
-                    <label for="password">Contraseña</label>
+                    <label for="login_password">
+                        Contraseña <span class="text-danger">*</span>
+                    </label>
+
                     <div class="store-auth-input">
                         <i class='bx bx-lock-alt'></i>
-                        <input type="password" id="password" name="password" placeholder="Tu contraseña" required>
+
+                        <input type="password" id="login_password" name="password" placeholder="Tu contraseña" required>
 
                         <button type="button" class="store-auth-password-toggle">
                             <i class='bx bx-show'></i>
@@ -49,7 +89,9 @@
                         Recuérdame
                     </label>
 
-                    <a href="{{ route('tienda.auth.password.forgot') }}">Olvidé mi contraseña</a>
+                    <a href="{{ route('tienda.auth.password.forgot') }}">
+                        Olvidé mi contraseña
+                    </a>
                 </div>
 
                 <button type="submit" class="store-auth-submit">
@@ -61,70 +103,20 @@
                 </div>
 
                 <div class="store-auth-social">
-                    <a href="#" class="store-auth-social-btn">
+                    <a href="{{ route('tienda.auth.google.redirect') }}" class="store-auth-social-btn">
                         <i class='bx bxl-google'></i>
-                        Google
-                    </a>
-
-                    <a href="#" class="store-auth-social-btn">
-                        <i class='bx bxl-facebook'></i>
-                        Facebook
+                        Continuar con Google
                     </a>
                 </div>
 
                 <p class="store-auth-register">
                     ¿No tienes cuenta?
-                    <button type="button" class="store-auth-link" id="showRegisterForm">
-                        Crear cuenta rápida
-                    </button>
+
+                    <a href="{{ route('tienda.auth.register') }}">
+                        Crear una cuenta
+                    </a>
                 </p>
-            </form>
 
-            {{-- REGISTRO RÁPIDO --}}
-            <form method="POST" action="{{ route('tienda.auth.register.post') }}" class="store-auth-form" id="storeRegisterForm">
-                @csrf
-
-                <h1 class="store-auth-title">Crear cuenta</h1>
-                <p class="store-auth-text">Solo necesitamos estos datos para empezar.</p>
-
-                <div class="store-auth-field">
-                    <label for="nombre">Nombre</label>
-                    <div class="store-auth-input">
-                        <i class='bx bx-user'></i>
-                        <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
-                    </div>
-                </div>
-
-                <div class="store-auth-field">
-                    <label for="correo">Correo electrónico</label>
-                    <div class="store-auth-input">
-                        <i class='bx bx-envelope'></i>
-                        <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
-                    </div>
-                </div>
-
-                <div class="store-auth-field">
-                    <label for="password">Contraseña</label>
-                    <div class="store-auth-input">
-                        <i class='bx bx-lock-alt'></i>
-                        <input type="password" id="password" name="password" placeholder="Crea una contraseña" required>
-
-                        <button type="button" class="store-auth-password-toggle">
-                            <i class='bx bx-show'></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="submit" class="store-auth-submit">
-                    Crear cuenta
-                </button>
-
-                <p class="store-auth-register">
-                    ¿Ya tienes cuenta?
-                    <button type="button" class="store-auth-link" id="showLoginForm">
-                        Iniciar sesión
-                    </button>
-                </p>
             </form>
 
         </section>

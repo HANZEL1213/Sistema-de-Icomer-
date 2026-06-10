@@ -39,16 +39,11 @@ class CuentaController extends Controller
         /** @var Usuario $usuario */
         $usuario = Auth::user();
 
-        $datos = $request->validate([
-            'nombre' => ['required', 'string', 'max:50'],
-            'correo' => [
-                'required',
-                'email',
-                'max:190',
-                'unique:usuarios,correo,' . $usuario->id_usuario . ',id_usuario',
+        $datos = $request->validate(
+            [
+                'nombre' => ['required', 'string', 'max:50'],
+                'telefono' => ['nullable', 'string', 'max:30'],
             ],
-            'telefono' => ['nullable', 'string', 'max:30'],
-
             [
                 /*
                 |--------------------------------------------------------------------------
@@ -62,26 +57,6 @@ class CuentaController extends Controller
                 'nombre.max' =>
                 'El nombre no puede superar los 120 caracteres.',
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | CORREO
-                |--------------------------------------------------------------------------
-                */
-
-                'correo.required' =>
-                'Debes ingresar un correo electrónico.',
-
-                'correo.email' =>
-                'Debes ingresar un correo válido.',
-
-                'correo.max' =>
-                'El correo no puede superar los 190 caracteres.',
-
-                'correo.unique' =>
-                'Ese correo ya está registrado.',
-
-
                 /*
                 |--------------------------------------------------------------------------
                 | TELÉFONO
@@ -91,7 +66,7 @@ class CuentaController extends Controller
                 'telefono.digits_between' =>
                 'El teléfono debe tener entre 8 y 30 dígitos.',
             ]
-        ]);
+        );
 
         $usuario->update($datos);
 

@@ -5,7 +5,7 @@
 ========================================================== */
 
 :root {
-    --auth-primary: #dca117;
+    --auth-primary: #000000;
     --auth-dark: #151515;
     --auth-muted: #777;
     --auth-border: #e8e8e8;
@@ -32,6 +32,12 @@ body {
 /* ==========================================================
    LOGIN TIENDA
 ========================================================== */
+
+.store-auth-register a,
+.store-auth-options a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
 
 .store-auth-page {
     /* min-height: 100vh; */
@@ -222,28 +228,42 @@ body {
 }
 
 .store-auth-social {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    display: flex;
 }
 
 .store-auth-social-btn {
-    height: 48px;
+    width: 100%;
+    height: 50px;
+
     border: 1px solid var(--auth-border);
     border-radius: 15px;
+
+    background: var(--auth-white);
+
     color: var(--auth-dark);
     text-decoration: none;
+
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-weight: 600;
+
     font-size: 14px;
-    background: var(--auth-white);
+    font-weight: 600;
+
+    transition: .25s ease;
+}
+
+.store-auth-social-btn:hover {
+    border-color: rgba(220,161,23,.35);
+
+    background: #fafafa;
+
+    transform: translateY(-1px);
 }
 
 .store-auth-social-btn i {
-    font-size: 20px;
+    font-size: 22px;
 }
 
 .store-auth-register {
@@ -266,10 +286,6 @@ body {
         border: 0;
         border-radius: 0;
         padding: 18px 2px;
-    }
-
-    .store-auth-social {
-        grid-template-columns: 1fr;
     }
 }
 

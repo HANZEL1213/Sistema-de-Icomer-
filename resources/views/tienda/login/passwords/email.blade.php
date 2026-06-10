@@ -5,7 +5,10 @@
 <main class="store-auth-page">
 
     <section class="store-auth-card">
-
+<a href="{{ route('tienda.auth.login') }}" class="store-auth-back">
+                <i class='bx bx-chevron-left'></i>
+                Volver
+            </a>
         <div class="store-auth-header">
 
             <div class="store-auth-logo">
