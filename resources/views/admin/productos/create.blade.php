@@ -317,7 +317,7 @@
                                     </div>
 
                                     <small class="text-muted d-block mt-3">
-                                        Si está activo, se usará el precio rebajado. Las fechas son opcionales.
+                                          Si activa la promoción debe indicar precio de descuento, fecha de inicio y fecha de finalización.
                                     </small>
 
                                 </div>

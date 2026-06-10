@@ -84,14 +84,24 @@ class ProductosController extends Controller
 
 'precio_descuento' => [
     'nullable',
+    'required_if:descuento_activo,1',
     'integer',
     'min:0',
     'lt:precio',
 ],
 
-'descuento_inicio' => 'nullable|date',
-'descuento_fin' => 'nullable|date|after_or_equal:descuento_inicio',
+'descuento_inicio' => [
+    'nullable',
+    'required_if:descuento_activo,1',
+    'date',
+],
 
+'descuento_fin' => [
+    'nullable',
+    'required_if:descuento_activo,1',
+    'date',
+    'after_or_equal:descuento_inicio',
+],
 'stock_actual' => 'required|integer|min:0',
 
 'activo' => 'nullable|boolean',
@@ -357,14 +367,24 @@ public function show(string $id)
 
 'precio_descuento' => [
     'nullable',
+    'required_if:descuento_activo,1',
     'integer',
     'min:0',
     'lt:precio',
 ],
 
-'descuento_inicio' => 'nullable|date',
-'descuento_fin' => 'nullable|date|after_or_equal:descuento_inicio',
+'descuento_inicio' => [
+    'nullable',
+    'required_if:descuento_activo,1',
+    'date',
+],
 
+'descuento_fin' => [
+    'nullable',
+    'required_if:descuento_activo,1',
+    'date',
+    'after_or_equal:descuento_inicio',
+],
 'stock_actual' => 'required|integer|min:0',
 'activo' => 'nullable|boolean',
 'destacado' => 'nullable|boolean',
