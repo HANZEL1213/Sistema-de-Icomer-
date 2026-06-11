@@ -1,12 +1,14 @@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}?v=5.3.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 {{-- SWEETALERT --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ asset('assets/js/sweetalert2.all.min.js') }}"></script>
 
 <script src="{{ asset('assets/js/tienda.js') }}"></script>
 
 {{-- google maps --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -78,7 +80,7 @@
                 title: '¡Listo!',
                 text: @json(session('swal_success')),
                 confirmButtonColor: '#dca117',
-                timer: 1500,
+                timer: 1700,
                 timerProgressBar: true,
                 showConfirmButton: false
             });

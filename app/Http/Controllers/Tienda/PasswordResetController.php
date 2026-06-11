@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class PasswordResetController extends Controller
 {
@@ -22,7 +23,24 @@ class PasswordResetController extends Controller
     {
         $request->validate([
             'correo' => ['required', 'email'],
+            'g-recaptcha-response' => ['required'],
+        ], [
+            'g-recaptcha-response.required' => 'Confirma que no eres un robot.',
         ]);
+
+        $captcha = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        'secret' => config('services.recaptcha.secret_key'),
+        'response' => $request->input('g-recaptcha-response'),
+        'remoteip' => $request->ip(),
+        ]);
+
+        if (! $captcha->json('success')) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'g-recaptcha-response' => 'No se pudo verificar el CAPTCHA. Inténtalo nuevamente.',
+                ]);
+        }
 
         $usuario = Usuario::where('correo', $request->correo)->first();
 

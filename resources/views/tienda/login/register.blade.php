@@ -70,6 +70,21 @@
                     </div>
                 </div>
 
+                <div class="mb-3">
+                    <div class="d-flex justify-content-center">
+                        <div
+                            class="g-recaptcha"
+                            data-sitekey="{{ config('services.recaptcha.site_key') }}">
+                        </div>
+                    </div>
+
+                    @error('g-recaptcha-response')
+                        <small class="text-danger d-block text-center mt-2">
+                            {{ $message }}
+                        </small>
+                    @enderror
+                </div>
+
                 <button type="submit" class="store-auth-submit">
                     Crear cuenta
                 </button>
