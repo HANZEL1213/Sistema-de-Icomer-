@@ -13,7 +13,8 @@
 <meta name="description" content="@yield('meta_description', 'Tienda en línea')">
 
 {{-- Bootstrap / Icons --}}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}?v=5.3.8">
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 

@@ -95,7 +95,7 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
         ->name('password.forgot');
 
     Route::post('/password/email', [PasswordResetController::class, 'sendLink'])
-        ->middleware('throttle:3,1')
+        ->middleware('throttle:5,10')
         ->name('password.email');
 
     Route::get('/password/reset/{token}', [PasswordResetController::class, 'showReset'])
