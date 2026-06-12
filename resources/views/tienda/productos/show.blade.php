@@ -5,26 +5,6 @@
 @section('title', $producto->nombre . ' | Tienda')
 @section('meta_description', $producto->descripcion ?? 'Detalle del producto')
 
-@section('whatsapp_message')
-    @php
-        $precioWhatsapp = $producto->tienePromocionActiva()
-            ? $producto->precioVenta()
-            : $producto->precio;
-
-        $stockWhatsapp = ($producto->stock_actual ?? 0) > 0
-            ? 'Disponible'
-            : 'Agotado';
-
-        $mensajeProductoWhatsapp = "Hola, quiero consultar por este producto:\n\n";
-        $mensajeProductoWhatsapp .= "Producto: {$producto->nombre}\n";
-        $mensajeProductoWhatsapp .= "Precio: ₡" . number_format($precioWhatsapp, 2) . "\n";
-        $mensajeProductoWhatsapp .= "Estado: {$stockWhatsapp}\n";
-        $mensajeProductoWhatsapp .= "Link: " . route('tienda.productos.show', $producto->slug);
-    @endphp
-
-    {{ $mensajeProductoWhatsapp }}
-@endsection
-
 
 @section('content')
 
@@ -53,196 +33,216 @@
                 <span>{{ $producto->nombre }}</span>
             </div>
 
+{{-- DETALLE PRINCIPAL --}}
+<div class="row g-4 g-lg-5 align-items-start">
 
-            {{-- DETALLE PRINCIPAL --}}
-            <div class="row g-4 g-lg-5 align-items-start">
+    {{-- GALERÍA --}}
+    <div class="col-12 col-lg-6">
 
-                {{-- GALERÍA --}}
-                <div class="col-12 col-lg-6">
+        <div class="store-product-gallery-card">
 
-                    <div class="store-product-gallery-card">
+            <div class="store-product-main-image-wrap">
 
-                        <div class="store-product-main-image-wrap">
+                <img src="{{ $imagenPrincipal }}" alt="{{ $producto->nombre }}" class="store-product-main-image"
+                    id="storeProductMainImage">
 
-                            <img src="{{ $imagenPrincipal }}" alt="{{ $producto->nombre }}" class="store-product-main-image"
-                                id="storeProductMainImage">
+                @if ($stock <= 0)
+                    <span class="store-product-detail-badge">
+                        Agotado
+                    </span>
+                @endif
 
-                            @if ($stock <= 0)
-                                <span class="store-product-detail-badge">
-                                    Agotado
-                                </span>
-                            @endif
+                <button type="button"
+                    class="store-product-detail-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                    data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}"
+                    aria-label="Agregar a favoritos">
 
-                            <button type="button"
-                                class="store-product-detail-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
-                                data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}"
-                                aria-label="Agregar a favoritos">
+                    <i class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
 
-                                <i
-                                    class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                </button>
+            </div>
 
-                            </button>
-                        </div>
+            @if ($imagenes->count())
+                <div class="store-product-thumbs">
 
-                        @if ($imagenes->count())
+                    @foreach ($imagenes as $imagen)
+                        @php
+                            $rutaImagen = asset('storage/' . $imagen->ruta);
+                        @endphp
 
-                            <div class="store-product-thumbs">
+                        <button type="button" class="store-product-thumb {{ $loop->first ? 'active' : '' }}"
+                            data-product-image="{{ $rutaImagen }}">
 
-                                @foreach ($imagenes as $imagen)
-                                    @php
-                                        $rutaImagen = asset('storage/' . $imagen->ruta);
-                                    @endphp
+                            <img src="{{ $rutaImagen }}" alt="{{ $producto->nombre }}">
 
-                                    <button type="button" class="store-product-thumb {{ $loop->first ? 'active' : '' }}"
-                                        data-product-image="{{ $rutaImagen }}">
-
-                                        <img src="{{ $rutaImagen }}" alt="{{ $producto->nombre }}">
-
-                                    </button>
-                                @endforeach
-
-                            </div>
-
-                        @endif
-
-                    </div>
+                        </button>
+                    @endforeach
 
                 </div>
+            @endif
 
+        </div>
 
-                {{-- INFO --}}
-                <div class="col-12 col-lg-6">
-
-                    <div class="store-product-info-card">
-
-                        <div class="store-product-detail-meta">
-                            <span>{{ $producto->marca?->nombre ?? 'Sin marca' }}</span>
-                            <span>•</span>
-                            <span>{{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}</span>
-                        </div>
-
-                        <h1 class="store-product-detail-title">
-                            {{ $producto->nombre }}
-                        </h1>
-
-                        @if ($producto->descripcion)
-                            <p class="store-product-detail-description">
-                                {{ $producto->descripcion }}
-                            </p>
-                        @endif
-
-                  @php
-    $tienePromo = $producto->tienePromocionActiva();
-
-    $precioNormal = (float) $producto->precio;
-    $precioVenta = $producto->precioVenta();
-
-    $ahorro = $tienePromo
-        ? max(0, $precioNormal - $precioVenta)
-        : 0;
-
-    $porcentaje = $tienePromo && $precioNormal > 0
-        ? round(($ahorro / $precioNormal) * 100)
-        : 0;
-@endphp
-
-@if($tienePromo)
-
-    <div class="mb-2">
-        <span class="badge bg-danger text-white">
-            -{{ $porcentaje }}% OFF
-        </span>
     </div>
 
-    <div class="text-muted text-decoration-line-through mb-1">
-        ₡{{ number_format($precioNormal, 2) }}
-    </div>
+    {{-- INFO --}}
+    <div class="col-12 col-lg-6">
 
-    <div class="store-product-detail-price text-danger">
-        ₡{{ number_format($precioVenta, 2) }}
-    </div>
+        <div class="store-product-info-card">
 
-@else
+            <div class="store-product-detail-meta">
+                <span>{{ $producto->marca?->nombre ?? 'Sin marca' }}</span>
+                <span>•</span>
+                <span>{{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}</span>
+            </div>
 
-    <div class="store-product-detail-price">
-        ₡{{ number_format($precioNormal, 2) }}
-    </div>
+            <h1 class="store-product-detail-title">
+                {{ $producto->nombre }}
+            </h1>
 
-@endif
+            @if ($producto->descripcion)
+                <p class="store-product-detail-description">
+                    {{ $producto->descripcion }}
+                </p>
+            @endif
 
-                        <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
-                            <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
+            @php
+                $tienePromo = $producto->tienePromocionActiva();
 
-                            @if ($stock > 0)
-                                Disponible · {{ $stock }} unidades
-                            @else
-                                Producto agotado
-                            @endif
+                $precioNormal = (float) $producto->precio;
+                $precioVenta = $producto->precioVenta();
+
+                $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
+
+                $porcentaje = $tienePromo && $precioNormal > 0
+                    ? round(($ahorro / $precioNormal) * 100)
+                    : 0;
+
+                $numeroWhatsappProducto = preg_replace(
+                    '/[^0-9]/',
+                    '',
+                    $configTienda['tienda_whatsapp'] ?? '87790346'
+                );
+
+                $stockWhatsapp = $stock > 0 ? 'Disponible' : 'Agotado';
+
+                $mensajeProductoWhatsapp = "Hola, quiero consultar por este producto:\n\n";
+                $mensajeProductoWhatsapp .= "Producto: {$producto->nombre}\n";
+                $mensajeProductoWhatsapp .= 'Precio: ₡' . number_format($precioVenta, 0) . "\n";
+                $mensajeProductoWhatsapp .= "Estado: {$stockWhatsapp}\n";
+                $mensajeProductoWhatsapp .= 'Link: ' . route('tienda.productos.show', $producto->slug);
+
+                $whatsappProductoLink = "https://wa.me/506{$numeroWhatsappProducto}?text=" .
+                    urlencode($mensajeProductoWhatsapp);
+            @endphp
+
+            @if ($tienePromo)
+                <div class="store-price-row">
+                    <div>
+                        <div class="store-product-detail-price text-danger">
+                            ₡{{ number_format($precioVenta, 2) }}
                         </div>
 
-                        <div class="store-product-detail-actions">
-
-                            <div class="store-qty-control">
-
-                                <button type="button" data-qty-action="minus">
-                                    <i class="bi bi-dash"></i>
-                                </button>
-
-                                <input type="number" value="1" min="1" max="{{ max($stock, 1) }}"
-                                    id="storeProductQty">
-
-                                <button type="button" data-qty-action="plus">
-                                    <i class="bi bi-plus"></i>
-                                </button>
-
-                            </div>
-
-                            <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}" method="POST"
-                                class="m-0 p-0">
-
-                                @csrf
-
-                                <input type="hidden" name="cantidad" id="storeProductQtyHidden" value="1">
-
-                                <button type="submit" class="btn btn-store-primary store-add-cart-btn"
-                                    {{ $stock <= 0 ? 'disabled' : '' }}>
-
-                                    <i class="bi bi-cart3 me-1"></i>
-                                    Agregar al carrito
-
-                                </button>
-
-                            </form>
-
+                        <div class="text-muted text-decoration-line-through">
+                            ₡{{ number_format($precioNormal, 2) }}
                         </div>
+                    </div>
 
-                        <div class="store-product-detail-benefits">
+                    <span class="store-discount-badge">
+                        {{ $porcentaje }}%
+                    </span>
+                </div>
+            @else
+                <div class="store-product-detail-price">
+                    ₡{{ number_format($precioNormal, 2) }}
+                </div>
+            @endif
 
-                            <div class="store-product-benefit">
-                                <i class="bi bi-truck"></i>
-                                <span>Envíos disponibles</span>
-                            </div>
+            <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
+                <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
 
-                            <div class="store-product-benefit">
-                                <i class="bi bi-shield-check"></i>
-                                <span>Compra segura</span>
-                            </div>
+                @if ($stock > 0)
+                    Disponible · {{ $stock }} unidades
+                @else
+                    Producto agotado
+                @endif
+            </div>
 
-                            <div class="store-product-benefit">
-                                <i class="bi bi-arrow-repeat"></i>
-                                <span>Proceso ágil</span>
-                            </div>
+            <div class="store-product-buy-panel">
 
-                        </div>
+                <div class="store-product-detail-actions store-product-actions-premium">
 
+                    <div class="store-qty-control">
 
+                        <button type="button" data-qty-action="minus">
+                            <i class="bi bi-dash"></i>
+                        </button>
+
+                        <input type="number" value="1" min="1" max="{{ max($stock, 1) }}"
+                            id="storeProductQty">
+
+                        <button type="button" data-qty-action="plus">
+                            <i class="bi bi-plus"></i>
+                        </button>
 
                     </div>
+
+                    <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}" method="POST"
+                        class="store-cart-form">
+
+                        @csrf
+
+                        <input type="hidden" name="cantidad" id="storeProductQtyHidden" value="1">
+
+                        <button type="submit" class="btn btn-store-primary store-add-cart-btn"
+                            {{ $stock <= 0 ? 'disabled' : '' }}>
+
+                            <i class="bi bi-cart3 me-1"></i>
+                            Agregar al carrito
+
+                        </button>
+
+                    </form>
+
+                    <a href="{{ $whatsappProductoLink }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn store-whatsapp-product-btn">
+
+                        <i class="bi bi-whatsapp me-1"></i>
+                         Whatsapp
+
+                    </a>
 
                 </div>
 
             </div>
 
+            <div class="store-product-detail-benefits">
+
+                <div class="store-product-benefit">
+                    <i class="bi bi-truck"></i>
+                    <span>Envíos disponibles</span>
+                </div>
+
+                <div class="store-product-benefit">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Compra segura</span>
+                </div>
+
+                <div class="store-product-benefit">
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span>Proceso ágil</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+           
 
             {{-- PRODUCTOS RELACIONADOS --}}
             @if ($relacionados->count())
@@ -330,42 +330,37 @@
                                         <div class="store-product-footer">
 
                                             <div>
-                                           @php
-    $tienePromo = $item->tienePromocionActiva();
+                                                @php
+                                                    $tienePromo = $item->tienePromocionActiva();
 
-    $precioNormal = (float) $item->precio;
-    $precioVenta = $item->precioVenta();
+                                                    $precioNormal = (float) $item->precio;
+                                                    $precioVenta = $item->precioVenta();
 
-    $ahorro = $tienePromo
-        ? max(0, $precioNormal - $precioVenta)
-        : 0;
+                                                    $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
 
-    $porcentaje = $tienePromo && $precioNormal > 0
-        ? round(($ahorro / $precioNormal) * 100)
-        : 0;
-@endphp
+                                                    $porcentaje =
+                                                        $tienePromo && $precioNormal > 0
+                                                            ? round(($ahorro / $precioNormal) * 100)
+                                                            : 0;
+                                                @endphp
 
-@if($tienePromo)
+                                                @if ($tienePromo)
+                                                    <span class="badge bg-danger mb-1">
+                                                        -{{ $porcentaje }}% OFF
+                                                    </span>
 
-    <span class="badge bg-danger mb-1">
-        -{{ $porcentaje }}% OFF
-    </span>
+                                                    <div class="text-muted text-decoration-line-through small">
+                                                        ₡{{ number_format($precioNormal, 2) }}
+                                                    </div>
 
-    <div class="text-muted text-decoration-line-through small">
-        ₡{{ number_format($precioNormal, 2) }}
-    </div>
-
-    <div class="store-product-price text-danger">
-        ₡{{ number_format($precioVenta, 2) }}
-    </div>
-
-@else
-
-    <div class="store-product-price">
-        ₡{{ number_format($precioNormal, 2) }}
-    </div>
-
-@endif
+                                                    <div class="store-product-price text-danger">
+                                                        ₡{{ number_format($precioVenta, 2) }}
+                                                    </div>
+                                                @else
+                                                    <div class="store-product-price">
+                                                        ₡{{ number_format($precioNormal, 2) }}
+                                                    </div>
+                                                @endif
 
                                                 <small class="store-product-stock">
                                                     Stock: {{ $stockRelacionado }}
@@ -399,78 +394,78 @@
 @endsection
 
 @push('scripts')
-  <script>
-document.addEventListener('DOMContentLoaded', function () {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    const mainImage = document.getElementById('storeProductMainImage');
-    const thumbs = document.querySelectorAll('.store-product-thumb');
+            const mainImage = document.getElementById('storeProductMainImage');
+            const thumbs = document.querySelectorAll('.store-product-thumb');
 
-    thumbs.forEach((thumb) => {
+            thumbs.forEach((thumb) => {
 
-        thumb.addEventListener('click', function () {
+                thumb.addEventListener('click', function() {
 
-            const image = this.dataset.productImage;
+                    const image = this.dataset.productImage;
 
-            if (mainImage && image) {
-                mainImage.src = image;
-            }
+                    if (mainImage && image) {
+                        mainImage.src = image;
+                    }
 
-            thumbs.forEach((item) => item.classList.remove('active'));
+                    thumbs.forEach((item) => item.classList.remove('active'));
 
-            this.classList.add('active');
+                    this.classList.add('active');
+
+                });
+
+            });
+
+            const qtyInput = document.getElementById('storeProductQty');
+            const qtyHidden = document.getElementById('storeProductQtyHidden');
+            const qtyButtons = document.querySelectorAll('[data-qty-action]');
+
+            if (!qtyInput || !qtyHidden) return;
+
+            qtyButtons.forEach((button) => {
+
+                button.addEventListener('click', function() {
+
+                    const action = this.dataset.qtyAction;
+
+                    const min = parseInt(qtyInput.min || 1);
+                    const max = parseInt(qtyInput.max || 999);
+
+                    let value = parseInt(qtyInput.value || 1);
+
+                    if (action === 'minus') {
+                        value = Math.max(min, value - 1);
+                    }
+
+                    if (action === 'plus') {
+                        value = Math.min(max, value + 1);
+                    }
+
+                    qtyInput.value = value;
+                    qtyHidden.value = value;
+
+                });
+
+            });
+
+            qtyInput.addEventListener('input', function() {
+
+                let value = parseInt(this.value || 1);
+
+                const min = parseInt(this.min || 1);
+                const max = parseInt(this.max || 999);
+
+                if (value < min) value = min;
+                if (value > max) value = max;
+
+                this.value = value;
+
+                qtyHidden.value = value;
+
+            });
 
         });
-
-    });
-
-    const qtyInput = document.getElementById('storeProductQty');
-    const qtyHidden = document.getElementById('storeProductQtyHidden');
-    const qtyButtons = document.querySelectorAll('[data-qty-action]');
-
-    if (!qtyInput || !qtyHidden) return;
-
-    qtyButtons.forEach((button) => {
-
-        button.addEventListener('click', function () {
-
-            const action = this.dataset.qtyAction;
-
-            const min = parseInt(qtyInput.min || 1);
-            const max = parseInt(qtyInput.max || 999);
-
-            let value = parseInt(qtyInput.value || 1);
-
-            if (action === 'minus') {
-                value = Math.max(min, value - 1);
-            }
-
-            if (action === 'plus') {
-                value = Math.min(max, value + 1);
-            }
-
-            qtyInput.value = value;
-            qtyHidden.value = value;
-
-        });
-
-    });
-
-    qtyInput.addEventListener('input', function () {
-
-        let value = parseInt(this.value || 1);
-
-        const min = parseInt(this.min || 1);
-        const max = parseInt(this.max || 999);
-
-        if (value < min) value = min;
-        if (value > max) value = max;
-
-        this.value = value;
-
-        qtyHidden.value = value;
-
-    });
-
-});
-</script>
+    </script>
 @endpush

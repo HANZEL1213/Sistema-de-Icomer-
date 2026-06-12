@@ -19,21 +19,17 @@
 
     </div>
 
-    {{-- WHATSAPP FLOTANTE PREMIUM --}}
-    @php
-        $numeroWhatsapp = preg_replace(
-            '/[^0-9]/',
-            '',
-            $configTienda['tienda_whatsapp'] ?? '87790346'
-        );
+{{-- WHATSAPP FLOTANTE PREMIUM --}}
+@php
+    $numeroWhatsapp = preg_replace(
+        '/[^0-9]/',
+        '',
+        $configTienda['tienda_whatsapp'] ?? '87790346'
+    );
 
-      $mensajeWhatsapp = urlencode(
-    trim($__env->yieldContent('whatsapp_message'))
-        ?: 'Hola, necesito información sobre la tienda.'
-);
-
-        $whatsappLink = "https://wa.me/506{$numeroWhatsapp}?text={$mensajeWhatsapp}";
-    @endphp
+    $whatsappLink = "https://wa.me/506{$numeroWhatsapp}?text=" .
+        urlencode('Hola, necesito información sobre la tienda.');
+@endphp
 
     <div class="whatsapp-premium-container">
         <a href="{{ $whatsappLink }}"
