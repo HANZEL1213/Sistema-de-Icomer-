@@ -1339,14 +1339,13 @@
     }
 }
 
-
-
 /* =========================================================
    PRODUCTO SHOW / DETALLE
 ========================================================== */
 
 .store-product-detail-page {
     background: #ffffff;
+    overflow-x: hidden;
 }
 
 .store-detail-breadcrumb {
@@ -1361,6 +1360,7 @@
 
 .store-detail-breadcrumb a {
     color: var(--store-muted);
+    text-decoration: none;
 }
 
 .store-detail-breadcrumb a:hover {
@@ -1371,18 +1371,26 @@
     font-size: 0.72rem;
 }
 
+/* CARDS */
+
 .store-product-gallery-card,
 .store-product-info-card,
 .store-detail-section-card {
     background: #ffffff;
     border: 1px solid var(--store-border);
-    border-radius: var(--store-radius-lg);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.03);
+    border-radius: 24px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.045);
 }
 
 .store-product-gallery-card {
     padding: 0.85rem;
 }
+
+.store-product-info-card {
+    padding: 1.6rem;
+}
+
+/* GALERÍA */
 
 .store-product-main-image-wrap {
     position: relative;
@@ -1408,6 +1416,7 @@
     border-radius: 999px;
     font-size: 0.75rem;
     font-weight: 800;
+    z-index: 3;
 }
 
 .store-product-detail-heart {
@@ -1416,29 +1425,32 @@
     right: 16px;
     width: 44px;
     height: 44px;
-    border: 0;
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 50%;
-    background: rgba(255,255,255,0.96);
+    background: rgba(255, 255, 255, 0.96);
     color: var(--store-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    z-index: 3;
+    box-shadow: none;
 }
 
 .store-product-thumbs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.65rem;
     margin-top: 0.85rem;
 }
 
 .store-product-thumb {
     border: 2px solid transparent;
-    border-radius: 16px;
+    border-radius: 14px;
     overflow: hidden;
     padding: 0;
     background: var(--store-soft-2);
     aspect-ratio: 1 / 1;
+    cursor: pointer;
 }
 
 .store-product-thumb.active {
@@ -1451,13 +1463,12 @@
     object-fit: cover;
 }
 
-.store-product-info-card {
-    padding: 1.5rem;
-}
+/* INFO */
 
 .store-product-detail-meta {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.45rem;
     color: var(--store-muted);
     font-size: 0.85rem;
@@ -1466,26 +1477,50 @@
 }
 
 .store-product-detail-title {
-    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-size: clamp(1.7rem, 3.5vw, 2.65rem);
     font-weight: 900;
     color: var(--store-primary);
-    line-height: 1.08;
+    line-height: 1.1;
     letter-spacing: -0.04em;
     margin-bottom: 1rem;
 }
 
 .store-product-detail-description {
     color: var(--store-muted);
-    line-height: 1.75;
-    margin-bottom: 1.25rem;
+    line-height: 1.65;
+    margin-bottom: 1.15rem;
+    font-size: 0.95rem;
+}
+
+/* PRECIO */
+
+.store-price-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
 }
 
 .store-product-detail-price {
-    font-size: 2rem;
+    font-size: clamp(1.8rem, 4vw, 2.35rem);
     font-weight: 900;
     color: var(--store-primary);
-    margin-bottom: 0.85rem;
+    line-height: 1.05;
+    margin-bottom: 0.35rem;
 }
+
+.store-discount-badge {
+    background: #ffc107;
+    color: #111827;
+    font-weight: 900;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* STOCK */
 
 .store-product-detail-stock {
     display: inline-flex;
@@ -1496,7 +1531,7 @@
     border-radius: 999px;
     font-size: 0.84rem;
     font-weight: 800;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
 }
 
 .store-product-detail-stock.is-available {
@@ -1509,62 +1544,155 @@
     color: #dc3545;
 }
 
-.store-product-detail-actions {
-    display: grid;
-    grid-template-columns: 150px 1fr;
-    gap: 0.8rem;
-    margin-bottom: 1.25rem;
+/* PANEL DE COMPRA */
+
+.store-product-buy-panel {
+    padding: 1rem 0;
+    margin: 0.5rem 0 1.25rem;
+    border-top: 1px solid var(--store-border);
+    border-bottom: 1px solid var(--store-border);
 }
+
+.store-product-detail-actions {
+    margin: 0;
+}
+
+.store-product-actions-premium {
+    display: grid;
+    grid-template-columns: 130px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: stretch;
+}
+
+/* CANTIDAD */
 
 .store-qty-control {
     display: grid;
-    grid-template-columns: 42px 1fr 42px;
-    min-height: 52px;
+    grid-template-columns: 38px 1fr 38px;
+    min-height: 54px;
     border: 1px solid var(--store-border);
-    border-radius: 16px;
+    border-radius: 14px;
     overflow: hidden;
-    background: #fff;
+    background: #ffffff;
 }
 
 .store-qty-control button {
     border: 0;
-    background: var(--store-soft);
+    background: #f8fafc;
     color: var(--store-primary);
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .store-qty-control input {
+    width: 100%;
+    min-width: 0;
     border: 0;
     text-align: center;
-    font-weight: 800;
+    font-weight: 900;
     color: var(--store-primary);
     outline: none;
 }
 
-.store-add-cart-btn {
-    min-height: 52px;
+/* BOTONES */
+
+.store-cart-form {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-width: 0;
 }
+
+.store-add-cart-btn,
+.store-whatsapp-product-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 54px;
+    border-radius: 14px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: none !important;
+    outline: none !important;
+    line-height: 1.2;
+}
+
+/* Botón carrito usando colores globales */
+.store-add-cart-btn {
+    background: var(--store-accent) !important;
+    border: 1px solid var(--store-accent) !important;
+    color: #ffffff !important;
+}
+
+.store-add-cart-btn:hover {
+    background: var(--store-accent-hover) !important;
+    border-color: var(--store-accent-hover) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: none !important;
+}
+
+.store-add-cart-btn:focus,
+.store-add-cart-btn:active,
+.store-add-cart-btn:focus-visible {
+    background: var(--store-accent) !important;
+    border-color: var(--store-accent) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón WhatsApp */
+.store-whatsapp-product-btn {
+    border: 2px solid #25D366;
+    background: #ffffff;
+    color: #25D366;
+}
+
+.store-whatsapp-product-btn:hover {
+    background: #25D366;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: none !important;
+}
+
+.store-whatsapp-product-btn:focus,
+.store-whatsapp-product-btn:active,
+.store-whatsapp-product-btn:focus-visible {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* BENEFICIOS */
 
 .store-product-detail-benefits {
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.7rem;
 }
 
 .store-product-benefit {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    background: var(--store-soft);
+    gap: 0.65rem;
+    background: #f8fafc;
     border: 1px solid var(--store-border);
     border-radius: 16px;
-    padding: 0.85rem 1rem;
+    padding: 0.8rem 0.9rem;
     color: var(--store-primary);
     font-weight: 700;
+    font-size: 0.86rem;
 }
 
 .store-product-benefit i {
     color: var(--store-accent);
+    font-size: 1rem;
 }
+
+/* SECCIONES EXTRA */
 
 .store-detail-section-card {
     padding: 1.3rem;
@@ -1614,30 +1742,50 @@
    RESPONSIVE PRODUCTO SHOW
 ========================================================== */
 
-@media (max-width: 991.98px) {
+@media (max-width: 1199.98px) {
+    .store-product-actions-premium {
+        grid-template-columns: 1fr 1fr;
+    }
 
+    .store-qty-control {
+        grid-column: 1 / -1;
+    }
+
+    .store-cart-form,
+    .store-add-cart-btn,
+    .store-whatsapp-product-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .store-whatsapp-product-btn {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 991.98px) {
     .store-product-info-card {
-        padding: 1.2rem;
+        padding: 1.25rem;
     }
 
     .store-product-detail-title {
-        font-size: 1.8rem;
+        font-size: 1.85rem;
     }
 
-    .store-product-detail-price {
-        font-size: 1.55rem;
+    .store-product-detail-benefits {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 575.98px) {
-
     .store-product-detail-page .container {
         padding-left: 0.85rem;
         padding-right: 0.85rem;
     }
 
     .store-detail-breadcrumb {
-        font-size: 0.76rem;
+        font-size: 0.74rem;
+        gap: 0.35rem;
     }
 
     .store-product-gallery-card {
@@ -1664,11 +1812,12 @@
     }
 
     .store-product-thumbs {
-        gap: 0.5rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.45rem;
     }
 
     .store-product-thumb {
-        border-radius: 12px;
+        border-radius: 11px;
     }
 
     .store-product-info-card {
@@ -1676,20 +1825,56 @@
         border-radius: 20px;
     }
 
+    .store-product-detail-meta {
+        font-size: 0.76rem;
+    }
+
     .store-product-detail-title {
-        font-size: 1.55rem;
+        font-size: 1.45rem;
+        letter-spacing: -0.03em;
     }
 
     .store-product-detail-description {
-        font-size: 0.9rem;
+        font-size: 0.88rem;
+        line-height: 1.6;
     }
 
-    .store-product-detail-actions {
+    .store-price-row {
+        align-items: center;
+    }
+
+    .store-product-detail-price {
+        font-size: 1.6rem;
+    }
+
+    .store-discount-badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .store-product-actions-premium {
         grid-template-columns: 1fr;
     }
 
-    .store-add-cart-btn {
+    .store-qty-control,
+    .store-cart-form,
+    .store-add-cart-btn,
+    .store-whatsapp-product-btn {
         width: 100%;
+        min-width: 0;
+    }
+
+    .store-qty-control,
+    .store-add-cart-btn,
+    .store-whatsapp-product-btn {
+        min-height: 50px;
+    }
+
+    .store-add-cart-btn,
+    .store-whatsapp-product-btn {
+        font-size: 0.88rem;
+        white-space: normal;
+        text-align: center;
     }
 
     .store-detail-section-card {
@@ -1697,6 +1882,7 @@
         border-radius: 20px;
     }
 }
+
 
 /* =========================================================
    CATEGORÍA SHOW
