@@ -119,7 +119,7 @@
 
                             <a href="{{ $configTienda['tienda_facebook'] ?? 'https://www.facebook.com/cora.store.cr' }}"
                                class="store-social-btn"
-                               target="_bank"
+                               target="_blank"
                                aria-label="Facebook">
 
                                 <i class="bi bi-facebook"></i>
@@ -127,7 +127,7 @@
 
                             <a href="{{ $configTienda['tienda_instagram'] ?? 'https://www.instagram.com/cora.store.cr' }}"
                                class="store-social-btn"
-                               target="_bank"
+                               target="_blank"
                                aria-label="Instagram">
 
                                 <i class="bi bi-instagram"></i>
@@ -135,14 +135,15 @@
 
                             <a href="{{ $configTienda['tienda_whatsapp_link'] ?? 'https://wa.me/50687790346?text=Hola,%20quiero%20más%20información%20sobre...' }}"
                                class="store-social-btn"
-                               target="_bank"
+                               target="_blank"
                                aria-label="WhatsApp">
 
                                 <i class="bi bi-whatsapp"></i>
                             </a>
 
-                            <a href="{{ $configTienda['tienda_tiktok'] ?? '#' }}"
+                            <a href="{{ $configTienda['tienda_tiktok'] ?? 'https://www.tiktok.com/@cora.store.cr?is_from_webapp=1&sender_device=pc' }}"
                                class="store-social-btn"
+                               target="_blank"
                                aria-label="TikTok">
 
                                 <i class="bi bi-tiktok"></i>

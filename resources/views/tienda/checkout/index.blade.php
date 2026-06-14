@@ -11,6 +11,55 @@
     .terminos-link:hover {
         text-decoration: underline;
     }
+
+    .checkout-progress {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .checkout-progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .checkout-progress-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        transition: .3s;
+    }
+
+    .checkout-progress-line {
+        width: 120px;
+        height: 3px;
+        background: #dee2e6;
+        margin: 0 10px;
+    }
+
+    .checkout-progress-step.active .checkout-progress-circle {
+        background: #111827;
+        color: #fff;
+    }
+
+    .checkout-progress-step.completed .checkout-progress-circle {
+        background: #198754;
+        color: #fff;
+    }
+
+    .checkout-progress-step span {
+        font-size: .85rem;
+        font-weight: 600;
+    }
 </style>
 
 @section('title', 'Finalizar compra | Tienda')
@@ -76,512 +125,543 @@
 
                     <div class="col-12 col-lg-7">
 
+                        {{-- =========================================================
+                            CHECKOUT STEPPER
+                        ========================================================= --}}
+                        <div class="checkout-progress mb-4">
+
+                            <div class="checkout-progress-step active" id="indicatorStep1">
+                                <div class="checkout-progress-circle">1</div>
+                                <span>Datos</span>
+                            </div>
+
+                            <div class="checkout-progress-line"></div>
+
+                            <div class="checkout-progress-step" id="indicatorStep2">
+                                <div class="checkout-progress-circle">2</div>
+                                <span>Entrega</span>
+                            </div>
+
+                            <div class="checkout-progress-line"></div>
+
+                            <div class="checkout-progress-step" id="indicatorStep3">
+                                <div class="checkout-progress-circle">3</div>
+                                <span>Pago</span>
+                            </div>
+
+                        </div>
+
                         {{-- DATOS PERSONALES --}}
-                        <div class="store-checkout-card mb-4">
-                            <div class="store-checkout-card-header">
-                                <h2>
-                                    <i class="bi bi-person"></i>
-                                    Información personal
-                                </h2>
-                            </div>
+                        <div id="checkoutStep1" class="checkout-step">
 
-                            <div class="store-checkout-card-body">
-                                <div class="row g-3">
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="store-form-label">
-                                            Nombre completo <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text" name="nombre_cliente" value="{{ old('nombre_cliente') }}"
-                                            class="form-control store-filter-control @error('nombre_cliente') is-invalid @enderror"
-                                            placeholder="Nombre completo">
-
-                                        @error('nombre_cliente')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12 col-md-6">
-                                        <label class="store-form-label">
-                                            Teléfono <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text" name="telefono_cliente" value="{{ old('telefono_cliente') }}"
-                                            class="form-control store-filter-control @error('telefono_cliente') is-invalid @enderror"
-                                            placeholder="8888-8888">
-
-                                        @error('telefono_cliente')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">Correo electrónico</label>
-
-                                        <input type="email" name="correo_cliente" value="{{ old('correo_cliente') }}"
-                                            class="form-control store-filter-control @error('correo_cliente') is-invalid @enderror"
-                                            placeholder="correo@email.com">
-
-                                        @error('correo_cliente')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
+                            <div class="store-checkout-card mb-4">
+                                <div class="store-checkout-card-header">
+                                    <h2>
+                                        <i class="bi bi-person"></i>
+                                        Información personal
+                                    </h2>
                                 </div>
-                            </div>
-                        </div>
 
-                        {{-- TIPO ENTREGA --}}
-                        <div class="store-checkout-card mb-4">
-                            <div class="store-checkout-card-header">
-                                <h2>
-                                    <i class="bi bi-truck"></i>
-                                    Tipo de entrega
-                                </h2>
-                            </div>
+                                <div class="store-checkout-card-body">
+                                    <div class="row g-3">
 
-                            <div class="store-checkout-card-body">
-                                <div class="row g-3">
+                                        <div class="col-12 col-md-6">
+                                            <label class="store-form-label">
+                                                Nombre completo <span class="text-danger">*</span>
+                                            </label>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="store-payment-option active" for="tipoEntregaEnvio">
-                                            <input type="radio" id="tipoEntregaEnvio" name="tipo_entrega" value="envio"
-                                                class="d-none"
-                                                {{ old('tipo_entrega', 'envio') === 'envio' ? 'checked' : '' }}>
+                                            <input type="text" name="nombre_cliente" value="{{ old('nombre_cliente') }}"
+                                                class="form-control store-filter-control @error('nombre_cliente') is-invalid @enderror"
+                                                placeholder="Nombre completo" required>
 
-                                            <div class="store-payment-radio">
-                                                <i class="bi bi-check"></i>
-                                            </div>
+                                            @error('nombre_cliente')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-                                            <div>
-                                                <h5>Envío a domicilio</h5>
-                                                <p>Solo disponible en zonas registradas.</p>
-                                            </div>
-                                        </label>
-                                    </div>
+                                        <div class="col-12 col-md-6">
+                                            <label class="store-form-label">
+                                                Teléfono <span class="text-danger">*</span>
+                                            </label>
 
-                                    <div class="col-12 col-md-6">
-                                        <label class="store-payment-option" for="tipoEntregaRetiro">
-                                            <input type="radio" id="tipoEntregaRetiro" name="tipo_entrega" value="retiro"
-                                                class="d-none" {{ old('tipo_entrega') === 'retiro' ? 'checked' : '' }}>
+                                            <input type="text" name="telefono_cliente"
+                                                value="{{ old('telefono_cliente') }}"
+                                                class="form-control store-filter-control @error('telefono_cliente') is-invalid @enderror"
+                                                placeholder="8888-8888" required>
 
-                                            <div class="store-payment-radio">
-                                                <i class="bi bi-check"></i>
-                                            </div>
+                                            @error('telefono_cliente')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-                                            <div>
-                                                <h5>Retiro en tienda</h5>
-                                                <p>No se cobra envío.</p>
-                                            </div>
-                                        </label>
-                                    </div>
-
-                                    @error('tipo_entrega')
                                         <div class="col-12">
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        </div>
-                                    @enderror
+                                            <label class="store-form-label">Correo electrónico</label>
 
+                                            <input type="email" name="correo_cliente" value="{{ old('correo_cliente') }}"
+                                                class="form-control store-filter-control @error('correo_cliente') is-invalid @enderror"
+                                                placeholder="correo@email.com">
+
+                                            @error('correo_cliente')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- DIRECCIÓN --}}
-                        <div class="store-checkout-card mb-4" id="checkoutAddressBox">
-                            <div class="store-checkout-card-header">
-                                <h2>
-                                    <i class="bi bi-geo-alt"></i>
-                                    Dirección de entrega
-                                </h2>
-                            </div>
-
-                            <div class="store-checkout-card-body">
-                                <div class="alert alert-warning mb-3">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Solo se muestran provincias, cantones y distritos con envío disponible.
+                            {{-- TIPO ENTREGA --}}
+                            <div class="store-checkout-card mb-4">
+                                <div class="store-checkout-card-header">
+                                    <h2>
+                                        <i class="bi bi-truck"></i>
+                                        Tipo de entrega
+                                    </h2>
                                 </div>
 
-                                <div class="row g-3">
+                                <div class="store-checkout-card-body">
+                                    <div class="row g-3">
 
-                                    <div class="col-12 col-md-4">
-                                        <label class="store-form-label">
-                                            Provincia <span class="text-danger">*</span>
-                                        </label>
+                                        <div class="col-12 col-md-6">
+                                            <label class="store-payment-option active" for="tipoEntregaEnvio">
+                                                <input type="radio" id="tipoEntregaEnvio" name="tipo_entrega"
+                                                    value="envio" class="d-none"
+                                                    {{ old('tipo_entrega', 'envio') === 'envio' ? 'checked' : '' }} required>
 
-                                        <select name="id_provincia" id="checkoutProvincia"
-                                            class="form-select store-filter-control @error('id_provincia') is-invalid @enderror">
-                                            <option value="">Seleccione</option>
-
-                                            @foreach ($provincias as $provincia)
-                                                <option value="{{ $provincia->id_provincia }}"
-                                                    {{ old('id_provincia') == $provincia->id_provincia ? 'selected' : '' }}>
-                                                    {{ $provincia->nombre }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-
-                                        @error('id_provincia')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12 col-md-4">
-                                        <label class="store-form-label">
-                                            Cantón <span class="text-danger">*</span>
-                                        </label>
-
-                                        <select name="id_canton" id="checkoutCanton"
-                                            class="form-select store-filter-control @error('id_canton') is-invalid @enderror">
-                                            <option value="">Seleccione</option>
-                                        </select>
-
-                                        @error('id_canton')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12 col-md-4">
-                                        <label class="store-form-label">
-                                            Distrito <span class="text-danger">*</span>
-                                        </label>
-
-                                        <select name="id_distrito" id="checkoutDistrito"
-                                            class="form-select store-filter-control @error('id_distrito') is-invalid @enderror">
-                                            <option value="">Seleccione</option>
-                                        </select>
-
-                                        @error('id_distrito')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">
-                                            Dirección exacta <span class="text-danger">*</span>
-                                        </label>
-
-                                        <textarea name="direccion_envio"
-                                            class="form-control store-filter-control @error('direccion_envio') is-invalid @enderror" rows="4"
-                                            placeholder="Señas exactas, casa, local, color, punto de referencia">{{ old('direccion_envio') }}</textarea>
-
-                                        @error('direccion_envio')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">Referencia de entrega</label>
-
-                                        <input type="text" name="referencia_envio"
-                                            value="{{ old('referencia_envio') }}"
-                                            class="form-control store-filter-control @error('referencia_envio') is-invalid @enderror"
-                                            placeholder="Ejemplo: frente a la escuela, portón negro">
-
-                                        @error('referencia_envio')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">
-                                            <i class="bi bi-map"></i>
-                                            Ubicación en mapa
-                                        </label>
-
-                                        <div class="alert alert-info mb-3">
-                                            <i class="bi bi-info-circle me-2"></i>
-                                            La dirección escrita arriba se usará solo como referencia para ubicar mejor el
-                                            mapa.
-                                        </div>
-
-                                        <div class="row g-2 mb-3">
-                                            <div class="col-12 col-md-6">
-                                                <button type="button" class="btn btn-store-primary w-100"
-                                                    id="btnUseCurrentLocation">
-                                                    <i class="bi bi-crosshair me-1"></i>
-                                                    Usar mi ubicación actual
-                                                </button>
-                                            </div>
-
-                                            <div class="col-12 col-md-6">
-                                                <button type="button" class="btn btn-store-outline w-100"
-                                                    id="btnShowMap">
-                                                    <i class="bi bi-map me-1"></i>
-                                                    Elegir otra ubicación
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div id="mapBox" style="display: none;">
-
-                                            <div class="mb-3 position-relative">
-                                                <label class="store-form-label">Buscar ubicación</label>
-
-                                                <input type="text" id="addressSearch"
-                                                    class="form-control store-filter-control"
-                                                    placeholder="Ejemplo: escuela, iglesia, supermercado, barrio...">
-
-                                                <div id="addressSuggestions"
-                                                    class="list-group position-absolute w-100 shadow-sm"
-                                                    style="z-index: 9999; display: none; max-height: 220px; overflow-y: auto;">
+                                                <div class="store-payment-radio">
+                                                    <i class="bi bi-check"></i>
                                                 </div>
 
-                                                <small class="text-muted d-block mt-2">
-                                                    Escribí una referencia y seleccioná una sugerencia. También podés mover
-                                                    el marcador.
-                                                </small>
+                                                <div>
+                                                    <h5>Envío a domicilio</h5>
+                                                    <p>Solo disponible en zonas registradas.</p>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        <div class="col-12 col-md-6">
+                                            <label class="store-payment-option" for="tipoEntregaRetiro">
+                                                <input type="radio" id="tipoEntregaRetiro" name="tipo_entrega"
+                                                    value="retiro" class="d-none"
+                                                    {{ old('tipo_entrega') === 'retiro' ? 'checked' : '' }} required>
+
+                                                <div class="store-payment-radio">
+                                                    <i class="bi bi-check"></i>
+                                                </div>
+
+                                                <div>
+                                                    <h5>Retiro en tienda</h5>
+                                                    <p>No se cobra envío.</p>
+                                                </div>
+                                            </label>
+                                        </div>
+
+                                        @error('tipo_entrega')
+                                            <div class="col-12">
+                                                <div class="text-danger small">{{ $message }}</div>
+                                            </div>
+                                        @enderror
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end">
+                                <button type="button" id="nextStep1" class="btn btn-store-primary">
+                                    Siguiente
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="checkoutStep2" class="checkout-step" style="display:none;">
+
+                            {{-- DIRECCIÓN --}}
+                            <div class="store-checkout-card mb-4" id="checkoutAddressBox">
+                                <div class="store-checkout-card-header">
+                                    <h2>
+                                        <i class="bi bi-geo-alt"></i>
+                                        Dirección de entrega
+                                    </h2>
+                                </div>
+
+                                <div class="store-checkout-card-body">
+                                    <div class="alert alert-warning mb-3">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Solo se muestran provincias, cantones y distritos con envío disponible.
+                                    </div>
+
+                                    <div class="row g-3">
+
+                                        <div class="col-12 col-md-4">
+                                            <label class="store-form-label">
+                                                Provincia <span class="text-danger">*</span>
+                                            </label>
+
+                                            <select name="id_provincia" id="checkoutProvincia"
+                                                class="form-select store-filter-control @error('id_provincia') is-invalid @enderror"
+                                                required>
+                                                <option value="">Seleccione</option>
+
+                                                @foreach ($provincias as $provincia)
+                                                    <option value="{{ $provincia->id_provincia }}"
+                                                        {{ old('id_provincia') == $provincia->id_provincia ? 'selected' : '' }}>
+                                                        {{ $provincia->nombre }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
+                                            @error('id_provincia')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <label class="store-form-label">
+                                                Cantón <span class="text-danger">*</span>
+                                            </label>
+
+                                            <select name="id_canton" id="checkoutCanton"
+                                                class="form-select store-filter-control @error('id_canton') is-invalid @enderror"
+                                                required>
+                                                <option value="">Seleccione</option>
+                                            </select>
+
+                                            @error('id_canton')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12 col-md-4">
+                                            <label class="store-form-label">
+                                                Distrito <span class="text-danger">*</span>
+                                            </label>
+
+                                            <select name="id_distrito" id="checkoutDistrito"
+                                                class="form-select store-filter-control @error('id_distrito') is-invalid @enderror"
+                                                required>
+                                                <option value="">Seleccione</option>
+                                            </select>
+
+                                            @error('id_distrito')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="store-form-label">
+                                                Dirección exacta <span class="text-danger">*</span>
+                                            </label>
+
+                                            <textarea name="direccion_envio"
+                                                class="form-control store-filter-control @error('direccion_envio') is-invalid @enderror" rows="4"
+                                                placeholder="Señas exactas, casa, local, color, punto de referencia" required>{{ old('direccion_envio') }}</textarea>
+
+                                            @error('direccion_envio')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="store-form-label">Referencia de entrega</label>
+
+                                            <input type="text" name="referencia_envio"
+                                                value="{{ old('referencia_envio') }}"
+                                                class="form-control store-filter-control @error('referencia_envio') is-invalid @enderror"
+                                                placeholder="Ejemplo: frente a la escuela, portón negro">
+
+                                            @error('referencia_envio')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="store-form-label">
+                                                <i class="bi bi-map"></i>
+                                                Ubicación en mapa
+                                            </label>
+
+                                            <div class="alert alert-info mb-3">
+                                                <i class="bi bi-info-circle me-2"></i>
+                                                La dirección escrita arriba se usará solo como referencia para ubicar mejor
+                                                el
+                                                mapa.
                                             </div>
 
-                                            <div class="mb-3">
-                                                <label class="store-form-label">
-                                                    coordenadas
-                                                </label>
-
-                                                <div class="input-group">
-                                                    <input type="text" id="manualLocationInput"
-                                                        class="form-control store-filter-control"
-                                                        placeholder="Pegá un link de Google Maps o coordenadas: 9.9281,-84.0907">
-
-                                                    <button type="button" class="btn btn-store-outline"
-                                                        id="btnLoadManualLocation">
-                                                        Cargar
+                                            <div class="row g-2 mb-3">
+                                                <div class="col-12 col-md-6">
+                                                    <button type="button" class="btn btn-store-primary w-100"
+                                                        id="btnUseCurrentLocation">
+                                                        <i class="bi bi-crosshair me-1"></i>
+                                                        Usar mi ubicación actual
                                                     </button>
                                                 </div>
 
-                                                <small class="text-muted d-block mt-2">
-                                                    Este campo se llena solo cuando seleccionás una ubicación.
-                                                </small>
+                                                <div class="col-12 col-md-6">
+                                                    <button type="button" class="btn btn-store-outline w-100"
+                                                        id="btnShowMap">
+                                                        <i class="bi bi-map me-1"></i>
+                                                        Elegir otra ubicación
+                                                    </button>
+                                                </div>
                                             </div>
 
-                                            <div id="pickupMap"
-                                                style="height: 350px; width: 100%; border-radius: 16px; overflow: hidden; z-index: 1;">
+                                            <div id="mapBox" style="display: none;">
+
+                                                <div class="mb-3 position-relative">
+                                                    <label class="store-form-label">Buscar ubicación</label>
+
+                                                    <input type="text" id="addressSearch"
+                                                        class="form-control store-filter-control"
+                                                        placeholder="Ejemplo: escuela, iglesia, supermercado, barrio...">
+
+                                                    <div id="addressSuggestions"
+                                                        class="list-group position-absolute w-100 shadow-sm"
+                                                        style="z-index: 9999; display: none; max-height: 220px; overflow-y: auto;">
+                                                    </div>
+
+                                                    <small class="text-muted d-block mt-2">
+                                                        Escribí una referencia y seleccioná una sugerencia. También podés
+                                                        mover
+                                                        el marcador.
+                                                    </small>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label class="store-form-label">
+                                                        coordenadas
+                                                    </label>
+
+                                                    <div class="input-group">
+                                                        <input type="text" id="manualLocationInput"
+                                                            class="form-control store-filter-control"
+                                                            placeholder="Pegá un link de Google Maps o coordenadas: 9.9281,-84.0907">
+
+                                                        <button type="button" class="btn btn-store-outline"
+                                                            id="btnLoadManualLocation">
+                                                            Cargar
+                                                        </button>
+                                                    </div>
+
+                                                    <small class="text-muted d-block mt-2">
+                                                        Este campo se llena solo cuando seleccionás una ubicación.
+                                                    </small>
+                                                </div>
+
+                                                <div id="pickupMap"
+                                                    style="height: 350px; width: 100%; border-radius: 16px; overflow: hidden; z-index: 1;">
+                                                </div>
                                             </div>
+
+                                            <input type="hidden" name="link_google_maps" id="googleMapsLink"
+                                                value="{{ old('link_google_maps') }}">
+                                            <input type="hidden" name="latitud" id="latitud"
+                                                value="{{ old('latitud') }}">
+                                            <input type="hidden" name="longitud" id="longitud"
+                                                value="{{ old('longitud') }}">
+                                            <input type="hidden" name="direccion_mapa" id="direccionMapa"
+                                                value="{{ old('direccion_mapa') }}">
+
+                                            <div class="mt-3 p-3 bg-light rounded-4 border" id="selectedLocationInfo"
+                                                style="{{ old('link_google_maps') ? '' : 'display: none;' }}">
+
+                                                <strong class="d-block mb-1">Ubicación seleccionada:</strong>
+
+                                                <span id="selectedAddressText" class="small d-block">
+                                                    {{ old('direccion_mapa') ?: 'Ubicación cargada correctamente' }}
+                                                </span>
+
+                                                <code id="selectedCoordsText" class="small d-block mt-2 text-muted">
+                                                    @if (old('latitud') && old('longitud'))
+                                                        Coordenadas: {{ old('latitud') }}, {{ old('longitud') }}
+                                                    @endif
+                                                </code>
+
+                                                <a href="{{ old('link_google_maps') ?: '#' }}" id="openGoogleMapsLink"
+                                                    target="_blank"
+                                                    class="small d-inline-flex align-items-center gap-1 mt-2">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                    Ver en Google Maps
+                                                </a>
+                                            </div>
+
+                                            @error('link_google_maps')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
                                         </div>
 
-                                        <input type="hidden" name="link_google_maps" id="googleMapsLink"
-                                            value="{{ old('link_google_maps') }}">
-                                        <input type="hidden" name="latitud" id="latitud"
-                                            value="{{ old('latitud') }}">
-                                        <input type="hidden" name="longitud" id="longitud"
-                                            value="{{ old('longitud') }}">
-                                        <input type="hidden" name="direccion_mapa" id="direccionMapa"
-                                            value="{{ old('direccion_mapa') }}">
-
-                                        <div class="mt-3 p-3 bg-light rounded-4 border" id="selectedLocationInfo"
-                                            style="{{ old('link_google_maps') ? '' : 'display: none;' }}">
-
-                                            <strong class="d-block mb-1">Ubicación seleccionada:</strong>
-
-                                            <span id="selectedAddressText" class="small d-block">
-                                                {{ old('direccion_mapa') ?: 'Ubicación cargada correctamente' }}
-                                            </span>
-
-                                            <code id="selectedCoordsText" class="small d-block mt-2 text-muted">
-                                                @if (old('latitud') && old('longitud'))
-                                                    Coordenadas: {{ old('latitud') }}, {{ old('longitud') }}
-                                                @endif
-                                            </code>
-
-                                            <a href="{{ old('link_google_maps') ?: '#' }}" id="openGoogleMapsLink"
-                                                target="_blank" class="small d-inline-flex align-items-center gap-1 mt-2">
-                                                <i class="bi bi-box-arrow-up-right"></i>
-                                                Ver en Google Maps
-                                            </a>
-                                        </div>
-
-                                        @error('link_google_maps')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
                                     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                                 </div>
                             </div>
-                        </div>
 
-                        {{-- NOTAS --}}
-                        <div class="store-checkout-card mb-4">
-                            <div class="store-checkout-card-header">
-                                <h2>
-                                    <i class="bi bi-chat-left-text"></i>
-                                    Notas del pedido
-                                </h2>
+                            {{-- NOTAS --}}
+                            <div class="store-checkout-card mb-4">
+                                <div class="store-checkout-card-header">
+                                    <h2>
+                                        <i class="bi bi-chat-left-text"></i>
+                                        Notas del pedido
+                                    </h2>
+                                </div>
+
+                                <div class="store-checkout-card-body">
+                                    <label class="store-form-label">Nota adicional</label>
+
+                                    <textarea name="notas" class="form-control store-filter-control @error('notas') is-invalid @enderror"
+                                        rows="3" placeholder="Ejemplo: llamar antes de entregar">{{ old('notas') }}</textarea>
+
+                                    @error('notas')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
 
-                            <div class="store-checkout-card-body">
-                                <label class="store-form-label">Nota adicional</label>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="prevStep2" class="btn btn-store-outline">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Atrás
+                                </button>
 
-                                <textarea name="notas" class="form-control store-filter-control @error('notas') is-invalid @enderror"
-                                    rows="3" placeholder="Ejemplo: llamar antes de entregar">{{ old('notas') }}</textarea>
-
-                                @error('notas')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <button type="button" id="nextStep2" class="btn btn-store-primary">
+                                    Siguiente
+                                    <i class="bi bi-arrow-right ms-1"></i>
+                                </button>
                             </div>
                         </div>
 
                         {{-- PAGO --}}
-                        <div class="store-checkout-card">
-                            <div class="store-checkout-card-header">
-                                <h2>
-                                    <i class="bi bi-credit-card"></i>
-                                    Método de pago
-                                </h2>
-                            </div>
+                        <div id="checkoutStep3" class="checkout-step" style="display:none;">
 
-                            <div class="store-checkout-card-body">
-
-                                <div class="alert alert-warning mb-4">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Realiza el pago antes de confirmar el pedido. Podés adjuntar el comprobante,
-                                    escribir el número de referencia o enviar ambos.
+                            <div class="store-checkout-card">
+                                <div class="store-checkout-card-header">
+                                    <h2>
+                                        <i class="bi bi-credit-card"></i>
+                                        Método de pago
+                                    </h2>
                                 </div>
 
-                                <label class="store-payment-option active" for="metodoPagoSinpe">
+                                <div class="store-checkout-card-body">
 
-                                    <input type="radio" id="metodoPagoSinpe" name="metodo_pago" value="sinpe"
-                                        class="d-none" {{ old('metodo_pago', 'sinpe') === 'sinpe' ? 'checked' : '' }}>
-
-                                    <div class="store-payment-radio">
-                                        <i class="bi bi-check"></i>
+                                    <div class="alert alert-warning mb-4">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Realiza el pago antes de confirmar el pedido. Podés adjuntar el comprobante,
+                                        escribir el número de referencia o enviar ambos.
                                     </div>
 
-                                    <div>
-                                        <h5>SINPE Móvil / Transferencia</h5>
+                                    <label class="store-payment-option active" for="metodoPagoSinpe">
 
-                                        <p>
-                                            Tu pedido quedará en revisión hasta validar el comprobante de pago.
-                                        </p>
-                                    </div>
+                                        <input type="radio" id="metodoPagoSinpe" name="metodo_pago" value="sinpe"
+                                            class="d-none" {{ old('metodo_pago', 'sinpe') === 'sinpe' ? 'checked' : '' }}>
 
-                                </label>
-
-                                @error('metodo_pago')
-                                    <div class="text-danger small mt-2">{{ $message }}</div>
-                                @enderror
-
-                                <div class="bg-light rounded p-3 mt-4">
-
-                                    <h6 class="fw-bold mb-3">
-                                        <i class="bi bi-phone me-1"></i>
-                                        Datos para realizar el pago
-                                    </h6>
-
-                                    <p class="mb-1">
-                                        <strong>SINPE:</strong>
-
-                                        {{ $configTienda['checkout_sinpe'] ?? '8888-8888' }}
-                                    </p>
-
-                                    <p class="mb-1">
-                                        <strong>Nombre:</strong>
-
-                                        {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
-                                    </p>
-
-
-
-                                </div>
-
-                                <div class="row g-3 mt-3">
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">
-                                            Número de comprobante o referencia
-                                            <span class="text-danger">*</span>
-                                        </label>
-
-                                        <input type="text" name="numero_comprobante"
-                                            value="{{ old('numero_comprobante') }}"
-                                            class="form-control store-filter-control @error('numero_comprobante') is-invalid @enderror"
-                                            placeholder="Ejemplo: 154848484">
-
-                                        <small class="text-muted d-block mt-2">
-                                            Podés escribir el número del voucher, referencia SINPE o comprobante bancario.
-                                        </small>
-
-                                        @error('numero_comprobante')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label class="store-form-label">
-                                            Imagen del comprobante
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="file" name="comprobante_pago" id="checkoutComprobanteInput"
-                                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                                            class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror">
-
-                                        <div class="store-checkout-proof-preview d-none mt-3"
-                                            id="checkoutProofPreviewWrap">
-
-                                            <img src="" id="checkoutProofPreview"
-                                                class="img-fluid rounded-4 border" alt="Preview comprobante">
-
+                                        <div class="store-payment-radio">
+                                            <i class="bi bi-check"></i>
                                         </div>
 
-                                        <small class="text-muted d-block mt-2">
-                                            Adjunta una captura del SINPE o comprobante bancario.
-                                            Formatos permitidos: JPG, PNG y WEBP.
-                                        </small>
+                                        <div>
+                                            <h5>SINPE Móvil / Transferencia</h5>
 
-                                        @error('comprobante_pago')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
+                                            <p>
+                                                Tu pedido quedará en revisión hasta validar el comprobante de pago.
+                                            </p>
+                                        </div>
+
+                                    </label>
+
+                                    @error('metodo_pago')
+                                        <div class="text-danger small mt-2">{{ $message }}</div>
+                                    @enderror
+
+                                    <div class="bg-light rounded p-3 mt-4">
+
+                                        <h6 class="fw-bold mb-3">
+                                            <i class="bi bi-phone me-1"></i>
+                                            Datos para realizar el pago
+                                        </h6>
+
+                                        <p class="mb-1">
+                                            <strong>SINPE:</strong>
+
+                                            {{ $configTienda['checkout_sinpe'] ?? '8888-8888' }}
+                                        </p>
+
+                                        <p class="mb-1">
+                                            <strong>Nombre:</strong>
+
+                                            {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
+                                        </p>
+
+                                         <p class="mb-1">
+                                            <strong>Cuenta bancaria:</strong>
+
+                                            {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
+                                        </p>
+
+
+
+                                    </div>
+
+                                    <div class="row g-3 mt-3">
+
+                                        <div class="col-12">
+                                            <label class="store-form-label">
+                                                Número de comprobante o referencia
+                                                <span class="text-danger">*</span>
+                                            </label>
+
+                                            <input type="text" name="numero_comprobante"
+                                                value="{{ old('numero_comprobante') }}"
+                                                class="form-control store-filter-control @error('numero_comprobante') is-invalid @enderror"
+                                                placeholder="Ejemplo: 154848484" required>
+
+                                            <small class="text-muted d-block mt-2">
+                                                Podés escribir el número del voucher, referencia SINPE o comprobante
+                                                bancario.
+                                            </small>
+
+                                            @error('numero_comprobante')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="store-form-label">
+                                                Imagen del comprobante
+                                                <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="file" name="comprobante_pago" id="checkoutComprobanteInput"
+                                                accept="image/png,image/jpeg,image/jpg,image/webp"
+                                                class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror"
+                                                required>
+
+                                            <div class="store-checkout-proof-preview d-none mt-3"
+                                                id="checkoutProofPreviewWrap">
+
+                                                <img src="" id="checkoutProofPreview"
+                                                    class="img-fluid rounded-4 border" alt="Preview comprobante">
+
+                                            </div>
+
+                                            <small class="text-muted d-block mt-2">
+                                                Adjunta una captura del SINPE o comprobante bancario.
+                                                Formatos permitidos: JPG, PNG y WEBP.
+                                            </small>
+
+                                            @error('comprobante_pago')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
                                     </div>
 
                                 </div>
-
                             </div>
+
+                            <div class="d-flex justify-content-start mt-4">
+                                <button type="button" id="prevStep3" class="btn btn-store-outline">
+                                    <i class="bi bi-arrow-left me-1"></i>
+                                    Atrás
+                                </button>
+                            </div>
+
                         </div>
 
                     </div>
@@ -1742,5 +1822,91 @@
                 reader.readAsDataURL(file);
             });
         }
+
+        // PASOS DE DATOS SEGREGADOS 
+
+        document.getElementById('nextStep1').addEventListener('click', () => {
+
+            const step1 = document.getElementById('checkoutStep1');
+
+            const campos = step1.querySelectorAll('input, select, textarea');
+
+            for (const campo of campos) {
+
+                if (!campo.checkValidity()) {
+
+                    campo.reportValidity();
+                    return;
+                }
+            }
+
+            goToStep(2);
+        });
+
+        document.getElementById('nextStep2').addEventListener('click', () => {
+
+            const step2 = document.getElementById('checkoutStep2');
+
+            const campos = step2.querySelectorAll('input, select, textarea');
+
+            for (const campo of campos) {
+
+                if (!campo.checkValidity()) {
+
+                    campo.reportValidity();
+                    return;
+                }
+            }
+
+            goToStep(3);
+        });
+
+        function goToStep(step) {
+
+            document.querySelectorAll('.checkout-step').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            document.getElementById(`checkoutStep${step}`).style.display = 'block';
+
+            document.querySelectorAll('.checkout-progress-step').forEach(el => {
+                el.classList.remove('active', 'completed');
+            });
+
+            if (step === 1) {
+                document.getElementById('indicatorStep1').classList.add('active');
+            }
+
+            if (step === 2) {
+                document.getElementById('indicatorStep1').classList.add('completed');
+                document.getElementById('indicatorStep2').classList.add('active');
+            }
+
+            if (step === 3) {
+                document.getElementById('indicatorStep1').classList.add('completed');
+                document.getElementById('indicatorStep2').classList.add('completed');
+                document.getElementById('indicatorStep3').classList.add('active');
+            }
+        }
+
+        // document.getElementById('nextStep1').addEventListener('click', () => {
+        //     goToStep(2);
+        // });
+
+        document.getElementById('prevStep2').addEventListener('click', () => {
+            goToStep(1);
+        });
+
+        // document.getElementById('nextStep2').addEventListener('click', () => {
+        //     goToStep(3);
+        // });
+
+        document.getElementById('prevStep3').addEventListener('click', () => {
+            goToStep(2);
+        });
+
+        /* Iniciar en paso 1 */
+        goToStep(1);
+        
     </script>
 @endpush

@@ -79,10 +79,9 @@
                 icon: 'success',
                 title: '¡Listo!',
                 text: @json(session('swal_success')),
-                confirmButtonColor: '#dca117',
-                timer: 1700,
-                timerProgressBar: true,
-                showConfirmButton: false
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'Aceptar',
+                showConfirmButton: true
             });
         });
     </script>
