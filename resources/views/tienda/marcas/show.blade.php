@@ -153,6 +153,27 @@
                 @forelse($productos as $producto)
                     @php
                         $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
+
+                        $varianteBase = $producto->usa_variantes
+                            ? $producto->variantePrincipal ?? $producto->variantesActivas->first()
+                            : null;
+
+                        $precioBase = $producto->usa_variantes ? $varianteBase?->precio ?? 0 : $producto->precioVenta();
+
+                        $stockBase = $producto->usa_variantes
+                            ? $varianteBase?->stock_actual ?? 0
+                            : $producto->stock_actual;
+
+                        $agotado = $stockBase <= 0;
+
+                        $tienePromo = !$producto->usa_variantes && $producto->tienePromocionActiva();
+
+                        $precioNormal = (float) $precioBase;
+                        $precioVenta = $precioBase;
+
+                        $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
+
+                        $porcentaje = $tienePromo && $precioNormal > 0 ? round(($ahorro / $precioNormal) * 100) : 0;
                     @endphp
                     <div class="col-6 col-md-4 col-xl-3">
 
@@ -187,7 +208,7 @@
 
 
                                 {{-- BADGES --}}
-                                @if ($producto->stock_actual <= 0)
+                                @if ($agotado)
                                     <span class="store-product-badge store-product-badge-muted">
                                         Agotado
                                     </span>
@@ -227,19 +248,7 @@
 
                                     <div>
 
-                                        @php
-                                            $tienePromo = $producto->tienePromocionActiva();
 
-                                            $precioNormal = (float) $producto->precio;
-                                            $precioVenta = $producto->precioVenta();
-
-                                            $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
-
-                                            $porcentaje =
-                                                $tienePromo && $precioNormal > 0
-                                                    ? round(($ahorro / $precioNormal) * 100)
-                                                    : 0;
-                                        @endphp
 
                                         @if ($tienePromo)
                                             <div class="mb-1">
@@ -262,8 +271,8 @@
                                         @endif
                                         <small class="store-product-stock">
 
-                                            @if ($producto->stock_actual > 0)
-                                                Stock: {{ $producto->stock_actual }}
+                                            @if ($stockBase > 0)
+                                                Stock: {{ $stockBase }}
                                             @else
                                                 Agotado
                                             @endif
@@ -274,16 +283,26 @@
 
                                     <div class="d-flex gap-2">
 
-                                        <button type="button"
-                                            class="store-product-action js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
-                                            data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
-                                            data-product-id="{{ $producto->id_producto }}"
-                                            title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
-                                            {{ $producto->stock_actual <= 0 || $productoEnCarrito ? 'disabled' : '' }}>
+                                        @if ($producto->usa_variantes)
+                                            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                                class="store-product-action" title="Seleccionar variante">
 
-                                            <i class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
+                                                <i class="bi bi-ui-checks"></i>
 
-                                        </button>
+                                            </a>
+                                        @else
+                                            <button type="button"
+                                                class="store-product-action js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
+                                                data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
+                                                data-product-id="{{ $producto->id_producto }}"
+                                                title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
+                                                {{ $agotado || $productoEnCarrito ? 'disabled' : '' }}>
+
+                                                <i
+                                                    class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
+
+                                            </button>
+                                        @endif
 
                                         <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                             class="store-product-action">

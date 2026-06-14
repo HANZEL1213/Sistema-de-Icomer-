@@ -49,6 +49,8 @@ public function show($slug)
             'marca',
             'categoriaPrincipal',
             'imagenPrincipal',
+            'variantePrincipal',
+            'variantesActivas',
         ])
         ->where('activo', 1)
         ->whereNull('deleted_at')

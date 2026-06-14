@@ -36,39 +36,41 @@ class MarcaController extends Controller
         return view('tienda.marcas.index', compact('marcas'));
     }
 
-    public function show($slug)
-    {
-        $marca = Marca::query()
-            ->where('slug', $slug)
-            ->where('activo', 1)
-            ->firstOrFail();
+   public function show($slug)
+{
+    $marca = Marca::query()
+        ->where('slug', $slug)
+        ->where('activo', 1)
+        ->firstOrFail();
 
-        $productos = Producto::with([
-                'marca',
-                'categoriaPrincipal',
-                'imagenPrincipal',
-            ])
-            ->where('activo', 1)
-            ->whereNull('deleted_at')
-            ->where('id_marca', $marca->id_marca)
-            ->orderByDesc('created_at')
-            ->get();
-
-        // ✅ Favoritos (para que funcione el corazón)
-        $favoritosIds = Favorito::where(function ($query) {
-        if (Auth::check()) {
-    $query->where('id_usuario', Auth::id());
-} else {
-    $query->where('session_id', session()->getId());
-}
-        })
-        ->pluck('id_producto')
-        ->toArray();
-
-        return view('tienda.marcas.show', compact(
+    $productos = Producto::with([
             'marca',
-            'productos',
-            'favoritosIds'           // ← Agregado
-        ));
-    }
+            'categoriaPrincipal',
+            'imagenPrincipal',
+            'variantePrincipal',
+            'variantesActivas',
+        ])
+        ->where('activo', 1)
+        ->whereNull('deleted_at')
+        ->where('id_marca', $marca->id_marca)
+        ->orderByDesc('created_at')
+        ->get();
+
+    // ✅ Favoritos (para que funcione el corazón)
+    $favoritosIds = Favorito::where(function ($query) {
+        if (Auth::check()) {
+            $query->where('id_usuario', Auth::id());
+        } else {
+            $query->where('session_id', session()->getId());
+        }
+    })
+    ->pluck('id_producto')
+    ->toArray();
+
+    return view('tienda.marcas.show', compact(
+        'marca',
+        'productos',
+        'favoritosIds'
+    ));
+}
 }
