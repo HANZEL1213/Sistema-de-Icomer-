@@ -23,15 +23,21 @@ class ProductosController extends Controller
     /* ============================================
        📋 LISTADO
     ============================================ */
-    public function index()
-    {
-        $items = Producto::with(['marca', 'categoriaPrincipal', 'imagenPrincipal'])
-            ->orderBy('nombre')
-            ->get();
 
-        return view('admin.productos.index', compact('items'));
-    }
+public function index()
+{
+    $items = Producto::with([
+            'marca',
+            'categoriaPrincipal',
+            'imagenPrincipal',
+            'variantePrincipal',
+            'variantesActivas',
+        ])
+        ->orderBy('nombre')
+        ->get();
 
+    return view('admin.productos.index', compact('items'));
+}
     /* ============================================
        ➕ CREAR
     ============================================ */
@@ -277,7 +283,7 @@ if ($indicePrincipal === false) {
 
 foreach ($variantes as $index => $variante) {
     $esPrincipal = $index === $indicePrincipal;
-    
+
                     ProductoVariante::create([
                         'id_producto' => $item->id_producto,
                         'id_opcion_variante' => $variante['id_opcion_variante'] ?? null,

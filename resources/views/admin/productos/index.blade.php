@@ -4,7 +4,7 @@
 @section('title', 'Productos')
 
 @section('content')
- <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -168,81 +168,80 @@
                                 <td>
                                     {{ $item->categoriaPrincipal?->nombre ?: '—' }}
                                 </td>
-{{-- PRECIO --}}
-<td class="fw-semibold">
-    @if ($item->descuento_activo && $item->precio_descuento)
-        @php
-            $ahorro = $item->precio - $item->precio_descuento;
-            $porcentaje = $item->precio > 0
-                ? round(($ahorro / $item->precio) * 100)
-                : 0;
-        @endphp
+                                {{-- PRECIO --}}
+                                <td class="fw-semibold">
+                                    @if ($item->descuento_activo && $item->precio_descuento)
+                                        @php
+                                            $ahorro = $item->precio - $item->precio_descuento;
+                                            $porcentaje =
+                                                $item->precio > 0 ? round(($ahorro / $item->precio) * 100) : 0;
+                                        @endphp
 
-        <div class="index-price-discount">
-            <span class="index-discount-badge">
-                -{{ $porcentaje }}%
-            </span>
+                                        <div class="index-price-discount">
+                                            <span class="index-discount-badge">
+                                                -{{ $porcentaje }}%
+                                            </span>
 
-            <span class="index-old-price">
-                ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
-            </span>
+                                            <span class="index-old-price">
+                                                ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
+                                            </span>
 
-            <span class="index-current-price">
-                ₡{{ number_format((float) $item->precio_descuento, 0, ',', '.') }}
-            </span>
-        </div>
-    @else
-        <span class="index-normal-price">
-            ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
-        </span>
-    @endif
-</td>
-{{-- PROMOCIÓN --}}
-<td>
-    @if (
-        $item->descuento_activo &&
-        $item->precio_descuento &&
-        $item->descuento_inicio &&
-        $item->descuento_fin
-    )
+                                            <span class="index-current-price">
+                                                ₡{{ number_format((float) $item->precio_descuento, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @else
+                                        <span class="index-normal-price">
+                                            ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </td>
+                                {{-- PROMOCIÓN --}}
+                                <td>
+                                    @if ($item->descuento_activo && $item->precio_descuento && $item->descuento_inicio && $item->descuento_fin)
+                                        @php
+                                            $activaAhora =
+                                                now()->gte($item->descuento_inicio) && now()->lte($item->descuento_fin);
+                                        @endphp
 
-        @php
-            $activaAhora =
-                now()->gte($item->descuento_inicio) &&
-                now()->lte($item->descuento_fin);
-        @endphp
+                                        @if ($activaAhora)
+                                            <span class="status-badge status-active">
+                                                <i class="bx bx-purchase-tag-alt me-1"></i>
+                                                Activa
+                                            </span>
+                                        @else
+                                            <span class="status-badge status-inactive">
+                                                <i class="bx bx-time-five me-1"></i>
+                                                Programada
+                                            </span>
+                                        @endif
+                                    @else
+                                        <span class="status-badge status-inactive">
+                                            <i class="bx bx-x-circle me-1"></i>
+                                            Desactivada
+                                        </span>
+                                    @endif
+                                </td>
 
-        @if ($activaAhora)
-            <span class="status-badge status-active">
-                <i class="bx bx-purchase-tag-alt me-1"></i>
-                Activa
-            </span>
-        @else
-            <span class="status-badge status-inactive">
-                <i class="bx bx-time-five me-1"></i>
-                Programada
-            </span>
-        @endif
-
-    @else
-     <span class="status-badge status-inactive">
-    <i class="bx bx-x-circle me-1"></i>
-    Desactivada
-</span>
-    @endif
-</td>
 
                                 {{-- STOCK --}}
                                 <td>
-                                    @if ((int) $item->stock_actual > 0)
-                                        <span class="order-badge">{{ $item->stock_actual }}</span>
+                                    @php
+                                        $stockReal = $item->usa_variantes
+                                            ? $item->variantesActivas->sum('stock_actual')
+                                            : $item->stock_actual;
+                                    @endphp
+
+                                    @if ((int) $stockReal > 0)
+                                        <span class="order-badge">
+                                            {{ $stockReal }}
+                                        </span>
                                     @else
                                         <span class="status-badge status-inactive">
                                             <i class="bx bx-package me-1"></i>0
                                         </span>
                                     @endif
                                 </td>
-
                                 {{-- ESTADO --}}
                                 <td>
                                     @if ($item->activo)
@@ -280,7 +279,8 @@
                                         </a>
 
                                         <a class="btn-action btn-edit"
-                                            href="{{ route('admin.productos.edit', $item->id_producto) }}" title="Editar">
+                                            href="{{ route('admin.productos.edit', $item->id_producto) }}"
+                                            title="Editar">
                                             <i class="bx bx-edit"></i>
                                         </a>
 
