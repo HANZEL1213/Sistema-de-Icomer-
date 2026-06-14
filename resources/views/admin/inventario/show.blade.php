@@ -34,6 +34,15 @@
             $referenciaTitulo = 'Venta local';
             $referenciaValor = '#' . $item->id_venta_local;
         }
+
+        $nombreVariante = null;
+
+        if ($item->variante) {
+            $nombreVariante = $item->variante->nombre
+                ?: ($item->variante->opcion?->valor
+                    ?? $item->variante->opcion?->etiqueta
+                    ?? null);
+        }
     @endphp
 
     {{-- Breadcrumb --}}
@@ -77,8 +86,32 @@
             <div class="card border-0 bg-light mb-4 text-center">
                 <div class="card-body">
                     <label class="fw-semibold mb-2 d-block">Producto</label>
-                    <div class="fw-bold fs-4">{{ $item->producto?->nombre ?? 'Producto no disponible' }}</div>
-                    <small class="text-muted">{{ $item->producto?->sku ?? 'Sin SKU' }}</small>
+
+                    <div class="fw-bold fs-4">
+                        {{ $item->producto?->nombre ?? 'Producto no disponible' }}
+                    </div>
+
+                    <small class="text-muted">
+                        {{ $item->producto?->sku ?? 'Sin SKU' }}
+                    </small>
+
+                    @if ($item->variante)
+                        <div class="mt-3">
+                            <span class="badge bg-primary fs-6 px-3 py-2">
+                                <i class="bx bx-git-branch"></i>
+                                Variante: {{ $nombreVariante ?? 'Variante no disponible' }}
+                            </span>
+                        </div>
+
+                        <div class="small text-muted mt-2">
+                            SKU variante: {{ $item->variante->sku ?: 'Sin SKU' }}
+                        </div>
+
+                        <div class="small text-muted">
+                            Stock actual variante:
+                            <strong>{{ number_format((int) $item->variante->stock_actual, 0, '.', ',') }}</strong>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -180,6 +213,18 @@
                                 <small class="text-muted">{{ $referenciaValor }}</small>
                             </div>
 
+                            @if ($item->variante)
+                                <div class="mb-3">
+                                    <small class="text-muted">Variante afectada</small>
+                                    <div class="fw-semibold">
+                                        {{ $nombreVariante ?? 'Variante no disponible' }}
+                                    </div>
+                                    <small class="text-muted">
+                                        ID variante: {{ $item->id_producto_variante }}
+                                    </small>
+                                </div>
+                            @endif
+
                             <div>
                                 <small class="text-muted">Última actualización</small>
                                 <div>
@@ -202,9 +247,6 @@
                 </div>
 
             </div>
-
-            {{-- BOTONES --}}
-
 
         </div>
     </div>

@@ -3,14 +3,14 @@
 
 <style>
     .terminos-link {
-    color: var(--bs-primary);
-    font-weight: 600;
-    text-decoration: none;
-}
+        color: var(--bs-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
 
-.terminos-link:hover {
-    text-decoration: underline;
-}
+    .terminos-link:hover {
+        text-decoration: underline;
+    }
 </style>
 
 @section('title', 'Finalizar compra | Tienda')
@@ -594,48 +594,52 @@
                             <div class="store-checkout-summary-header">
                                 <h2>Resumen del pedido</h2>
                             </div>
-<div class="store-checkout-products">
-    @foreach ($carrito as $item)
-        @php
-            $imagen = $item['imagen']
-                ? asset('storage/' . $item['imagen'])
-                : asset('assets/img/no-image.png');
+                            <div class="store-checkout-products">
+                                @foreach ($carrito as $item)
+                                    @php
+                                        $imagen = $item['imagen']
+                                            ? asset('storage/' . $item['imagen'])
+                                            : asset('assets/img/no-image.png');
 
-            $tienePromo = $item['tiene_promocion'] ?? false;
-            $precioVenta = (float) ($item['precio'] ?? 0);
-            $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
-            $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
-        @endphp
+                                        $tienePromo = $item['tiene_promocion'] ?? false;
+                                        $precioVenta = (float) ($item['precio'] ?? 0);
+                                        $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
+                                        $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
+                                    @endphp
 
-        <div class="store-checkout-product">
-            <div class="store-checkout-product-image">
-                <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
-            </div>
+                                    <div class="store-checkout-product">
+                                        <div class="store-checkout-product-image">
+                                            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
+                                        </div>
 
-            <div class="store-checkout-product-info">
-                <h5>{{ $item['nombre'] }}</h5>
+                                        <div class="store-checkout-product-info">
+                                            <h5>{{ $item['nombre'] }}</h5>
 
-            
+                                            @if (!empty($item['variante']))
+                                                <small class="d-block text-muted mb-1">
+                                                    Variante: {{ $item['variante'] }}
+                                                </small>
+                                            @endif
 
-                <span>Cantidad: {{ $item['cantidad'] }}</span>
-            </div>
+                                            <span>Cantidad: {{ $item['cantidad'] }}</span>
+                                        </div>
 
-            <div class="store-checkout-product-price">
-                @if ($tienePromo)
-                    <div class="text-muted text-decoration-line-through small">
-                        ₡{{ number_format($precioNormal * $item['cantidad'], 2) }}
-                    </div>
+                                        <div class="store-checkout-product-price">
+                                            @if ($tienePromo)
+                                                <div class="text-muted text-decoration-line-through small">
+                                                    ₡{{ number_format($precioNormal * $item['cantidad'], 2) }}
+                                                </div>
 
-                    <strong class="text-danger">
-                        ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
-                    </strong>
-                @else
-                    ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
-                @endif
-            </div>
-        </div>
-    @endforeach
-</div>
+                                                <strong class="text-danger">
+                                                    ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+                                                </strong>
+                                            @else
+                                                ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
 
                             {{-- CUPÓN APLICADO --}}
                             @if ($cuponAplicado)
@@ -730,24 +734,18 @@
                                 Tu pedido será revisado manualmente después de validar el pago.
                             </div>
 
-                          <div class="form-check mt-4 mb-3">
-                            <input
-                                class="form-check-input"
-                                type="checkbox"
-                                name="acepta_terminos"
-                                id="acepta_terminos"
-                                required>
+                            <div class="form-check mt-4 mb-3">
+                                <input class="form-check-input" type="checkbox" name="acepta_terminos"
+                                    id="acepta_terminos" required>
 
-                          <label class="form-check-label" for="acepta_terminos">
-                                He leído y acepto los
-                                <a href="#"
-                                class="terminos-link"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalTerminos">
-                                    Términos, Condiciones y Políticas de Cora CR.
-                                </a>
-                            </label>
-                        </div>
+                                <label class="form-check-label" for="acepta_terminos">
+                                    He leído y acepto los
+                                    <a href="#" class="terminos-link" data-bs-toggle="modal"
+                                        data-bs-target="#modalTerminos">
+                                        Términos, Condiciones y Políticas de Cora CR.
+                                    </a>
+                                </label>
+                            </div>
 
                             <button type="submit" class="btn btn-store-primary store-checkout-submit">
                                 <i class="bi bi-shield-check me-1"></i>
@@ -779,7 +777,8 @@
 
             {{-- MODAL TERMINOS Y CONDICIONES --}}
 
-            <div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel" aria-hidden="true">
+            <div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel"
+                aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
                     <div class="modal-content">
 
@@ -788,7 +787,8 @@
                                 Términos, Condiciones y Políticas de Cora CR
                             </h5>
 
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
                         </div>
 
                         <div class="modal-body">

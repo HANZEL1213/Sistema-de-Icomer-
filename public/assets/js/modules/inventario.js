@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const productos = window.InventarioProductos || [];
 
     const inputHidden = document.getElementById('id_producto');
+    const varianteHidden = document.getElementById('id_producto_variante');
+
     const searchInput = document.getElementById('inventoryProductSearch');
     const resultsBox = document.getElementById('inventoryProductResults');
     const selectedBox = document.getElementById('inventoryProductSelected');
@@ -37,13 +39,32 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function tieneVariantes(producto) {
+        return Boolean(producto?.usa_variantes);
+    }
+
+    function getVariantes(producto) {
+        return Array.isArray(producto?.variantes) ? producto.variantes : [];
+    }
+
     function getStock(producto) {
+        if (tieneVariantes(producto)) {
+            return getVariantes(producto).reduce(function (total, variante) {
+                const stockVariante = Number(variante?.stock);
+                return total + (Number.isFinite(stockVariante) ? stockVariante : 0);
+            }, 0);
+        }
+
         const stock = Number(producto?.stock);
         return Number.isFinite(stock) ? stock : 0;
     }
 
     function getCodigo(producto) {
         return producto.codigo_barras || producto.sku || 'Sin código';
+    }
+
+    function getNombreVariante(variante) {
+        return variante.nombre || variante.opcion || 'Variante';
     }
 
     function renderImage(producto) {
@@ -75,6 +96,16 @@ document.addEventListener('DOMContentLoaded', function () {
         productosFiltrados = [];
     }
 
+    function limpiarSeleccion() {
+        inputHidden.value = '';
+
+        if (varianteHidden) {
+            varianteHidden.value = '';
+        }
+
+        selectedBox.innerHTML = '';
+    }
+
     function renderResults(query) {
         const value = String(query || '').trim().toLowerCase();
 
@@ -103,6 +134,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         resultsBox.innerHTML = productosFiltrados.map(function (producto, index) {
+            const badgeTexto = tieneVariantes(producto)
+                ? `Variantes: ${getVariantes(producto).length}`
+                : `Stock: ${getStock(producto)}`;
+
             return `
                 <button type="button"
                         class="list-group-item list-group-item-action inventory-product-option"
@@ -118,10 +153,18 @@ document.addEventListener('DOMContentLoaded', function () {
                             <small class="text-muted">
                                 ${escapeHtml(getCodigo(producto))}
                             </small>
+
+                            ${
+                                tieneVariantes(producto)
+                                    ? `<div class="small text-primary fw-semibold">
+                                            Producto con variantes
+                                       </div>`
+                                    : ''
+                            }
                         </div>
 
                         <span class="badge bg-primary">
-                            Stock: ${escapeHtml(getStock(producto))}
+                            ${escapeHtml(badgeTexto)}
                         </span>
                     </div>
                 </button>
@@ -146,38 +189,144 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    function renderVariantSelector(producto) {
+        if (!tieneVariantes(producto)) {
+            return '';
+        }
+
+        const variantes = getVariantes(producto);
+
+        if (!variantes.length) {
+            return `
+                <div class="alert alert-warning mt-3 mb-0">
+                    Este producto usa variantes, pero no tiene variantes activas.
+                </div>
+            `;
+        }
+
+        const opciones = variantes.map(function (variante) {
+            const selected = varianteHidden && String(varianteHidden.value) === String(variante.id)
+                ? 'selected'
+                : '';
+
+            const nombre = getNombreVariante(variante);
+            const sku = variante.sku ? ` | SKU: ${variante.sku}` : '';
+
+            return `
+                <option value="${escapeHtml(variante.id)}" ${selected}>
+                    ${escapeHtml(nombre)}${escapeHtml(sku)} | Stock: ${escapeHtml(variante.stock)}
+                </option>
+            `;
+        }).join('');
+
+        return `
+            <div class="mt-3 pt-3 border-top">
+                <label class="fw-semibold mb-2">
+                    Variante <span class="text-danger">*</span>
+                </label>
+
+                <select id="inventoryVariantSelect"
+                        class="form-select"
+                        required>
+                    <option value="">Seleccione una variante</option>
+                    ${opciones}
+                </select>
+
+                <small class="text-muted d-block mt-1">
+                    Este producto maneja inventario por variante.
+                </small>
+            </div>
+        `;
+    }
+
+    function actualizarVarianteSeleccionada(producto) {
+        const variantSelect = document.getElementById('inventoryVariantSelect');
+
+        if (!variantSelect || !varianteHidden) {
+            return;
+        }
+
+        variantSelect.addEventListener('change', function () {
+            varianteHidden.value = this.value;
+
+            const variante = getVariantes(producto).find(function (item) {
+                return String(item.id) === String(variantSelect.value);
+            });
+
+            const infoBox = document.getElementById('inventoryVariantInfo');
+
+            if (infoBox && variante) {
+                infoBox.innerHTML = `
+                    Stock de la variante seleccionada:
+                    <strong>${escapeHtml(variante.stock)}</strong>
+                `;
+            } else if (infoBox) {
+                infoBox.innerHTML = '';
+            }
+        });
+
+        if (variantSelect.value) {
+            varianteHidden.value = variantSelect.value;
+            variantSelect.dispatchEvent(new Event('change'));
+        }
+    }
+
     function selectProduct(producto) {
         if (!producto) return;
 
         inputHidden.value = producto.id;
         searchInput.value = producto.nombre;
 
+        if (varianteHidden) {
+            if (!tieneVariantes(producto)) {
+                varianteHidden.value = '';
+            }
+        }
+
         selectedBox.innerHTML = `
-            <div class="d-flex align-items-center gap-3 p-3 bg-white border rounded-4 shadow-sm">
-                ${renderImage(producto)}
+            <div class="p-3 bg-white border rounded-4 shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                    ${renderImage(producto)}
 
-                <div class="flex-grow-1">
-                    <div class="fw-bold">
-                        ${escapeHtml(producto.nombre)}
-                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">
+                            ${escapeHtml(producto.nombre)}
+                        </div>
 
-                    <small class="text-muted">
-                        ${escapeHtml(getCodigo(producto))}
-                    </small>
+                        <small class="text-muted">
+                            ${escapeHtml(getCodigo(producto))}
+                        </small>
 
-                    <div class="small text-muted">
-                        Stock actual: <strong>${escapeHtml(getStock(producto))}</strong>
+                        <div class="small text-muted">
+                            ${
+                                tieneVariantes(producto)
+                                    ? `Stock total en variantes: <strong>${escapeHtml(getStock(producto))}</strong>`
+                                    : `Stock actual: <strong>${escapeHtml(getStock(producto))}</strong>`
+                            }
+                        </div>
+
+                        ${
+                            tieneVariantes(producto)
+                                ? `<div class="small text-primary fw-semibold">
+                                        Producto con variantes${producto.tipo_variante ? ': ' + escapeHtml(producto.tipo_variante) : ''}
+                                   </div>`
+                                : ''
+                        }
                     </div>
                 </div>
+
+                ${renderVariantSelector(producto)}
+
+                <div id="inventoryVariantInfo" class="small text-muted mt-2"></div>
             </div>
         `;
 
+        actualizarVarianteSeleccionada(producto);
         limpiarResultados();
     }
 
     searchInput.addEventListener('input', function () {
-        inputHidden.value = '';
-        selectedBox.innerHTML = '';
+        limpiarSeleccion();
         renderResults(this.value);
     });
 

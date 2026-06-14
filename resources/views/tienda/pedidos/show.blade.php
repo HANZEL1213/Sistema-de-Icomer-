@@ -140,136 +140,130 @@
                     </div>
 
 
-                    {{-- PRODUCTOS --}}
-                    <div class="store-order-show-card mb-4">
+                {{-- PRODUCTOS --}}
+<div class="store-order-show-card mb-4">
 
-                        <div class="store-order-show-card-header">
+    <div class="store-order-show-card-header">
 
-                            <h2>
-                                <i class="bi bi-bag-check"></i>
-                                Productos del pedido
-                            </h2>
+        <h2>
+            <i class="bi bi-bag-check"></i>
+            Productos del pedido
+        </h2>
 
+    </div>
+
+    <div class="store-order-show-products">
+
+        @foreach ($pedido->detalle as $detalle)
+            @php
+                $producto = $detalle->producto;
+                $variante = $detalle->variante;
+                $opcion = $variante?->opcion;
+
+                $imagen = $producto?->imagenPrincipal?->ruta
+                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                    : asset('assets/img/no-image.png');
+
+                $precioVenta = (float) $detalle->precio_unitario;
+                $precioNormal = (float) ($detalle->precio_original ?? $precioVenta);
+
+                $tienePromo = $detalle->promocion_aplicada && $precioNormal > $precioVenta;
+
+                $porcentaje = $tienePromo && $precioNormal > 0
+                    ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
+                    : 0;
+
+                $totalLinea = (float) $detalle->total_linea;
+
+                $skuMostrar = $detalle->sku_snapshot
+                    ?? $variante?->sku
+                    ?? $producto?->sku;
+            @endphp
+
+            <article class="store-order-show-product">
+
+                <div class="store-order-show-product-image">
+                    <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
+                </div>
+
+                <div class="store-order-show-product-info">
+
+                    @if ($skuMostrar)
+                        <span>
+                            SKU: {{ $skuMostrar }}
+                        </span>
+                    @endif
+
+                    <h3>
+                        {{ $detalle->nombre_producto }}
+                    </h3>
+
+                    @if ($variante)
+                        <div class="mb-2">
+                            <span class="badge bg-light text-dark border">
+                                Variante:
+                                {{ $opcion?->etiqueta ?? $opcion?->valor ?? $variante->nombre }}
+                            </span>
+                        </div>
+                    @endif
+
+                    @if ($tienePromo)
+                        <span class="badge bg-danger text-white mb-2">
+                            -{{ $porcentaje }}% OFF
+                        </span>
+                    @endif
+
+                    <p>
+
+                        Cantidad:
+                        {{ $detalle->cantidad }}
+
+                        <br>
+
+                        Precio unitario:
+
+                        @if ($tienePromo)
+                            <span class="text-muted text-decoration-line-through">
+                                ₡{{ number_format($precioNormal, 2) }}
+                            </span>
+
+                            <strong class="text-danger">
+                                ₡{{ number_format($precioVenta, 2) }}
+                            </strong>
+                        @else
+                            ₡{{ number_format($precioVenta, 2) }}
+                        @endif
+
+                    </p>
+
+                </div>
+
+                <div class="store-order-show-product-total">
+
+                    <span>Total línea</span>
+
+                    @if ($tienePromo)
+                        <div class="text-muted text-decoration-line-through small">
+                            ₡{{ number_format($precioNormal * $detalle->cantidad, 2) }}
                         </div>
 
-                        <div class="store-order-show-products">
+                        <strong class="text-danger">
+                            ₡{{ number_format($totalLinea, 2) }}
+                        </strong>
+                    @else
+                        <strong>
+                            ₡{{ number_format($totalLinea, 2) }}
+                        </strong>
+                    @endif
 
-                            @foreach ($pedido->detalle as $detalle)
-                                @php
-                                    $producto = $detalle->producto;
+                </div>
 
-                                    $imagen = $producto?->imagenPrincipal?->ruta
-                                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                                        : asset('assets/img/no-image.png');
-                                @endphp
+            </article>
+        @endforeach
 
-                                <article class="store-order-show-product">
-
-                                    <div class="store-order-show-product-image">
-                                        <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
-                                    </div>
-
-                          @php
-    $precioVenta = (float) $detalle->precio_unitario;
-
-    $precioNormal = (float) ($producto?->precio ?? $precioVenta);
-
-    $tienePromo = $precioNormal > $precioVenta;
-
-    $porcentaje = $tienePromo && $precioNormal > 0
-        ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
-        : 0;
-
-    $totalLinea = $precioVenta * $detalle->cantidad;
-@endphp
-
-<div class="store-order-show-product-info">
-
-    @if ($producto?->sku)
-        <span>
-            {{ $producto->sku }}
-        </span>
-    @endif
-
-    <h3>
-        {{ $detalle->nombre_producto }}
-    </h3>
-
-    @if($tienePromo)
-        <span class="badge bg-danger text-white mb-2">
-            -{{ $porcentaje }}% OFF
-        </span>
-    @endif
-
-    <p>
-
-        Cantidad:
-        {{ $detalle->cantidad }}
-
-        <br>
-
-        Precio unitario:
-
-        @if($tienePromo)
-
-            <span class="text-muted text-decoration-line-through">
-                ₡{{ number_format($precioNormal, 2) }}
-            </span>
-
-            <strong class="text-danger">
-                ₡{{ number_format($precioVenta, 2) }}
-            </strong>
-
-        @else
-
-            ₡{{ number_format($precioVenta, 2) }}
-
-        @endif
-
-    </p>
+    </div>
 
 </div>
-
-<div class="store-order-show-product-total">
-
-    <span>Total línea</span>
-
-    @if($tienePromo)
-
-        <div class="text-muted text-decoration-line-through small">
-            ₡{{ number_format($precioNormal * $detalle->cantidad, 2) }}
-        </div>
-
-        <strong class="text-danger">
-            ₡{{ number_format($totalLinea, 2) }}
-        </strong>
-
-    @else
-
-        <strong>
-            ₡{{ number_format($totalLinea, 2) }}
-        </strong>
-
-    @endif
-
-</div>
-
-                                    <div class="store-order-show-product-total">
-
-                                        <span>Total línea</span>
-
-                                        <strong>
-                              ₡{{ number_format($detalle->total_linea, 2) }}
-                                        </strong>
-
-                                    </div>
-
-                                </article>
-                            @endforeach
-
-                        </div>
-
-                    </div>
 
 
                     {{-- ENTREGA --}}
@@ -420,65 +414,61 @@
 
 
 
-@if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
-    <div class="alert alert-danger rounded-4 mt-4">
-        <strong>Pago rechazado</strong>
+                                    @if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
+                                        <div class="alert alert-danger rounded-4 mt-4">
+                                            <strong>Pago rechazado</strong>
 
-        @if ($pago->motivo_rechazo)
-            <p class="mb-0 mt-1">
-                Motivo: {{ $pago->motivo_rechazo }}
-            </p>
-        @else
-            <p class="mb-0 mt-1">
-                El comprobante no pudo ser validado.
-            </p>
-        @endif
-    </div>
+                                            @if ($pago->motivo_rechazo)
+                                                <p class="mb-0 mt-1">
+                                                    Motivo: {{ $pago->motivo_rechazo }}
+                                                </p>
+                                            @else
+                                                <p class="mb-0 mt-1">
+                                                    El comprobante no pudo ser validado.
+                                                </p>
+                                            @endif
+                                        </div>
 
-    <div class="bg-light rounded-4 border p-4 mt-4">
-        <h4 class="fw-bold mb-2">
-            Reenviar pago
-        </h4>
+                                        <div class="bg-light rounded-4 border p-4 mt-4">
+                                            <h4 class="fw-bold mb-2">
+                                                Reenviar pago
+                                            </h4>
 
-        <p class="text-muted mb-3">
-            Puedes ingresar un nuevo código SINPE, subir una imagen del voucher o enviar ambos.
-        </p>
+                                            <p class="text-muted mb-3">
+                                                Puedes ingresar un nuevo código SINPE, subir una imagen del voucher o enviar
+                                                ambos.
+                                            </p>
 
-        <form action="{{ route('tienda.pagos.store', $pedido->numero_pedido) }}"
-              method="POST"
-              enctype="multipart/form-data">
-            @csrf
+                                            <form action="{{ route('tienda.pagos.store', $pedido->numero_pedido) }}"
+                                                method="POST" enctype="multipart/form-data">
+                                                @csrf
 
-            <div class="mb-3">
-                <label class="form-label">
-                    Código SINPE
-                </label>
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        Código SINPE
+                                                    </label>
 
-                <input type="text"
-                       name="numero_comprobante"
-                       class="form-control"
-                       value="{{ old('numero_comprobante') }}"
-                       placeholder="Ej: 123456789">
-            </div>
+                                                    <input type="text" name="numero_comprobante" class="form-control"
+                                                        value="{{ old('numero_comprobante') }}"
+                                                        placeholder="Ej: 123456789">
+                                                </div>
 
-            <div class="mb-3">
-                <label class="form-label">
-                    Imagen del voucher
-                </label>
+                                                <div class="mb-3">
+                                                    <label class="form-label">
+                                                        Imagen del voucher
+                                                    </label>
 
-                <input type="file"
-                       name="comprobante"
-                       class="form-control"
-                       accept="image/*">
-            </div>
+                                                    <input type="file" name="comprobante" class="form-control"
+                                                        accept="image/*">
+                                                </div>
 
-            <button type="submit" class="btn btn-store-primary">
-                <i class="bi bi-arrow-repeat me-1"></i>
-                Reenviar pago
-            </button>
-        </form>
-    </div>
-@endif
+                                                <button type="submit" class="btn btn-store-primary">
+                                                    <i class="bi bi-arrow-repeat me-1"></i>
+                                                    Reenviar pago
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
 
 
 
@@ -489,7 +479,7 @@
 
 
 
-                                    
+
                                 </div>
 
                             </div>

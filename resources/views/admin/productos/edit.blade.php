@@ -186,318 +186,445 @@
 
                     </div>
 
-                    {{-- DERECHA --}}
-                    <div class="col-md-6">
 
-                        {{-- Nombre --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Nombre <span class="text-danger">*</span></label>
-                                <div class="input-group custom-dark-input">
-                                    <span class="input-group-text">
-                                        <i class="bx bx-category"></i>
-                                    </span>
-                                    <input type="text" name="nombre" id="nombre"
-                                        class="form-control @error('nombre') is-invalid @enderror"
-                                        value="{{ old('nombre', $item->nombre) }}" required>
-                                </div>
-                                @error('nombre')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+              {{-- DERECHA --}}
+<div class="col-md-6">
 
-                        {{-- Slug --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Slug <span class="text-danger">*</span></label>
-                                <div class="input-group custom-dark-input">
-                                    <span class="input-group-text">
-                                        <i class="bx bx-link"></i>
-                                    </span>
-                                    <input type="text" name="slug" id="slug"
-                                        class="form-control @error('slug') is-invalid @enderror"
-                                        value="{{ old('slug', $item->slug) }}">
-                                </div>
-                                @error('slug')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+    {{-- Nombre --}}
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Nombre <span class="text-danger">*</span></label>
+            <div class="input-group custom-dark-input">
+                <span class="input-group-text">
+                    <i class="bx bx-category"></i>
+                </span>
+                <input type="text" name="nombre" id="nombre"
+                    class="form-control @error('nombre') is-invalid @enderror"
+                    value="{{ old('nombre', $item->nombre) }}" required>
+            </div>
+            @error('nombre')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
-                        {{-- Marca --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Marca</label>
-                                <select name="id_marca" class="form-select @error('id_marca') is-invalid @enderror">
-                                    <option value="">Seleccione una marca</option>
-                                    @foreach ($marcas as $marca)
-                                        <option value="{{ $marca->id_marca }}"
-                                            {{ old('id_marca', $item->id_marca) == $marca->id_marca ? 'selected' : '' }}>
-                                            {{ $marca->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('id_marca')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+    {{-- Slug --}}
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Slug <span class="text-danger">*</span></label>
+            <div class="input-group custom-dark-input">
+                <span class="input-group-text">
+                    <i class="bx bx-link"></i>
+                </span>
+                <input type="text" name="slug" id="slug"
+                    class="form-control @error('slug') is-invalid @enderror"
+                    value="{{ old('slug', $item->slug) }}">
+            </div>
+            @error('slug')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
-                        {{-- Categoría principal --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Categoría</label>
-                                <select name="id_categoria_principal" id="id_categoria_principal"
-                                    class="form-select @error('id_categoria_principal') is-invalid @enderror">
-                                    <option value="">Seleccione una categoría</option>
-                                    @foreach ($categorias as $categoria)
-                                        <option value="{{ $categoria->id_categoria }}"
-                                            {{ old('id_categoria_principal', $item->id_categoria_principal) == $categoria->id_categoria ? 'selected' : '' }}>
-                                            {{ $categoria->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('id_categoria_principal')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
+    {{-- Marca --}}
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Marca</label>
+            <select name="id_marca" class="form-select @error('id_marca') is-invalid @enderror">
+                <option value="">Seleccione una marca</option>
+                @foreach ($marcas as $marca)
+                    <option value="{{ $marca->id_marca }}"
+                        {{ old('id_marca', $item->id_marca) == $marca->id_marca ? 'selected' : '' }}>
+                        {{ $marca->nombre }}
+                    </option>
+                @endforeach
+            </select>
+            @error('id_marca')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
-                        {{-- PRECIO --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Precio <span class="text-danger">*</span></label>
-                                <div class="input-group custom-dark-input">
-                                    <span class="input-group-text">₡</span>
-                                    <input type="number" step="1" min="0" name="precio"
-                                        class="form-control @error('precio') is-invalid @enderror"
-                                        value="{{ old('precio', $item->precio !== null ? (int) $item->precio : '') }}"
-                                        required>
-                                </div>
-                                @error('precio')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        {{-- DESCUENTO --}}
-                    
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
+    {{-- Categoría principal --}}
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Categoría</label>
+            <select name="id_categoria_principal" id="id_categoria_principal"
+                class="form-select @error('id_categoria_principal') is-invalid @enderror">
+                <option value="">Seleccione una categoría</option>
+                @foreach ($categorias as $categoria)
+                    <option value="{{ $categoria->id_categoria }}"
+                        {{ old('id_categoria_principal', $item->id_categoria_principal) == $categoria->id_categoria ? 'selected' : '' }}>
+                        {{ $categoria->nombre }}
+                    </option>
+                @endforeach
+            </select>
+            @error('id_categoria_principal')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
-                                @php
-                                    $descuentoActivoOld = old('descuento_activo', $item->descuento_activo ? '1' : '0');
-                                    $descuentoActivo =
-                                        $descuentoActivoOld == '1' ||
-                                        $descuentoActivoOld === 1 ||
-                                        $descuentoActivoOld === true ||
-                                        $descuentoActivoOld === 'on';
+    {{-- PRECIO --}}
+    <div class="card border-0 bg-light mb-3" id="precioPrincipalCard">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Precio <span class="text-danger">*</span></label>
+            <div class="input-group custom-dark-input">
+                <span class="input-group-text">₡</span>
+                <input type="number" step="1" min="0" name="precio" id="precio"
+                    class="form-control @error('precio') is-invalid @enderror"
+                    value="{{ old('precio', $item->precio !== null ? (int) $item->precio : 0) }}"
+                    required>
+            </div>
+            @error('precio')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
 
-                                    $descuentoInicioValue = old(
-                                        'descuento_inicio',
-                                        $item->descuento_inicio ? $item->descuento_inicio->format('Y-m-d\TH:i') : '',
-                                    );
+    {{-- DESCUENTO --}}
+    <div class="card border-0 bg-light mb-3" id="descuentoPrincipalCard">
+        <div class="card-body">
 
-                                    $descuentoFinValue = old(
-                                        'descuento_fin',
-                                        $item->descuento_fin ? $item->descuento_fin->format('Y-m-d\TH:i') : '',
-                                    );
+            @php
+                $descuentoActivoOld = old('descuento_activo', $item->descuento_activo ? '1' : '0');
+                $descuentoActivo =
+                    $descuentoActivoOld == '1' ||
+                    $descuentoActivoOld === 1 ||
+                    $descuentoActivoOld === true ||
+                    $descuentoActivoOld === 'on';
 
-                                    $ahorroPreview = $item->precio_descuento
-                                        ? $item->precio - $item->precio_descuento
-                                        : 0;
+                $descuentoInicioValue = old(
+                    'descuento_inicio',
+                    $item->descuento_inicio ? $item->descuento_inicio->format('Y-m-d\TH:i') : ''
+                );
 
-                                    $porcentajePreview =
-                                        $item->precio > 0 && $item->precio_descuento
-                                            ? round(($ahorroPreview / $item->precio) * 100)
-                                            : 0;
-                                @endphp
+                $descuentoFinValue = old(
+                    'descuento_fin',
+                    $item->descuento_fin ? $item->descuento_fin->format('Y-m-d\TH:i') : ''
+                );
 
-                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                                    <div>
-                                        <label class="fw-semibold d-block mb-1">Descuento</label>
-                                        <small class="text-muted">Activa una oferta para este producto.</small>
-                                    </div>
+                $ahorroPreview = $item->precio_descuento ? $item->precio - $item->precio_descuento : 0;
 
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span id="descuentoTexto"
-                                            class="badge estado-badge px-3 py-2 {{ $descuentoActivo ? 'bg-success' : 'bg-secondary' }}">
-                                            @if ($descuentoActivo)
-                                                <i class="bx bx-check-circle me-1"></i> Con descuento
-                                            @else
-                                                <i class="bx bx-x-circle me-1"></i> Sin descuento
-                                            @endif
-                                        </span>
+                $porcentajePreview =
+                    $item->precio > 0 && $item->precio_descuento
+                        ? round(($ahorroPreview / $item->precio) * 100)
+                        : 0;
+            @endphp
 
-                                        <label class="switch">
-                                            <input type="checkbox" id="descuentoSwitch" name="descuento_activo"
-                                                value="1" {{ $descuentoActivo ? 'checked' : '' }}>
-                                            <span class="slider round"></span>
-                                        </label>
-                                    </div>
-                                </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <label class="fw-semibold d-block mb-1">Descuento</label>
+                    <small class="text-muted">Activa una oferta para este producto.</small>
+                </div>
 
-                                <div id="descuentoCampos"
-                                    style="{{ $descuentoActivo ? 'display:block;' : 'display:none;' }}">
+                <div class="d-flex align-items-center gap-3">
+                    <span id="descuentoTexto"
+                        class="badge estado-badge px-3 py-2 {{ $descuentoActivo ? 'bg-success' : 'bg-secondary' }}">
+                        @if ($descuentoActivo)
+                            <i class="bx bx-check-circle me-1"></i> Con descuento
+                        @else
+                            <i class="bx bx-x-circle me-1"></i> Sin descuento
+                        @endif
+                    </span>
 
-                                    <hr class="my-3">
+                    <label class="switch">
+                        <input type="checkbox" id="descuentoSwitch" name="descuento_activo"
+                            value="1" {{ $descuentoActivo ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
 
-                                    <div class="mb-3">
-                                        <label class="fw-semibold mb-2">Precio con descuento</label>
+            <div id="descuentoCampos" style="{{ $descuentoActivo ? 'display:block;' : 'display:none;' }}">
+                <hr class="my-3">
 
-                                        <div class="input-group custom-dark-input">
-                                            <span class="input-group-text">₡</span>
+                <div class="mb-3">
+                    <label class="fw-semibold mb-2">Precio con descuento</label>
 
-                                            <input type="number" step="1" min="0" name="precio_descuento"
-                                                id="precio_descuento"
-                                                class="form-control @error('precio_descuento') is-invalid @enderror"
-                                                value="{{ old('precio_descuento', $item->precio_descuento !== null ? (int) $item->precio_descuento : '') }}">
-                                        </div>
-
-                                        @error('precio_descuento')
-                                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                                        @enderror
-
-                                        <div class="discount-preview-admin mt-3" id="descuentoPreview"
-                                            style="{{ $descuentoActivo && $item->precio_descuento ? 'display:block;' : 'display:none;' }}">
-
-                                            <div class="discount-preview-badge" id="descuentoPreviewPorcentaje">
-                                                -{{ $porcentajePreview }}% OFF
-                                            </div>
-
-                                            <div class="discount-preview-text">
-                                                Ahorro estimado:
-                                                <strong id="descuentoPreviewAhorro">
-                                                    ₡{{ number_format($ahorroPreview, 0, ',', '.') }}
-                                                </strong>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Inicia en</label>
-                                            <input type="datetime-local" name="descuento_inicio" id="descuento_inicio"
-                                                class="form-control @error('descuento_inicio') is-invalid @enderror"
-                                                value="{{ $descuentoInicioValue }}">
-
-                                            @error('descuento_inicio')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <label class="form-label">Termina en</label>
-                                            <input type="datetime-local" name="descuento_fin" id="descuento_fin"
-                                                class="form-control @error('descuento_fin') is-invalid @enderror"
-                                                value="{{ $descuentoFinValue }}">
-
-                                            @error('descuento_fin')
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <small class="text-muted d-block mt-3">
-                                        Si activa la promoción debe indicar precio de descuento, fecha de inicio y fecha de
-                                        finalización.
-                                    </small>
-
-                                </div>
-
-                            </div>
-                        </div>
-                        {{-- STOCK --}}
-                        <div class="card border-0 bg-light mb-3">
-                            <div class="card-body">
-                                <label class="fw-semibold mb-2">Stock <span class="text-danger">*</span></label>
-                                <div class="input-group custom-dark-input">
-                                    <span class="input-group-text">
-                                        <i class="bx bx-layer"></i>
-                                    </span>
-                                    <input type="number" step="1" min="0" name="stock_actual"
-                                        class="form-control @error('stock_actual') is-invalid @enderror"
-                                        value="{{ old('stock_actual', $item->stock_actual) }}">
-                                </div>
-                                @error('stock_actual')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- Estado --}}
-                        <div class="card border-0 bg-light">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <div>
-                                    <label class="fw-semibold d-block mb-1">Estado</label>
-                                    <small class="text-muted">Visible en el sistema</small>
-                                </div>
-                                <div class="d-flex align-items-center gap-3">
-                                    <span id="estadoTexto"
-                                        class="badge estado-badge px-3 py-2 {{ $estaActivo ? 'bg-success' : 'bg-secondary' }}">
-                                        @if ($estaActivo)
-                                            <i class="bx bx-check-circle me-1"></i> Activo
-                                        @else
-                                            <i class="bx bx-x-circle me-1"></i> Inactivo
-                                        @endif
-                                    </span>
-                                    <label class="switch">
-                                        <input type="checkbox" name="activo" id="activoSwitch" value="1"
-                                            {{ $estaActivo ? 'checked' : '' }}>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-
-
-
-                        {{-- Destacado --}}
-                        @php
-                            $estaDestacado = old('destacado', $item->destacado);
-                        @endphp
-
-                        <div class="card border-0 bg-light mt-3">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-
-                                <div>
-                                    <label class="fw-semibold d-block mb-1">
-                                        Producto destacado
-                                    </label>
-
-                                    <small class="text-muted">
-                                        Mostrar este producto en la sección destacada del home
-                                    </small>
-                                </div>
-
-                                <div class="d-flex align-items-center gap-3">
-
-                                    <span id="destacadoTexto"
-                                        class="badge estado-badge px-3 py-2 {{ $estaDestacado ? 'bg-success' : 'bg-secondary' }}">
-                                        @if ($estaDestacado)
-                                            <i class="bx bx-star me-1"></i> Destacado
-                                        @else
-                                            <i class="bx bx-package me-1"></i> Normal
-                                        @endif
-                                    </span>
-
-                                    <label class="switch">
-                                        <input type="checkbox" id="destacadoSwitch" name="destacado" value="1"
-                                            {{ $estaDestacado ? 'checked' : '' }}>
-
-                                        <span class="slider round"></span>
-                                    </label>
-
-                                </div>
-
-                            </div>
-                        </div>
-
-
-
-
+                    <div class="input-group custom-dark-input">
+                        <span class="input-group-text">₡</span>
+                        <input type="number" step="1" min="0" name="precio_descuento"
+                            id="precio_descuento"
+                            class="form-control @error('precio_descuento') is-invalid @enderror"
+                            value="{{ old('precio_descuento', $item->precio_descuento !== null ? (int) $item->precio_descuento : '') }}">
                     </div>
+
+                    @error('precio_descuento')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+
+                    <div class="discount-preview-admin mt-3" id="descuentoPreview"
+                        style="{{ $descuentoActivo && $item->precio_descuento ? 'display:block;' : 'display:none;' }}">
+                        <div class="discount-preview-badge" id="descuentoPreviewPorcentaje">
+                            -{{ $porcentajePreview }}% OFF
+                        </div>
+
+                        <div class="discount-preview-text">
+                            Ahorro estimado:
+                            <strong id="descuentoPreviewAhorro">
+                                ₡{{ number_format($ahorroPreview, 0, ',', '.') }}
+                            </strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Inicia en</label>
+                        <input type="datetime-local" name="descuento_inicio" id="descuento_inicio"
+                            class="form-control @error('descuento_inicio') is-invalid @enderror"
+                            value="{{ $descuentoInicioValue }}">
+
+                        @error('descuento_inicio')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Termina en</label>
+                        <input type="datetime-local" name="descuento_fin" id="descuento_fin"
+                            class="form-control @error('descuento_fin') is-invalid @enderror"
+                            value="{{ $descuentoFinValue }}">
+
+                        @error('descuento_fin')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <small class="text-muted d-block mt-3">
+                    Si activa la promoción debe indicar precio de descuento, fecha de inicio y fecha de finalización.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    {{-- STOCK --}}
+    <div class="card border-0 bg-light mb-3" id="stockPrincipalCard">
+        <div class="card-body">
+            <label class="fw-semibold mb-2">Stock <span class="text-danger">*</span></label>
+            <div class="input-group custom-dark-input">
+                <span class="input-group-text">
+                    <i class="bx bx-layer"></i>
+                </span>
+                <input type="number" step="1" min="0" name="stock_actual" id="stock_actual"
+                    class="form-control @error('stock_actual') is-invalid @enderror"
+                    value="{{ old('stock_actual', $item->stock_actual ?? 0) }}">
+            </div>
+            @error('stock_actual')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
+    {{-- VARIANTES --}}
+    @php
+        $usaVariantesOld = old('usa_variantes', $item->usa_variantes ? '1' : '0');
+        $usaVariantes =
+            $usaVariantesOld == '1' ||
+            $usaVariantesOld === 1 ||
+            $usaVariantesOld === true ||
+            $usaVariantesOld === 'on';
+
+        $variantesParaJs = collect(old('variantes', $item->variantes->map(function ($variante) {
+            return [
+                'id_producto_variante' => $variante->id_producto_variante,
+                'id_opcion_variante' => $variante->id_opcion_variante,
+                'nombre' => $variante->nombre,
+                'sku' => $variante->sku,
+                'precio' => $variante->precio !== null ? (int) $variante->precio : '',
+                'stock_actual' => $variante->stock_actual !== null ? (int) $variante->stock_actual : '',
+                'activo' => $variante->activo ? 1 : 0,
+                'es_principal' => $variante->es_principal ? 1 : 0,
+            ];
+        })->toArray()))->values();
+    @endphp
+
+    <div class="card border-0 bg-light mb-3">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <label class="fw-semibold d-block mb-1">
+                        Variantes del producto
+                    </label>
+                    <small class="text-muted">
+                        Activa esta opción para manejar tallas, colores u otras variantes.
+                    </small>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="variantesTexto"
+                        class="badge estado-badge px-3 py-2 {{ $usaVariantes ? 'bg-success' : 'bg-secondary' }}">
+                        @if ($usaVariantes)
+                            <i class="bx bx-check-circle me-1"></i> Con variantes
+                        @else
+                            <i class="bx bx-x-circle me-1"></i> Sin variantes
+                        @endif
+                    </span>
+
+                    <label class="switch">
+                        <input type="checkbox" id="usaVariantesSwitch" name="usa_variantes"
+                            value="1" {{ $usaVariantes ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="variantesCampos" style="{{ $usaVariantes ? 'display:block;' : 'display:none;' }}">
+                <hr class="my-3">
+
+                <div class="mb-3">
+                    <label class="fw-semibold mb-2">
+                        Tipo de variante <span class="text-danger">*</span>
+                    </label>
+
+                    <select name="id_tipo_variante" id="id_tipo_variante"
+                        class="form-select @error('id_tipo_variante') is-invalid @enderror">
+                        <option value="">Seleccione un tipo de variante</option>
+
+                        @foreach ($tiposVariantes as $tipo)
+                            <option value="{{ $tipo->id_tipo_variante }}"
+                                data-opciones='@json($tipo->opcionesActivas)'
+                                {{ old('id_tipo_variante', $item->id_tipo_variante) == $tipo->id_tipo_variante ? 'selected' : '' }}>
+                                {{ $tipo->etiqueta ?? $tipo->nombre }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    @error('id_tipo_variante')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+
+                    <small class="text-muted d-block mt-2">
+                        Ejemplo: Talla, Color, Tamaño, Presentación.
+                    </small>
+                </div>
+
+                <div class="border rounded bg-white p-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <div>
+                            <label class="fw-semibold mb-0">
+                                Opciones de variantes
+                            </label>
+                            <small class="text-muted d-block">
+                                Puedes ajustar SKU, precio y stock por cada variante activa.
+                            </small>
+                        </div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="generarVariantesBtn">
+                            <i class="bx bx-refresh"></i>
+                            Generar opciones
+                        </button>
+                    </div>
+
+                    <div id="variantesContainer"
+                        data-variantes='@json($variantesParaJs)'></div>
+
+                    @error('variantes')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.id_opcion_variante')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.nombre')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.sku')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.precio')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.stock_actual')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    <small class="text-muted d-block mt-3">
+                        Solo las variantes activas necesitan precio y stock. La variante principal será la que se muestra primero en la tienda.
+                    </small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Estado --}}
+    <div class="card border-0 bg-light">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <label class="fw-semibold d-block mb-1">Estado</label>
+                <small class="text-muted">Visible en el sistema</small>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <span id="estadoTexto"
+                    class="badge estado-badge px-3 py-2 {{ $estaActivo ? 'bg-success' : 'bg-secondary' }}">
+                    @if ($estaActivo)
+                        <i class="bx bx-check-circle me-1"></i> Activo
+                    @else
+                        <i class="bx bx-x-circle me-1"></i> Inactivo
+                    @endif
+                </span>
+                <label class="switch">
+                    <input type="checkbox" id="activoSwitch" name="activo" value="1"
+                        {{ $estaActivo ? 'checked' : '' }}>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    {{-- Destacado --}}
+    @php
+        $destacadoOld = old('destacado', $item->destacado ? '1' : '0');
+        $estaDestacado =
+            $destacadoOld == '1' ||
+            $destacadoOld === 1 ||
+            $destacadoOld === true ||
+            $destacadoOld === 'on';
+    @endphp
+
+    <div class="card border-0 bg-light mt-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+
+            <div>
+                <label class="fw-semibold d-block mb-1">
+                    Producto destacado
+                </label>
+
+                <small class="text-muted">
+                    Mostrar este producto en la sección destacada del home
+                </small>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+
+                <span id="destacadoTexto"
+                    class="badge estado-badge px-3 py-2 {{ $estaDestacado ? 'bg-success' : 'bg-secondary' }}">
+                    @if ($estaDestacado)
+                        <i class="bx bx-star me-1"></i> Destacado
+                    @else
+                        <i class="bx bx-package me-1"></i> Normal
+                    @endif
+                </span>
+
+                <label class="switch">
+                    <input type="checkbox" id="destacadoSwitch" name="destacado" value="1"
+                        {{ $estaDestacado ? 'checked' : '' }}>
+                    <span class="slider round"></span>
+                </label>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 
                     {{-- CATEGORÍAS ADICIONALES --}}
                     <div class="col-12 mt-4">

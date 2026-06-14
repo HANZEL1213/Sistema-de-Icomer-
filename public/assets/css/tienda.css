@@ -5210,28 +5210,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ==========================================
    WHATSAPP FLOTANTE PREMIUM
 ========================================== */
@@ -5410,7 +5388,42 @@
 
 
 
+/* ==========================================
+   Tienda Productos Show 
+========================================== */
 
+.store-variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
+}
+
+.store-variant-btn {
+    min-width: 46px;
+    padding: .45rem .9rem;
+    border: 1px solid #cfcfcf;
+    border-radius: 999px;
+    background: #fff;
+    color: #222;
+    font-weight: 600;
+    font-size: .9rem;
+    transition: .2s ease;
+}
+
+.store-variant-btn:hover {
+    border-color: #111;
+}
+
+.store-variant-btn.is-active {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+.store-variant-btn.is-disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
 
 
 

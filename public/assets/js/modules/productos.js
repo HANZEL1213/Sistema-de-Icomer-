@@ -942,6 +942,281 @@ if (productoForm) {
     });
 }
 
+
+
+
+
 actualizarDescuentoProducto();
+
+
+
+/* =========================================
+   VARIANTES PRODUCTO
+========================================= */
+
+const usaVariantesSwitch = document.getElementById('usaVariantesSwitch');
+const variantesTexto = document.getElementById('variantesTexto');
+const variantesCampos = document.getElementById('variantesCampos');
+
+const precioPrincipalCard = document.getElementById('precioPrincipalCard');
+const descuentoPrincipalCard = document.getElementById('descuentoPrincipalCard');
+const stockPrincipalCard = document.getElementById('stockPrincipalCard');
+
+const precioVarianteInput = document.getElementById('precio');
+const stockVarianteInput = document.getElementById('stock_actual');
+const descuentoVarianteSwitch = document.getElementById('descuentoSwitch');
+
+const tipoVarianteSelect = document.getElementById('id_tipo_variante');
+const generarVariantesBtn = document.getElementById('generarVariantesBtn');
+const variantesContainer = document.getElementById('variantesContainer');
+
+function actualizarVariantesUI() {
+    if (!usaVariantesSwitch) return;
+
+    if (usaVariantesSwitch.checked) {
+        variantesCampos.style.display = 'block';
+
+        if (precioPrincipalCard) precioPrincipalCard.style.display = 'none';
+        if (descuentoPrincipalCard) descuentoPrincipalCard.style.display = 'none';
+        if (stockPrincipalCard) stockPrincipalCard.style.display = 'none';
+
+        if (precioVarianteInput && !precioVarianteInput.value) {
+            precioVarianteInput.value = 0;
+        }
+
+        if (stockVarianteInput) {
+            stockVarianteInput.value = 0;
+        }
+
+        if (descuentoVarianteSwitch) {
+            descuentoVarianteSwitch.checked = false;
+            descuentoVarianteSwitch.dispatchEvent(new Event('change'));
+        }
+
+        variantesTexto.classList.remove('bg-secondary');
+        variantesTexto.classList.add('bg-success');
+        variantesTexto.innerHTML = '<i class="bx bx-check-circle me-1"></i> Con variantes';
+
+    } else {
+        variantesCampos.style.display = 'none';
+
+        if (precioPrincipalCard) precioPrincipalCard.style.display = '';
+        if (descuentoPrincipalCard) descuentoPrincipalCard.style.display = '';
+        if (stockPrincipalCard) stockPrincipalCard.style.display = '';
+
+        variantesTexto.classList.remove('bg-success');
+        variantesTexto.classList.add('bg-secondary');
+        variantesTexto.innerHTML = '<i class="bx bx-x-circle me-1"></i> Sin variantes';
+    }
+}
+
+function asegurarUnaVariantePrincipal() {
+    const radios = document.querySelectorAll('.variante-principal-radio');
+
+    if (!radios.length) return;
+
+    const hayMarcada = Array.from(radios).some(radio => radio.checked);
+
+    if (!hayMarcada) {
+        radios[0].checked = true;
+    }
+}
+
+function actualizarHiddenVariantePrincipal() {
+    const radios = document.querySelectorAll('.variante-principal-radio');
+    const hiddenInputs = document.querySelectorAll('.variante-principal-hidden');
+
+    hiddenInputs.forEach(input => input.value = '0');
+
+    radios.forEach(radio => {
+        if (radio.checked) {
+            const index = radio.value;
+            const hidden = document.querySelector(`input[name="variantes[${index}][es_principal]"]`);
+
+            if (hidden) {
+                hidden.value = '1';
+            }
+        }
+    });
+}
+
+function actualizarRequeridosVariantes() {
+    document.querySelectorAll('.variante-activo-check').forEach(check => {
+        const fila = check.closest('tr');
+
+        if (!fila) return;
+
+        const precio = fila.querySelector('.variante-precio-input');
+        const stock = fila.querySelector('.variante-stock-input');
+
+        if (check.checked) {
+            if (precio) precio.required = true;
+            if (stock) stock.required = true;
+        } else {
+            if (precio) precio.required = false;
+            if (stock) stock.required = false;
+        }
+    });
+}
+
+function renderizarTablaVariantes(variantes) {
+    if (!variantesContainer) return;
+
+    let html = `
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Variante</th>
+                        <th class="text-center">Principal</th>
+                        <th>SKU</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Activo</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    variantes.forEach((variante, index) => {
+        const esPrincipal = variante.es_principal == 1 || variante.es_principal === true;
+        const estaActiva = variante.activo == 1 || variante.activo === true;
+
+        html += `
+            <tr>
+                <td>
+                    ${variante.nombre ?? 'Variante'}
+
+                    <input type="hidden" name="variantes[${index}][id_producto_variante]" value="${variante.id_producto_variante ?? ''}">
+                    <input type="hidden" name="variantes[${index}][id_opcion_variante]" value="${variante.id_opcion_variante ?? ''}">
+                    <input type="hidden" name="variantes[${index}][nombre]" value="${variante.nombre ?? 'Variante'}">
+                </td>
+
+                <td class="text-center">
+                    <input type="radio"
+                        class="form-check-input variante-principal-radio"
+                        name="variante_principal_temp"
+                        value="${index}"
+                        ${esPrincipal ? 'checked' : ''}>
+
+                    <input type="hidden"
+                        class="variante-principal-hidden"
+                        name="variantes[${index}][es_principal]"
+                        value="${esPrincipal ? '1' : '0'}">
+                </td>
+
+                <td>
+                    <input type="text"
+                        class="form-control"
+                        name="variantes[${index}][sku]"
+                        value="${variante.sku ?? ''}">
+                </td>
+
+                <td>
+                    <input type="number"
+                        min="0"
+                        step="1"
+                        class="form-control variante-precio-input"
+                        name="variantes[${index}][precio]"
+                        placeholder="Precio de la variante"
+                        value="${variante.precio ?? ''}"
+                        ${estaActiva ? 'required' : ''}>
+                </td>
+
+                <td>
+                    <input type="number"
+                        min="0"
+                        step="1"
+                        class="form-control variante-stock-input"
+                        name="variantes[${index}][stock_actual]"
+                        value="${variante.stock_actual ?? ''}"
+                        ${estaActiva ? 'required' : ''}>
+                </td>
+
+                <td class="text-center">
+                    <input type="checkbox"
+                        class="variante-activo-check"
+                        value="1"
+                        name="variantes[${index}][activo]"
+                        ${estaActiva ? 'checked' : ''}>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    variantesContainer.innerHTML = html;
+
+    asegurarUnaVariantePrincipal();
+    actualizarHiddenVariantePrincipal();
+    actualizarRequeridosVariantes();
+}
+
+function cargarVariantesExistentes() {
+    if (!variantesContainer) return;
+
+    const variantes = JSON.parse(variantesContainer.dataset.variantes || '[]');
+
+    if (!variantes.length) return;
+
+    renderizarTablaVariantes(variantes);
+}
+
+function generarVariantes() {
+    if (!tipoVarianteSelect || !variantesContainer) return;
+
+    const selectedOption = tipoVarianteSelect.options[tipoVarianteSelect.selectedIndex];
+    const opciones = JSON.parse(selectedOption.dataset.opciones || '[]');
+
+    if (!opciones.length) {
+        variantesContainer.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                No hay opciones activas para este tipo de variante.
+            </div>
+        `;
+        return;
+    }
+
+    const variantes = opciones.map((opcion, index) => {
+        return {
+            id_producto_variante: '',
+            id_opcion_variante: opcion.id_opcion_variante,
+            nombre: opcion.etiqueta ?? opcion.valor,
+            sku: '',
+            precio: '',
+            stock_actual: '',
+            activo: 1,
+            es_principal: index === 0 ? 1 : 0
+        };
+    });
+
+    renderizarTablaVariantes(variantes);
+}
+
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('variante-principal-radio')) {
+        actualizarHiddenVariantePrincipal();
+    }
+
+    if (e.target.classList.contains('variante-activo-check')) {
+        actualizarRequeridosVariantes();
+    }
+});
+
+if (usaVariantesSwitch) {
+    usaVariantesSwitch.addEventListener('change', actualizarVariantesUI);
+}
+
+if (generarVariantesBtn) {
+    generarVariantesBtn.addEventListener('click', generarVariantes);
+}
+
+actualizarVariantesUI();
+cargarVariantesExistentes();
 
 });

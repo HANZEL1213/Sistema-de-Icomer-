@@ -11,6 +11,7 @@ class MovimientoInventario extends Model
 
     protected $fillable = [
         'id_producto',
+        'id_producto_variante',
         'tipo',
         'cantidad',
         'motivo',
@@ -26,21 +27,46 @@ class MovimientoInventario extends Model
 
     public function producto()
     {
-        return $this->belongsTo(Producto::class, 'id_producto', 'id_producto');
+        return $this->belongsTo(
+            Producto::class,
+            'id_producto',
+            'id_producto'
+        );
+    }
+
+    public function variante()
+    {
+        return $this->belongsTo(
+            ProductoVariante::class,
+            'id_producto_variante',
+            'id_producto_variante'
+        );
     }
 
     public function pedido()
     {
-        return $this->belongsTo(Pedido::class, 'id_pedido', 'id_pedido');
+        return $this->belongsTo(
+            Pedido::class,
+            'id_pedido',
+            'id_pedido'
+        );
     }
 
     public function ventaLocal()
     {
-        return $this->belongsTo(VentaLocal::class, 'id_venta_local', 'id_venta_local');
+        return $this->belongsTo(
+            VentaLocal::class,
+            'id_venta_local',
+            'id_venta_local'
+        );
     }
 
     public function realizador()
     {
-        return $this->belongsTo(Usuario::class, 'id_usuario_realizador', 'id_usuario');
+        return $this->belongsTo(
+            Usuario::class,
+            'id_usuario_realizador',
+            'id_usuario'
+        );
     }
 }

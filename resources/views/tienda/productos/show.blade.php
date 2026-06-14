@@ -17,7 +17,7 @@
                 ? asset('storage/' . $imagenes->first()->ruta)
                 : asset('assets/img/no-image.png'));
 
-        $stock = $producto->stock_actual ?? 0;
+  $stock = $producto->stockDisponible();
     @endphp
 
     <section class="store-product-detail-page">
@@ -139,11 +139,11 @@
             @if ($tienePromo)
                 <div class="store-price-row">
                     <div>
-                        <div class="store-product-detail-price text-danger">
+                    <div class="store-product-detail-price text-danger" id="storeProductPrice" data-precio-base="{{ $precioVenta }}">
                             ₡{{ number_format($precioVenta, 2) }}
                         </div>
 
-                        <div class="text-muted text-decoration-line-through">
+                        <div class="text-muted text-decoration-line-through" id="storeProductOldPrice">
                             ₡{{ number_format($precioNormal, 2) }}
                         </div>
                     </div>
@@ -153,12 +153,13 @@
                     </span>
                 </div>
             @else
-                <div class="store-product-detail-price">
+          <div class="store-product-detail-price" id="storeProductPrice" data-precio-base="{{ $precioNormal }}">
                     ₡{{ number_format($precioNormal, 2) }}
                 </div>
             @endif
 
-            <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}">
+            <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}"
+                id="storeProductStockText">
                 <i class="bi {{ $stock > 0 ? 'bi-check-circle' : 'bi-x-circle' }}"></i>
 
                 @if ($stock > 0)
@@ -167,6 +168,39 @@
                     Producto agotado
                 @endif
             </div>
+
+            @if ($producto->usa_variantes)
+                <div class="mb-3">
+                    <label class="fw-semibold mb-2 d-block">
+                        {{ $producto->tipoVariante?->etiqueta ?? $producto->tipoVariante?->nombre ?? 'Opciones' }}
+                    </label>
+
+                    <div class="store-variant-options" id="storeVariantOptions">
+                        @foreach ($producto->variantesActivas as $variante)
+                            @php
+                                $nombreVariante = $variante->nombre
+                                    ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
+
+                                $precioVariante = $variante->precio ?? $producto->precioVenta();
+                            @endphp
+
+                            <button type="button"
+                                class="store-variant-btn {{ $variante->stock_actual <= 0 ? 'is-disabled' : '' }}"
+                                data-id="{{ $variante->id_producto_variante }}"
+                                data-stock="{{ $variante->stock_actual }}"
+                                data-precio="{{ $precioVariante }}"
+                                data-nombre="{{ $nombreVariante }}"
+                                {{ $variante->stock_actual <= 0 ? 'disabled' : '' }}>
+                                {{ $nombreVariante }}
+                            </button>
+                        @endforeach
+                    </div>
+
+                    <small class="text-muted d-block mt-2" id="storeVariantHelp">
+                        Selecciona una opción para continuar.
+                    </small>
+                </div>
+            @endif
 
             <div class="store-product-buy-panel">
 
@@ -178,8 +212,7 @@
                             <i class="bi bi-dash"></i>
                         </button>
 
-                        <input type="number" value="1" min="1" max="{{ max($stock, 1) }}"
-                            id="storeProductQty">
+                        <input type="number" value="1" min="1" max="{{ max($stock, 1) }}" id="storeProductQty">
 
                         <button type="button" data-qty-action="plus">
                             <i class="bi bi-plus"></i>
@@ -188,13 +221,17 @@
                     </div>
 
                     <form action="{{ route('tienda.carrito.agregar', $producto->id_producto) }}" method="POST"
-                        class="store-cart-form">
+                        class="store-cart-form" id="storeCartForm">
 
                         @csrf
 
                         <input type="hidden" name="cantidad" id="storeProductQtyHidden" value="1">
 
-                        <button type="submit" class="btn btn-store-primary store-add-cart-btn"
+                        @if ($producto->usa_variantes)
+                            <input type="hidden" name="id_producto_variante" id="storeProductVariantHidden">
+                        @endif
+
+                        <button type="submit" class="btn btn-store-primary store-add-cart-btn" id="storeAddCartBtn"
                             {{ $stock <= 0 ? 'disabled' : '' }}>
 
                             <i class="bi bi-cart3 me-1"></i>
@@ -210,7 +247,7 @@
                         class="btn store-whatsapp-product-btn">
 
                         <i class="bi bi-whatsapp me-1"></i>
-                         Whatsapp
+                        Whatsapp
 
                     </a>
 
@@ -242,7 +279,6 @@
     </div>
 
 </div>
-           
 
             {{-- PRODUCTOS RELACIONADOS --}}
             @if ($relacionados->count())
@@ -393,79 +429,8 @@
 
 @endsection
 
+
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
 
-            const mainImage = document.getElementById('storeProductMainImage');
-            const thumbs = document.querySelectorAll('.store-product-thumb');
-
-            thumbs.forEach((thumb) => {
-
-                thumb.addEventListener('click', function() {
-
-                    const image = this.dataset.productImage;
-
-                    if (mainImage && image) {
-                        mainImage.src = image;
-                    }
-
-                    thumbs.forEach((item) => item.classList.remove('active'));
-
-                    this.classList.add('active');
-
-                });
-
-            });
-
-            const qtyInput = document.getElementById('storeProductQty');
-            const qtyHidden = document.getElementById('storeProductQtyHidden');
-            const qtyButtons = document.querySelectorAll('[data-qty-action]');
-
-            if (!qtyInput || !qtyHidden) return;
-
-            qtyButtons.forEach((button) => {
-
-                button.addEventListener('click', function() {
-
-                    const action = this.dataset.qtyAction;
-
-                    const min = parseInt(qtyInput.min || 1);
-                    const max = parseInt(qtyInput.max || 999);
-
-                    let value = parseInt(qtyInput.value || 1);
-
-                    if (action === 'minus') {
-                        value = Math.max(min, value - 1);
-                    }
-
-                    if (action === 'plus') {
-                        value = Math.min(max, value + 1);
-                    }
-
-                    qtyInput.value = value;
-                    qtyHidden.value = value;
-
-                });
-
-            });
-
-            qtyInput.addEventListener('input', function() {
-
-                let value = parseInt(this.value || 1);
-
-                const min = parseInt(this.min || 1);
-                const max = parseInt(this.max || 999);
-
-                if (value < min) value = min;
-                if (value > max) value = max;
-
-                this.value = value;
-
-                qtyHidden.value = value;
-
-            });
-
-        });
-    </script>
+    <script src="{{ asset('assets/js/tiendaProductoShow.js') }}"></script>
 @endpush

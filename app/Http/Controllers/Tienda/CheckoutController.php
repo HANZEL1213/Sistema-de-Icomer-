@@ -13,6 +13,7 @@ use App\Models\PagoPedido;
 use App\Models\Cupon;
 use App\Models\UsoCupon;
 use App\Models\Venta;
+use App\Models\ProductoVariante;
 
 class CheckoutController extends Controller
 {
@@ -146,8 +147,6 @@ public function distritosDisponibles($id_canton)
     return response()->json($distritos);
 }
 
-
-    
 public function confirmar(Request $request)
 {
     $carrito = collect(session('carrito', []));
@@ -190,7 +189,7 @@ public function confirmar(Request $request)
             'max:4096',
             'required_without:numero_comprobante',
         ],
-        ], [
+    ], [
         'acepta_terminos.accepted' => 'Debes aceptar los términos, condiciones y políticas para continuar.',
     ]);
 
@@ -204,18 +203,43 @@ public function confirmar(Request $request)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (!$producto->activo || $item['cantidad'] > $producto->stock_actual) {
+            if (!$producto->activo) {
                 DB::rollBack();
 
                 return back()
                     ->withInput()
-                    ->with('error', "Stock insuficiente para {$producto->nombre}.");
+                    ->with('error', "El producto {$producto->nombre} ya no está disponible.");
             }
 
-           $subtotal += $producto->precioVenta() * $item['cantidad'];
+            if (!empty($item['id_producto_variante'])) {
+                $variante = ProductoVariante::where('id_producto_variante', $item['id_producto_variante'])
+                    ->where('id_producto', $producto->id_producto)
+                    ->where('activo', 1)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$variante || $item['cantidad'] > $variante->stock_actual) {
+                    DB::rollBack();
+
+                    return back()
+                        ->withInput()
+                        ->with('error', "Stock insuficiente para {$producto->nombre}.");
+                }
+
+                $subtotal += $variante->precioVenta() * $item['cantidad'];
+            } else {
+                if ($producto->usa_variantes || $item['cantidad'] > $producto->stock_actual) {
+                    DB::rollBack();
+
+                    return back()
+                        ->withInput()
+                        ->with('error', "Stock insuficiente para {$producto->nombre}.");
+                }
+
+                $subtotal += $producto->precioVenta() * $item['cantidad'];
+            }
         }
 
-        // === Lógica de envío ===
         $provinciaNombre = null;
         $cantonNombre = null;
         $distritoNombre = null;
@@ -252,11 +276,6 @@ public function confirmar(Request $request)
             $envio = $zonaEnvio->costo;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CUPÓN APLICADO
-        |--------------------------------------------------------------------------
-        */
         $descuento = 0;
         $idCupon = null;
         $codigoCupon = null;
@@ -292,86 +311,116 @@ public function confirmar(Request $request)
         $subtotalConDescuento = max($subtotal - $descuento, 0);
         $total = $subtotalConDescuento + $envio;
 
-// === Crear Pedido ===
-$pedido = Pedido::create([
-    'numero_pedido' => 'PED-' . now()->format('YmdHis'),
-    'estado' => 'pendiente_pago',
+        $pedido = Pedido::create([
+            'numero_pedido' => 'PED-' . now()->format('YmdHis'),
+            'estado' => 'pendiente_pago',
 
-    'id_usuario' => Auth::check() ? Auth::user()->id_usuario : null,
-    'nombre_cliente' => $request->nombre_cliente,
-    'telefono_cliente' => $request->telefono_cliente,
-    'correo_cliente' => $request->correo_cliente,
+            'id_usuario' => Auth::check() ? Auth::user()->id_usuario : null,
+            'nombre_cliente' => $request->nombre_cliente,
+            'telefono_cliente' => $request->telefono_cliente,
+            'correo_cliente' => $request->correo_cliente,
 
-    'tipo_entrega' => $request->tipo_entrega,
-    'provincia_envio' => $provinciaNombre,
-    'canton_envio' => $cantonNombre,
-    'distrito_envio' => $distritoNombre,
-    'direccion_envio' => $request->direccion_envio,
-    'referencia_envio' => $request->referencia_envio,
-    'link_google_maps' => $request->link_google_maps,
+            'tipo_entrega' => $request->tipo_entrega,
+            'provincia_envio' => $provinciaNombre,
+            'canton_envio' => $cantonNombre,
+            'distrito_envio' => $distritoNombre,
+            'direccion_envio' => $request->direccion_envio,
+            'referencia_envio' => $request->referencia_envio,
+            'link_google_maps' => $request->link_google_maps,
 
-    'costo_envio' => $envio,
-    'id_cupon' => $idCupon,
-    'codigo_cupon' => $codigoCupon,
-    'descuento' => $descuento,
-    'subtotal' => $subtotal,
-    'subtotal_con_descuento' => $subtotalConDescuento,
-    'total' => $total,
+            'costo_envio' => $envio,
+            'id_cupon' => $idCupon,
+            'codigo_cupon' => $codigoCupon,
+            'descuento' => $descuento,
+            'subtotal' => $subtotal,
+            'subtotal_con_descuento' => $subtotalConDescuento,
+            'total' => $total,
 
-    'notas' => $request->notas,
-    'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
+            'notas' => $request->notas,
+            'codigo_seguimiento_publico' => Str::upper(Str::random(16)),
+        ]);
 
-    // 'acepto_terminos' => true,
-    // 'fecha_aceptacion_terminos' => now(),
-    // 'ip_aceptacion_terminos' => $request->ip(),
-]);
+        Venta::create([
+            'canal' => 'online',
+            'id_pedido' => $pedido->id_pedido,
+            'id_venta_local' => null,
+        ]);
 
-// === Registrar en reporte de ventas ===
-Venta::create([
-    'canal' => 'online',
-    'id_pedido' => $pedido->id_pedido,
-    'id_venta_local' => null,
-]);
-
-        // === Registrar uso del cupón ===
         if ($idCupon) {
-    UsoCupon::create([
-    'id_cupon' => $idCupon,
-    'id_pedido' => $pedido->id_pedido,
-    'id_usuario' => null,
-    'correo_invitado' => $request->correo_cliente,
-    'monto_descuento' => $descuento,
-]);
+            UsoCupon::create([
+                'id_cupon' => $idCupon,
+                'id_pedido' => $pedido->id_pedido,
+                'id_usuario' => null,
+                'correo_invitado' => $request->correo_cliente,
+                'monto_descuento' => $descuento,
+            ]);
         }
 
-        // === Crear detalles del pedido y descontar stock ===
-foreach ($carrito as $item) {
+        foreach ($carrito as $item) {
+            $producto = Producto::findOrFail($item['id_producto']);
 
-    $producto = Producto::findOrFail($item['id_producto']);
+            if (!empty($item['id_producto_variante'])) {
+                $variante = ProductoVariante::with('opcion')
+                    ->where('id_producto_variante', $item['id_producto_variante'])
+                    ->where('id_producto', $producto->id_producto)
+                    ->where('activo', 1)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-  DetallePedido::create([
-    'id_pedido' => $pedido->id_pedido,
-    'id_producto' => $producto->id_producto,
-    'nombre_producto' => $producto->nombre,
-    'sku_snapshot' => $producto->sku,
+                $nombreVariante = $variante->nombre
+                    ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
 
-    'precio_unitario' => $producto->precioVenta(),
+                $precioUnitario = $variante->precioVenta();
 
-    'cantidad' => $item['cantidad'],
+                DetallePedido::create([
+                    'id_pedido' => $pedido->id_pedido,
+                    'id_producto' => $producto->id_producto,
+                    'id_producto_variante' => $variante->id_producto_variante,
+                    'nombre_producto' => $producto->nombre . ' - ' . $nombreVariante,
+                    'sku_snapshot' => $variante->sku ?? $producto->sku,
+                    'precio_unitario' => $precioUnitario,
+                    'cantidad' => $item['cantidad'],
+                    'total_linea' => $precioUnitario * $item['cantidad'],
+                    'promocion_aplicada' => false,
+                    'precio_original' => $precioUnitario,
+                ]);
 
-    'total_linea' => $producto->precioVenta() * $item['cantidad'],
-]);
-    $producto->registrarSalidaInventario(
-        $item['cantidad'],
-        'Pedido online',
-        $pedido->id_pedido,
-        null,
-        Auth::id() ?? 1,
-        'Pedido: ' . $pedido->numero_pedido
-    );
-}
+      $variante->registrarSalidaInventario(
+    $item['cantidad'],
+    'Pedido online',
+    $pedido->id_pedido,
+    null,
+    Auth::id() ?? 1,
+    'Pedido: ' . $pedido->numero_pedido
+);
+            } else {
+                $precioUnitario = $producto->precioVenta();
+                $precioOriginal = (float) $producto->precio;
 
-        // === Lógica de pago ===
+                DetallePedido::create([
+                    'id_pedido' => $pedido->id_pedido,
+                    'id_producto' => $producto->id_producto,
+                    'id_producto_variante' => null,
+                    'nombre_producto' => $producto->nombre,
+                    'sku_snapshot' => $producto->sku,
+                    'precio_unitario' => $precioUnitario,
+                    'cantidad' => $item['cantidad'],
+                    'total_linea' => $precioUnitario * $item['cantidad'],
+                    'promocion_aplicada' => $producto->tienePromocionActiva(),
+                    'precio_original' => $precioOriginal,
+                ]);
+
+                $producto->registrarSalidaInventario(
+                    $item['cantidad'],
+                    'Pedido online',
+                    $pedido->id_pedido,
+                    null,
+                    Auth::id() ?? 1,
+                    'Pedido: ' . $pedido->numero_pedido
+                );
+            }
+        }
+
         $rutaComprobante = null;
 
         if ($request->hasFile('comprobante_pago')) {
@@ -415,22 +464,22 @@ foreach ($carrito as $item) {
             ->with('error', 'Ocurrió un error al procesar el pedido.');
     }
 }
-
+    
 public function confirmacion(Pedido $pedido)
 {
-  $pedido->load([
-    'detalle.producto.imagenPrincipal',
-    'pagoUltimo',
-    'cupon',
-    'usoCupon',
-]);
+    $pedido->load([
+        'detalle.producto.imagenPrincipal',
+        'detalle.variante.opcion',
+        'pagoUltimo',
+        'cupon',
+        'usoCupon',
+    ]);
 
     return view(
         'tienda.checkout.confirmacion',
         compact('pedido')
     );
 }
-
 
 public function costoEnvio($id_distrito)
 {

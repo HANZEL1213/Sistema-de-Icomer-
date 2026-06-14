@@ -6,8 +6,8 @@
 @section('content')
     {{-- CSS dashboard.bladee --}}
     <link rel="stylesheet" href="{{ asset('assets/css/modules/inventario.css') }}">
-   
-   
+
+
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -53,70 +53,95 @@
 
                     {{-- COLUMNA IZQUIERDA --}}
                     <div class="col-md-6">
-{{-- Producto --}}
-@php
-    $productosBusqueda = $productos->map(function ($producto) {
-        return [
-            'id' => $producto->id_producto,
-            'nombre' => $producto->nombre,
-            'sku' => $producto->sku ?? '',
-            'codigo_barras' => $producto->codigo ?? '',
-            'stock' => (int) $producto->stock_actual,
-            'imagen_url' => $producto->imagenPrincipal?->ruta
-                ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                : null,
-        ];
-    })->values();
-@endphp
+                        {{-- Producto --}}
 
-<div class="card border-0 bg-light mb-3">
-    <div class="card-body">
+                        @php
+                            $productosBusqueda = $productos
+                                ->map(function ($producto) {
+                                    return [
+                                        'id' => $producto->id_producto,
+                                        'nombre' => $producto->nombre,
+                                        'sku' => $producto->sku ?? '',
+                                        'codigo_barras' => $producto->codigo ?? '',
+                                        'stock' => (int) $producto->stock_actual,
 
-        <label class="fw-semibold mb-2">
-            Producto <span class="text-danger">*</span>
-        </label>
+                                        'usa_variantes' => (bool) $producto->usa_variantes,
 
-        <input type="hidden"
-               name="id_producto"
-               id="id_producto"
-               value="{{ old('id_producto') }}"
-               required>
+                                        'tipo_variante' => $producto->tipoVariante?->nombre,
 
-        <div class="position-relative">
-            <div class="input-group custom-dark-input">
-                <span class="input-group-text">
-                    <i class="bx bx-package"></i>
-                </span>
+                                        'imagen_url' => $producto->imagenPrincipal?->ruta
+                                            ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                            : null,
 
-                <input type="text"
-                       id="inventoryProductSearch"
-                       class="form-control @error('id_producto') is-invalid @enderror"
-                       placeholder="Buscar producto por nombre, SKU o código..."
-                       autocomplete="off">
-            </div>
+                                        'variantes' => $producto->variantesActivas
+                                            ->map(function ($variante) {
+                                                return [
+                                                    'id' => $variante->id_producto_variante,
+                                                    'nombre' => $variante->nombre,
+                                                    'sku' => $variante->sku ?? '',
+                                                    'stock' => (int) $variante->stock_actual,
+                                                    'opcion' =>
+                                                        $variante->opcion?->valor ??
+                                                        ($variante->opcion?->etiqueta ?? ''),
+                                                ];
+                                            })
+                                            ->values(),
+                                    ];
+                                })
+                                ->values();
+                        @endphp
 
-            <div id="inventoryProductResults"
-                 class="list-group position-absolute w-100 shadow-sm"
-                 style="
+                        <div class="card border-0 bg-light mb-3">
+                            <div class="card-body">
+
+                                <label class="fw-semibold mb-2">
+                                    Producto <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="hidden" name="id_producto" id="id_producto" value="{{ old('id_producto') }}"
+                                    required>
+
+                                <input type="hidden" name="id_producto_variante" id="id_producto_variante"
+                                    value="{{ old('id_producto_variante') }}">
+
+                                <div class="position-relative">
+                                    <div class="input-group custom-dark-input">
+                                        <span class="input-group-text">
+                                            <i class="bx bx-package"></i>
+                                        </span>
+
+                                        <input type="text" id="inventoryProductSearch"
+                                            class="form-control @error('id_producto') is-invalid @enderror"
+                                            placeholder="Buscar producto por nombre, SKU o código..." autocomplete="off">
+                                    </div>
+
+                                    <div id="inventoryProductResults" class="list-group position-absolute w-100 shadow-sm"
+                                        style="
                     display: none;
                     z-index: 1050;
                     max-height: 360px;
                     overflow-y: auto;
                     border-radius: 14px;
                  ">
-            </div>
-        </div>
+                                    </div>
+                                </div>
 
-        <div id="inventoryProductSelected" class="mt-3"></div>
+                                <div id="inventoryProductSelected" class="mt-3"></div>
 
-        @error('id_producto')
-            <div class="invalid-feedback d-block">
-                {{ $message }}
-            </div>
-        @enderror
+                                @error('id_producto')
+                                    <div class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
 
-    </div>
-</div>
+                                @error('id_producto_variante')
+                                    <div class="invalid-feedback d-block">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+
+                            </div>
+                        </div>
 
                         {{-- Tipo de Movimiento --}}
                         <div class="card border-0 bg-light mb-3">
@@ -144,7 +169,7 @@
 
                                 <small class="text-muted mt-2 d-block">
                                     <strong>Nota:</strong>
-                                    En <b>ajuste</b>, la cantidad representa el <b>nuevo stock final</b> del producto.
+                                En <b>ajuste</b>, la cantidad representa el <b>nuevo stock final</b> del producto o variante.
                                 </small>
                             </div>
                         </div>
@@ -309,5 +334,3 @@
 
     <script src="{{ asset('assets/js/modules/inventario.js') }}"></script>
 @endpush
-
-

@@ -58,138 +58,147 @@
 
                             <div class="store-cart-items">
 
-                            @foreach ($carrito as $item)
-    @php
-        $imagen = $item['imagen']
-            ? asset('storage/' . $item['imagen'])
-            : asset('assets/img/no-image.png');
+                                @foreach ($carrito as $cartKey => $item)
+                                    @php
+                                        $imagen = $item['imagen']
+                                            ? asset('storage/' . $item['imagen'])
+                                            : asset('assets/img/no-image.png');
 
-        $tienePromo = $item['tiene_promocion'] ?? false;
-        $precioVenta = (float) ($item['precio'] ?? 0);
-        $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
-        $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
-        $ahorro = (float) ($item['ahorro'] ?? 0);
-    @endphp
+                                        $tienePromo = $item['tiene_promocion'] ?? false;
+                                        $precioVenta = (float) ($item['precio'] ?? 0);
+                                        $precioNormal = (float) ($item['precio_normal'] ?? $precioVenta);
+                                        $porcentaje = (int) ($item['porcentaje_descuento'] ?? 0);
+                                        $ahorro = (float) ($item['ahorro'] ?? 0);
+                                    @endphp
 
-    <article class="store-cart-item">
+                                    <article class="store-cart-item">
 
-        <div class="store-cart-item-image">
-            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
-        </div>
+                                        <div class="store-cart-item-image">
+                                            <img src="{{ $imagen }}" alt="{{ $item['nombre'] }}">
+                                        </div>
 
-        <div class="store-cart-item-info">
+                                        <div class="store-cart-item-info">
 
-            <div class="store-cart-item-meta">
-                {{ $item['marca'] ?? 'Sin marca' }}
-                ·
-                {{ $item['categoria'] ?? 'Sin categoría' }}
-            </div>
+                                            <div class="store-cart-item-meta">
+                                                {{ $item['marca'] ?? 'Sin marca' }}
+                                                ·
+                                                {{ $item['categoria'] ?? 'Sin categoría' }}
+                                            </div>
 
-            <h3 class="store-cart-item-title">
-                <a href="{{ route('tienda.productos.show', $item['slug']) }}">
-                    {{ $item['nombre'] }}
-                </a>
-            </h3>
+                                            <h3 class="store-cart-item-title">
+                                                <a href="{{ route('tienda.productos.show', $item['slug']) }}">
+                                                    {{ $item['nombre'] }}
+                                                </a>
+                                            </h3>
 
-            @if ($tienePromo)
-                <span class="badge bg-danger mb-2">
-                    Promoción aplicada
-                </span>
-            @endif
+                                            @if (!empty($item['variante']))
+                                                <div class="text-muted small mt-1">
+                                                    Variante: <strong>{{ $item['variante'] }}</strong>
+                                                </div>
+                                            @endif
 
-            <div class="store-cart-item-stock">
-                <i class="bi bi-check-circle"></i>
-                Disponible · {{ $item['stock'] }} unidades
-            </div>
+                                            @if ($tienePromo)
+                                                <span class="badge bg-danger mb-2">
+                                                    Promoción aplicada
+                                                </span>
+                                            @endif
 
-            <div class="store-cart-mobile-price">
-                @if ($tienePromo)
-                    <span class="badge bg-danger mb-1">
-                        -{{ $porcentaje }}% OFF
-                    </span>
+                                            <div class="store-cart-item-stock">
+                                                <i class="bi bi-check-circle"></i>
+                                                Disponible · {{ $item['stock'] }} unidades
+                                            </div>
 
-                    <div class="text-muted text-decoration-line-through small">
-                        ₡{{ number_format($precioNormal, 2) }}
-                    </div>
+                                            <div class="store-cart-mobile-price">
+                                                @if ($tienePromo)
+                                                    <span class="badge bg-danger mb-1">
+                                                        -{{ $porcentaje }}% OFF
+                                                    </span>
 
-                    <strong class="text-danger">
-                        ₡{{ number_format($precioVenta, 2) }}
-                    </strong>
-                @else
-                    ₡{{ number_format($precioVenta, 2) }}
-                @endif
-            </div>
+                                                    <div class="text-muted text-decoration-line-through small">
+                                                        ₡{{ number_format($precioNormal, 2) }}
+                                                    </div>
 
-        </div>
+                                                    <strong class="text-danger">
+                                                        ₡{{ number_format($precioVenta, 2) }}
+                                                    </strong>
+                                                @else
+                                                    ₡{{ number_format($precioVenta, 2) }}
+                                                @endif
+                                            </div>
 
-        <div class="store-cart-item-controls">
+                                        </div>
 
-            <div class="store-cart-price d-none d-md-block">
-                @if ($tienePromo)
-                    <span class="badge bg-danger mb-1">
-                        -{{ $porcentaje }}% OFF
-                    </span>
+                                        <div class="store-cart-item-controls">
 
-                    <div class="text-muted text-decoration-line-through small">
-                        ₡{{ number_format($precioNormal, 2) }}
-                    </div>
+                                            <div class="store-cart-price d-none d-md-block">
+                                                @if ($tienePromo)
+                                                    <span class="badge bg-danger mb-1">
+                                                        -{{ $porcentaje }}% OFF
+                                                    </span>
 
-                    <strong class="text-danger">
-                        ₡{{ number_format($precioVenta, 2) }}
-                    </strong>
-                @else
-                    ₡{{ number_format($precioVenta, 2) }}
-                @endif
-            </div>
+                                                    <div class="text-muted text-decoration-line-through small">
+                                                        ₡{{ number_format($precioNormal, 2) }}
+                                                    </div>
 
-            <form action="{{ route('tienda.carrito.actualizar', $item['id_producto']) }}"
-                method="POST" class="store-cart-qty-form">
+                                                    <strong class="text-danger">
+                                                        ₡{{ number_format($precioVenta, 2) }}
+                                                    </strong>
+                                                @else
+                                                    ₡{{ number_format($precioVenta, 2) }}
+                                                @endif
+                                            </div>
 
-                @csrf
-                @method('PATCH')
+                                            <form action="{{ route('tienda.carrito.actualizar', $item['id_producto']) }}"
+                                                method="POST" class="store-cart-qty-form">
 
-                <div class="store-cart-qty-control">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="cart_key"
+                                                    value="{{ $item['cart_key'] ?? $cartKey }}">
+                                                <div class="store-cart-qty-control">
 
-                    <button type="button" data-cart-qty="minus"
-                        data-target="cartQty{{ $item['id_producto'] }}">
-                        <i class="bi bi-dash"></i>
-                    </button>
+                                                    <button type="button" data-cart-qty="minus"
+                                                        data-target="cartQty{{ md5($item['cart_key'] ?? $cartKey) }}">
+                                                        <i class="bi bi-dash"></i>
+                                                    </button>
 
-                    <input type="number" name="cantidad"
-                        id="cartQty{{ $item['id_producto'] }}"
-                        value="{{ $item['cantidad'] }}" min="1"
-                        max="{{ $item['stock'] }}">
+                                                    <input type="number" name="cantidad"
+                                                        id="cartQty{{ md5($item['cart_key'] ?? $cartKey) }}"
+                                                        value="{{ $item['cantidad'] }}" min="1"
+                                                        max="{{ $item['stock'] }}">
 
-                    <button type="button" data-cart-qty="plus"
-                        data-target="cartQty{{ $item['id_producto'] }}">
-                        <i class="bi bi-plus"></i>
-                    </button>
+                                                    <button type="button" data-cart-qty="plus"
+                                                        data-target="cartQty{{ md5($item['cart_key'] ?? $cartKey) }}">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
 
-                </div>
+                                                </div>
 
-            </form>
+                                            </form>
 
-            <div class="store-cart-line-total">
-                ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
-            </div>
+                                            <div class="store-cart-line-total">
+                                                ₡{{ number_format($precioVenta * $item['cantidad'], 2) }}
+                                            </div>
 
-            <form action="{{ route('tienda.carrito.eliminar', $item['id_producto']) }}"
-                method="POST" class="store-cart-remove-form">
+                                            <form action="{{ route('tienda.carrito.eliminar', $item['id_producto']) }}"
+                                                method="POST" class="store-cart-remove-form">
 
-                @csrf
-                @method('DELETE')
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="cart_key"
+                                                    value="{{ $item['cart_key'] ?? $cartKey }}">
 
-                <button type="submit" class="store-cart-remove-btn">
-                    <i class="bi bi-trash3"></i>
-                    <span>Borrar</span>
-                </button>
+                                                <button type="submit" class="store-cart-remove-btn">
+                                                    <i class="bi bi-trash3"></i>
+                                                    <span>Borrar</span>
+                                                </button>
 
-            </form>
+                                            </form>
 
-        </div>
+                                        </div>
 
-    </article>
-@endforeach
+                                    </article>
+                                @endforeach
 
                             </div>
 

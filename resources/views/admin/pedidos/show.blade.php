@@ -4,7 +4,7 @@
 @section('title', 'Detalle del Pedido')
 
 @section('content')
-  
+
 
     @php
         $estadoConfig = [
@@ -581,8 +581,28 @@
                             <tbody>
                                 @forelse ($item->detalle as $detalle)
                                     <tr>
-                                        <td>{{ $detalle->nombre_producto }}</td>
-                                        <td>{{ $detalle->sku_snapshot ?: '—' }}</td>
+                                        <td>
+                                            <div class="fw-semibold">
+                                                {{ $detalle->nombre_producto }}
+                                            </div>
+
+                                            @if ($detalle->variante)
+                                                <small class="text-muted d-block">
+                                                    Variante:
+                                                    {{ $detalle->variante->opcion?->etiqueta ?? ($detalle->variante->opcion?->valor ?? $detalle->variante->nombre) }}
+                                                </small>
+
+                                                @if ($detalle->variante)
+                                                    <small class="text-primary d-block fw-semibold">
+                                                        Variante:
+                                                        {{ $detalle->variante->opcion?->etiqueta ?? ($detalle->variante->opcion?->valor ?? $detalle->variante->nombre) }}
+                                                    </small>
+                                                @endif
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $detalle->sku_snapshot ?: ($detalle->variante?->sku ?: '—') }}
+                                        </td>
                                         <td>₡{{ number_format((float) $detalle->precio_unitario, 2, '.', ',') }}</td>
                                         <td>{{ $detalle->cantidad }}</td>
                                         <td class="fw-bold">
@@ -808,5 +828,5 @@
 @endpush
 
 @push('styles')
-   <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_show.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_show.css') }}">
 @endpush

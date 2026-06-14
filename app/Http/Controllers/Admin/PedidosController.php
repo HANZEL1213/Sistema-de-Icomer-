@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Models\ProductoVariante;
 
 
 class PedidosController extends Controller
@@ -31,51 +32,52 @@ class PedidosController extends Controller
         return view('admin.pedidos.index', compact('items'));
     }
 
-    /* ============================================
-       👁️ VER
-    ============================================ */
-    public function show(string $id)
-    {
-        $item = Pedido::with([
-                'usuario',
-                'cupon',
-                'detalle',
-                'pagos',
-                'pagoUltimo',
-                'venta',
-                'usoCupon',
-            ])
-            ->findOrFail($id);
+/* ============================================
+   👁️ VER
+============================================ */
+public function show(string $id)
+{
+    $item = Pedido::with([
+            'usuario',
+            'cupon',
+            'detalle.producto',
+            'detalle.variante.opcion',
+            'pagos',
+            'pagoUltimo',
+            'venta',
+            'usoCupon',
+        ])
+        ->findOrFail($id);
 
-        $this->sincronizarPagoActualEnMemoria($item);
+    $this->sincronizarPagoActualEnMemoria($item);
 
-        return view('admin.pedidos.show', compact('item'));
-    }
+    return view('admin.pedidos.show', compact('item'));
+}
 
-    /* ============================================
-       🧭 PANEL DE GESTIÓN DEL PEDIDO
-    ============================================ */
-    public function verificar(string $id)
-    {
-        $item = Pedido::with([
-                'usuario',
-                'cupon',
-                'detalle',
-                'pagos',
-                'pagoUltimo',
-                'venta',
-                'usoCupon',
-            ])
-            ->findOrFail($id);
+/* ============================================
+   🧭 PANEL DE GESTIÓN DEL PEDIDO
+============================================ */
+public function verificar(string $id)
+{
+    $item = Pedido::with([
+            'usuario',
+            'cupon',
+            'detalle.producto',
+            'detalle.variante.opcion',
+            'pagos',
+            'pagoUltimo',
+            'venta',
+            'usoCupon',
+        ])
+        ->findOrFail($id);
 
-        $this->sincronizarPagoActualEnMemoria($item);
+    $this->sincronizarPagoActualEnMemoria($item);
 
-        $estados = $this->estadosPedido();
-        $transicionesDisponibles = $this->transicionesPermitidas($item);
+    $estados = $this->estadosPedido();
+    $transicionesDisponibles = $this->transicionesPermitidas($item);
 
-        return view('admin.pedidos.verificar', compact('item', 'estados', 'transicionesDisponibles'));
-    }
-
+    return view('admin.pedidos.verificar', compact('item', 'estados', 'transicionesDisponibles'));
+}
     /* ============================================
        ✅ APROBAR PAGO
     ============================================ */
@@ -232,18 +234,17 @@ class PedidosController extends Controller
         }
     }
 
-    /* ============================================
-       🔄 ACTUALIZAR ESTADO DEL PEDIDO
-    ============================================ */
-/* ============================================
+   /* ============================================
    🔄 ACTUALIZAR ESTADO DEL PEDIDO
 ============================================ */
+
 public function actualizarEstado(Request $request, string $id)
 {
     $pedido = Pedido::with([
             'pagos',
             'pagoUltimo',
-            'detalle',
+            'detalle.producto',
+            'detalle.variante',
         ])
         ->findOrFail($id);
 
@@ -300,7 +301,6 @@ public function actualizarEstado(Request $request, string $id)
             ->with('error', 'No se pudo actualizar el estado del pedido.');
     }
 }
-
     /* ============================================
        🧠 CATÁLOGO DE ESTADOS
     ============================================ */
@@ -402,9 +402,13 @@ public function actualizarEstado(Request $request, string $id)
             $pedido->setRelation('pagoUltimo', $pagoActual);
         }
     }
+
 private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
 {
-    $pedido->loadMissing('detalle');
+    $pedido->loadMissing([
+        'detalle.producto',
+        'detalle.variante',
+    ]);
 
     foreach ($pedido->detalle as $detalle) {
 
@@ -415,9 +419,37 @@ private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
         $yaDevuelto = MovimientoInventario::where('id_pedido', $pedido->id_pedido)
             ->where('id_producto', $detalle->id_producto)
             ->where('tipo', 'entrada')
+            ->where('motivo', $motivo)
+            ->where('notas', 'Pedido: ' . $pedido->numero_pedido)
             ->exists();
 
         if ($yaDevuelto) {
+            continue;
+        }
+
+        if ($detalle->id_producto_variante) {
+            $variante = ProductoVariante::where('id_producto_variante', $detalle->id_producto_variante)
+                ->where('id_producto', $detalle->id_producto)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $variante) {
+                continue;
+            }
+
+            $variante->registrarEntradaInventario($detalle->cantidad);
+
+            MovimientoInventario::create([
+                'id_producto' => $detalle->id_producto,
+                'tipo' => 'entrada',
+                'cantidad' => $detalle->cantidad,
+                'motivo' => $motivo,
+                'id_pedido' => $pedido->id_pedido,
+                'id_venta_local' => null,
+                'id_usuario_realizador' => Auth::id() ?? 1,
+                'notas' => 'Pedido: ' . $pedido->numero_pedido . ' | Variante: ' . $detalle->id_producto_variante,
+            ]);
+
             continue;
         }
 
@@ -439,5 +471,4 @@ private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
         );
     }
 }
-
 }

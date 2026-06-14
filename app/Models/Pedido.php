@@ -60,17 +60,23 @@ class Pedido extends Model
         return $this->hasMany(DetallePedido::class, 'id_pedido', 'id_pedido');
     }
 
+    public function detalles()
+    {
+        return $this->hasMany(DetallePedido::class, 'id_pedido', 'id_pedido');
+    }
+
     public function pagos()
     {
         return $this->hasMany(PagoPedido::class, 'id_pedido', 'id_pedido')
             ->orderByDesc('intento');
     }
 
-public function pagoUltimo()
-{
-    return $this->hasOne(PagoPedido::class, 'id_pedido', 'id_pedido')
-        ->latestOfMany('intento');
-}
+    public function pagoUltimo()
+    {
+        return $this->hasOne(PagoPedido::class, 'id_pedido', 'id_pedido')
+            ->latestOfMany('intento');
+    }
+
     public function venta()
     {
         return $this->hasOne(Venta::class, 'id_pedido', 'id_pedido');
