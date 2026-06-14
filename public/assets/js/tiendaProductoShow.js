@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const stockText = document.getElementById('storeProductStockText');
     const addCartBtn = document.getElementById('storeAddCartBtn');
     const variantHelp = document.getElementById('storeVariantHelp');
+    const stockMessage = document.getElementById('storeVariantStockMessage');
     const cartForm = document.getElementById('storeCartForm');
 
     let precioUnitarioActual = Number(priceText?.dataset.precioBase || 0);
@@ -46,6 +47,22 @@ document.addEventListener('DOMContentLoaded', function () {
         priceText.textContent = formatCRC(total);
     }
 
+    function mostrarMensajeStock(nombreVariante) {
+        if (!stockMessage) return;
+
+        stockMessage.classList.remove('d-none');
+        stockMessage.innerHTML = `
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            La opción "${nombreVariante}" no tiene stock disponible.
+        `;
+    }
+
+    function ocultarMensajeStock() {
+        if (!stockMessage) return;
+
+        stockMessage.classList.add('d-none');
+    }
+
     function seleccionarVariante(button) {
         if (!button) return;
 
@@ -60,12 +77,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = button.dataset.id;
         const stock = parseInt(button.dataset.stock || 0);
         const precio = parseFloat(button.dataset.precio || 0);
+        const nombre = button.dataset.nombre || 'esta opción';
+        const agotada = button.dataset.agotada === '1' || stock <= 0;
 
         precioUnitarioActual = precio;
-
-        if (variantHidden) {
-            variantHidden.value = id;
-        }
 
         if (qtyInput) {
             qtyInput.max = Math.max(stock, 1);
@@ -90,15 +105,38 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        if (agotada) {
+            mostrarMensajeStock(nombre);
+
+            if (variantHidden) {
+                variantHidden.value = '';
+            }
+
+            if (addCartBtn) {
+                addCartBtn.disabled = true;
+            }
+
+            if (variantHelp) {
+                variantHelp.textContent = 'Esta opción está agotada.';
+                variantHelp.classList.remove('text-muted');
+                variantHelp.classList.add('text-danger');
+            }
+
+            return;
+        }
+
+        ocultarMensajeStock();
+
+        if (variantHidden) {
+            variantHidden.value = id;
+        }
+
         if (addCartBtn) {
-            addCartBtn.disabled = stock <= 0;
+            addCartBtn.disabled = false;
         }
 
         if (variantHelp) {
-            variantHelp.textContent = stock > 0
-                ? 'Opción seleccionada.'
-                : 'Esta opción está agotada.';
-
+            variantHelp.textContent = 'Opción seleccionada.';
             variantHelp.classList.remove('text-danger');
             variantHelp.classList.add('text-muted');
         }
@@ -154,7 +192,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const varianteInicialBtn =
         document.querySelector('.store-variant-btn.active') ||
         document.querySelector('.store-variant-btn.is-active') ||
-        document.querySelector('.store-variant-btn:not(:disabled)');
+        document.querySelector('.store-variant-btn[data-agotada="0"]') ||
+        document.querySelector('.store-variant-btn');
 
     if (varianteInicialBtn && variantHidden) {
         seleccionarVariante(varianteInicialBtn);
@@ -166,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 event.preventDefault();
 
                 if (variantHelp) {
-                    variantHelp.textContent = 'Debes seleccionar una opción antes de agregar al carrito.';
+                    variantHelp.textContent = 'Debes seleccionar una opción con stock antes de agregar al carrito.';
                     variantHelp.classList.remove('text-muted');
                     variantHelp.classList.add('text-danger');
                 }

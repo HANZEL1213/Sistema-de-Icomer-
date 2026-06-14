@@ -200,7 +200,7 @@
                                             data-id="{{ $variante->id_producto_variante }}"
                                             data-stock="{{ $variante->stock_actual }}" data-precio="{{ $precioVariante }}"
                                             data-nombre="{{ $nombreVariante }}"
-                                            {{ $variante->stock_actual <= 0 ? 'disabled' : '' }}>
+                                            data-agotada="{{ $variante->stock_actual <= 0 ? 1 : 0 }}">
                                             {{ $nombreVariante }}
                                         </button>
                                     @endforeach
@@ -209,6 +209,11 @@
                                 <small class="text-muted d-block mt-2" id="storeVariantHelp">
                                     Selecciona una opción para continuar.
                                 </small>
+
+                                <div class="alert alert-warning py-2 px-3 mt-2 d-none" id="storeVariantStockMessage">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>
+                                    Esta variante no tiene stock disponible.
+                                </div>
                             </div>
                         @endif
 
