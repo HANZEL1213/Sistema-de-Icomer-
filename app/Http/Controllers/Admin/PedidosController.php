@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PedidoAprobadoMail;
 use App\Models\MovimientoInventario;
 use App\Models\Producto;
 use App\Models\Pedido;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Models\ProductoVariante;
-
+use Illuminate\Support\Facades\Mail;
 
 class PedidosController extends Controller
 {
@@ -141,9 +142,16 @@ public function verificar(string $id)
                 ]);
             });
 
+            $item->refresh();
+
+            if ($item->correo_cliente) {
+                Mail::to($item->correo_cliente)
+                    ->send(new PedidoAprobadoMail($item));
+            }
+
             return redirect()
                 ->route('admin.pedidos.verificar', $item->id_pedido)
-                ->with('success', 'Pago verificado correctamente y pedido actualizado a PAGADO VERIFICADO.');
+                ->with('success', 'Pago verificado correctamente y se notificó al cliente por correo.');
         } catch (\Throwable $e) {
             report($e);
 

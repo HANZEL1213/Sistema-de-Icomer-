@@ -60,6 +60,12 @@
         font-size: .85rem;
         font-weight: 600;
     }
+
+    #checkoutProofPreview {
+        max-width: 220px;
+        max-height: 220px;
+        object-fit: contain;
+    }
 </style>
 
 @section('title', 'Finalizar compra | Tienda')
@@ -195,11 +201,12 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="store-form-label">Correo electrónico</label>
+                                            <label class="store-form-label">Correo electrónico <span
+                                                    class="text-danger">*</span></label>
 
                                             <input type="email" name="correo_cliente" value="{{ old('correo_cliente') }}"
                                                 class="form-control store-filter-control @error('correo_cliente') is-invalid @enderror"
-                                                placeholder="correo@email.com">
+                                                placeholder="correo@email.com" required>
 
                                             @error('correo_cliente')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -226,7 +233,8 @@
                                             <label class="store-payment-option active" for="tipoEntregaEnvio">
                                                 <input type="radio" id="tipoEntregaEnvio" name="tipo_entrega"
                                                     value="envio" class="d-none"
-                                                    {{ old('tipo_entrega', 'envio') === 'envio' ? 'checked' : '' }} required>
+                                                    {{ old('tipo_entrega', 'envio') === 'envio' ? 'checked' : '' }}
+                                                    required>
 
                                                 <div class="store-payment-radio">
                                                     <i class="bi bi-check"></i>
@@ -589,7 +597,7 @@
                                             {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
                                         </p>
 
-                                         <p class="mb-1">
+                                        <p class="mb-1">
                                             <strong>Cuenta bancaria:</strong>
 
                                             {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
@@ -635,8 +643,8 @@
                                             <div class="store-checkout-proof-preview d-none mt-3"
                                                 id="checkoutProofPreviewWrap">
 
-                                                <img src="" id="checkoutProofPreview"
-                                                    class="img-fluid rounded-4 border" alt="Preview comprobante">
+                                                <img src="" id="checkoutProofPreview" class="rounded-4 border"
+                                                    alt="Preview comprobante">
 
                                             </div>
 
@@ -1845,16 +1853,22 @@
 
         document.getElementById('nextStep2').addEventListener('click', () => {
 
-            const step2 = document.getElementById('checkoutStep2');
+            const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked')?.value || 'envio';
 
-            const campos = step2.querySelectorAll('input, select, textarea');
+            if (tipoEntrega === 'envio') {
 
-            for (const campo of campos) {
+                const step2 = document.getElementById('checkoutStep2');
 
-                if (!campo.checkValidity()) {
+                const campos = step2.querySelectorAll(
+                    '#checkoutAddressBox input, #checkoutAddressBox select, #checkoutAddressBox textarea');
 
-                    campo.reportValidity();
-                    return;
+                for (const campo of campos) {
+
+                    if (!campo.checkValidity()) {
+
+                        campo.reportValidity();
+                        return;
+                    }
                 }
             }
 
@@ -1907,6 +1921,5 @@
 
         /* Iniciar en paso 1 */
         goToStep(1);
-        
     </script>
 @endpush

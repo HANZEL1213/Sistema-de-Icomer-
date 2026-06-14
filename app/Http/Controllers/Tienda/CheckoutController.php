@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Tienda;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Mail\PedidoRecibidoMail;
 use App\Models\DetallePedido;
 use App\Models\Pedido;
 use App\Models\Producto;
@@ -14,6 +15,7 @@ use App\Models\Cupon;
 use App\Models\UsoCupon;
 use App\Models\Venta;
 use App\Models\ProductoVariante;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -162,7 +164,7 @@ public function confirmar(Request $request)
 
         'nombre_cliente' => ['required', 'string', 'max:120'],
         'telefono_cliente' => ['required', 'string', 'max:30'],
-        'correo_cliente' => ['nullable', 'email', 'max:190'],
+        'correo_cliente' => ['required', 'email', 'max:190'],
 
         'tipo_entrega' => ['required', 'in:envio,retiro'],
 
@@ -177,13 +179,13 @@ public function confirmar(Request $request)
 
         'metodo_pago' => ['required', 'in:sinpe'],
         'numero_comprobante' => [
-            'nullable',
+            'required',
             'string',
             'max:80',
             'required_without:comprobante_pago',
         ],
         'comprobante_pago' => [
-            'nullable',
+            'required',
             'image',
             'mimes:jpg,jpeg,png,webp',
             'max:4096',
@@ -446,6 +448,15 @@ public function confirmar(Request $request)
         ]);
 
         DB::commit();
+
+        if (!empty($pedido->correo_cliente)) {
+        try {
+            Mail::to($pedido->correo_cliente)
+                ->send(new PedidoRecibidoMail($pedido));
+        } catch (\Throwable $mailError) {
+            report($mailError);
+        }
+    }
 
         session()->forget([
             'carrito',
