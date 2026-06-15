@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Categoria;
 use App\Models\Configuracion;
+use App\Models\Marca;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,11 +23,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer('tienda.*', function ($view) {
+        View::composer('*', function ($view) {
 
-            $configTienda = Configuracion::pluck('valor', 'clave')->toArray();
+        $configTienda = Configuracion::pluck('valor', 'clave')->toArray();
 
-            $view->with('configTienda', $configTienda);
+        $categoriasMenu = Categoria::where('activo', 1)
+            ->orderBy('nombre')
+            ->get();
+
+        $marcasMenu = Marca::where('activo', 1)
+            ->orderBy('nombre')
+            ->get();
+
+            $view->with([
+                'configTienda' => $configTienda,
+                'categoriasMenu' => $categoriasMenu,
+                'marcasMenu' => $marcasMenu,
+            ]);
 
         });
     }

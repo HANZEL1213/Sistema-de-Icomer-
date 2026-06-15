@@ -16,6 +16,41 @@
     use Illuminate\Support\Str;
 @endphp
 
+<style>
+    .store-offcanvas-dropdown-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.store-offcanvas-submenu {
+    padding: 6px 0 8px 14px;
+}
+
+.store-offcanvas-sublink {
+    display: block;
+    padding: 9px 14px;
+    border-radius: 12px;
+    color: #555;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.store-offcanvas-sublink:hover {
+    background: #f7f1e6;
+    color: #dca117;
+}
+
+.store-offcanvas-dropdown-toggle .bi-chevron-down {
+    transition: transform .25s ease;
+}
+
+.store-offcanvas-dropdown-toggle[aria-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+</style>
+
 <header>
     {{-- TOP BAR --}}
     <div class="store-topbar d-none d-md-block">
@@ -303,17 +338,101 @@
                     <i class="bi bi-grid"></i>
                 </a>
 
-                <a href="{{ route('tienda.categorias.index') }}" class="store-offcanvas-link"
-                    data-store-close-offcanvas="true">
-                    <span>Categorías</span>
-                    <i class="bi bi-collection"></i>
-                </a>
+               <div class="store-offcanvas-dropdown">
 
-                <a href="{{ route('tienda.marcas.index') }}" class="store-offcanvas-link"
-                    data-store-close-offcanvas="true">
-                    <span>Marcas</span>
-                    <i class="bi bi-bookmark-star"></i>
-                </a>
+                    <button type="button"
+                        class="store-offcanvas-link store-offcanvas-dropdown-toggle"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mobileCategoriasCollapse"
+                        aria-expanded="false">
+
+                        <span>Categorías</span>
+
+                        <span class="d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-collection"></i>
+                            <i class="bi bi-chevron-down small"></i>
+                        </span>
+
+                    </button>
+
+                    <div class="collapse store-offcanvas-submenu" id="mobileCategoriasCollapse">
+
+                        <a href="{{ route('tienda.categorias.index') }}"
+                            class="store-offcanvas-sublink"
+                            data-store-close-offcanvas="true">
+
+                            Todas las categorías
+
+                        </a>
+
+                        @forelse ($categoriasMenu as $categoria)
+
+                            <a href="{{ route('tienda.productos.index', ['categoria' => $categoria->id_categoria]) }}"
+                                class="store-offcanvas-sublink"
+                                data-store-close-offcanvas="true">
+
+                                {{ $categoria->nombre }}
+
+                            </a>
+
+                        @empty
+
+                            <span class="store-offcanvas-sublink text-muted">
+                                No hay categorías disponibles
+                            </span>
+
+                        @endforelse
+
+                    </div>
+
+                </div>
+
+               <div class="store-offcanvas-dropdown">
+
+                    <button type="button"
+                        class="store-offcanvas-link store-offcanvas-dropdown-toggle"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mobileMarcasCollapse"
+                        aria-expanded="false">
+
+                        <span>Marcas</span>
+
+                        <span class="d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-bookmark-star"></i>
+                            <i class="bi bi-chevron-down small"></i>
+                        </span>
+
+                    </button>
+
+                    <div class="collapse store-offcanvas-submenu" id="mobileMarcasCollapse">
+
+                        <a href="{{ route('tienda.marcas.index') }}"
+                            class="store-offcanvas-sublink"
+                            data-store-close-offcanvas="true">
+                            Todas las marcas
+                        </a>
+
+                        @forelse (($marcasMenu ?? collect()) as $marca)
+
+                            <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}"
+                                class="store-offcanvas-sublink"
+                                data-store-close-offcanvas="true">
+
+                                {{ $marca->nombre }}
+
+                            </a>
+
+                        @empty
+
+                            <span class="store-offcanvas-sublink text-muted">
+                                No hay marcas disponibles
+                            </span>
+
+                        @endforelse
+
+                    </div>
+
+                </div>
 
                 <a href="{{ route('tienda.favoritos.index') }}" class="store-offcanvas-link"
                     data-store-close-offcanvas="true">

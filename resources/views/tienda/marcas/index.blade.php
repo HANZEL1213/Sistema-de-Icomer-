@@ -103,7 +103,7 @@
 
                 <div class="col-6 col-lg-4">
 
-                    <a href="{{ route('tienda.marcas.show', $marca->slug) }}"
+                    <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}"
                        class="store-brand-card">
 
                         {{-- IMAGEN --}}

@@ -101,7 +101,7 @@
 
                 <div class="col-12 col-sm-6 col-lg-4">
 
-                    <a href="{{ route('tienda.categorias.show', $categoria->slug) }}"
+                    <a href="{{ route('tienda.productos.index', ['categoria' => $categoria->id_categoria]) }}"
                        class="store-category-card">
 
                         <div class="store-category-image-wrap">
