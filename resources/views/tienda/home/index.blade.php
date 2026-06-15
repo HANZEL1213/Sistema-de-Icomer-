@@ -187,7 +187,7 @@
 
                             <div class="store-home-slide">
 
-                                <a href="{{ route('tienda.categorias.show', $categoria->slug) }}"
+                                <a href="{{ route('tienda.productos.index', ['categoria' => $categoria->id_categoria]) }}"
                                     class="store-category-card">
 
                                     <div class="store-category-image-wrap">
@@ -557,7 +557,7 @@
 
                             <div class="store-home-slide">
 
-                                <a href="{{ route('tienda.marcas.show', $marca->slug) }}" class="store-brand-card">
+                                <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}" class="store-brand-card">
 
                                     <div class="store-brand-image-wrap">
 
