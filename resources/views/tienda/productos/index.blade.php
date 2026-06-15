@@ -5,7 +5,7 @@
 
 @section('content')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-     <link rel="stylesheet" href="{{ asset('assets/css/tiendaProductoIndex.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tiendaProductoIndex.css') }}">
 
     @php
         $carritoIds = collect(session('carrito', []))->keys()->toArray();
@@ -261,18 +261,23 @@
                     <div class="row g-3 g-md-4">
                         @forelse($productos as $producto)
                             @php
-                                $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
-
                                 $varianteBase = $producto->usa_variantes
                                     ? $producto->variantePrincipal ?? $producto->variantesActivas->first()
                                     : null;
 
                                 if ($producto->usa_variantes && $varianteBase) {
+                                    $cartKeyVariante =
+                                        $producto->id_producto . '_v_' . $varianteBase->id_producto_variante;
+
+                                    $productoEnCarrito = in_array($cartKeyVariante, $carritoIds);
+
                                     $precioNormal = (float) $varianteBase->precio;
                                     $precioVenta = (float) $varianteBase->precioVenta();
                                     $stockBase = (int) $varianteBase->stock_actual;
                                     $tienePromo = $varianteBase->promocionVigente();
                                 } else {
+                                    $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
+
                                     $precioNormal = (float) $producto->precio;
                                     $precioVenta = (float) $producto->precioVenta();
                                     $stockBase = (int) $producto->stock_actual;
@@ -290,8 +295,7 @@
                                 $porcentaje =
                                     $tienePromo && $precioNormal > 0 ? round(($ahorro / $precioNormal) * 100) : 0;
                             @endphp
-
-                         <div class="col-6 col-md-4 col-xl-3">
+                            <div class="col-6 col-md-4 col-xl-3">
                                 <div class="store-product-card">
                                     <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                         class="store-product-image-wrap">
@@ -326,60 +330,71 @@
                                         <div class="store-product-category">
                                             {{ $producto->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
                                         </div>
-                                   
-<div class="store-product-footer store-product-footer-catalog">
-    <div class="store-product-price-area">
-        @if ($tienePromo)
-            <div class="mb-1">
-                <span class="badge bg-danger text-white">
-                    -{{ $porcentaje }}% OFF
-                </span>
-            </div>
 
-            <div class="text-muted text-decoration-line-through small">
-                ₡{{ number_format($precioNormal, 2) }}
-            </div>
+                                        <div class="store-product-footer store-product-footer-catalog">
+                                            <div class="store-product-price-area">
+                                                @if ($tienePromo)
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-danger text-white">
+                                                            -{{ $porcentaje }}% OFF
+                                                        </span>
+                                                    </div>
 
-            <div class="store-product-price text-danger">
-                ₡{{ number_format($precioVenta, 2) }}
-            </div>
-        @else
-            <div class="store-product-price">
-                ₡{{ number_format($precioVenta, 2) }}
-            </div>
-        @endif
+                                                    <div class="text-muted text-decoration-line-through small">
+                                                        ₡{{ number_format($precioNormal, 2) }}
+                                                    </div>
 
-        <small class="store-product-stock">
-            Stock: {{ $stockBase }}
-        </small>
-    </div>
+                                                    <div class="store-product-price text-danger">
+                                                        ₡{{ number_format($precioVenta, 2) }}
+                                                    </div>
+                                                @else
+                                                    <div class="store-product-price">
+                                                        ₡{{ number_format($precioVenta, 2) }}
+                                                    </div>
+                                                @endif
 
-    <div class="store-product-card-actions">
-        @if ($producto->usa_variantes)
-            <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                class="store-product-action store-product-action-catalog"
-                title="Seleccionar variante">
-                <i class="bi bi-cart-plus"></i>
-            </a>
-        @else
-            <button type="button"
-                class="store-product-action store-product-action-catalog js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
-                data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
-                data-product-id="{{ $producto->id_producto }}"
-                title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
-                {{ $agotado || $productoEnCarrito ? 'disabled' : '' }}>
+                                                <small class="store-product-stock">
+                                                    Stock: {{ $stockBase }}
+                                                </small>
+                                            </div>
 
-                <i class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
-            </button>
-        @endif
+                                            <div class="store-product-card-actions">
 
-        <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-            class="store-product-action store-product-action-catalog"
-            title="Ver producto">
-            <i class="bi bi-eye"></i>
-        </a>
-    </div>
-</div>
+                                                @if ($producto->usa_variantes)
+                                                    <button type="button"
+                                                        class="store-product-action store-product-action-catalog js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
+                                                        data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
+                                                        data-product-id="{{ $producto->id_producto }}"
+                                                        data-product-variant-id="{{ $varianteBase?->id_producto_variante }}"
+                                                        data-cart-key="{{ $cartKeyVariante }}"
+                                                        title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
+                                                        {{ $agotado || !$varianteBase || $productoEnCarrito ? 'disabled' : '' }}>
+
+                                                        <i
+                                                            class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
+
+                                                    </button>
+                                                @else
+                                                    <button type="button"
+                                                        class="store-product-action store-product-action-catalog js-add-cart {{ $productoEnCarrito ? 'is-added' : '' }}"
+                                                        data-url="{{ route('tienda.carrito.agregar', $producto->id_producto) }}"
+                                                        data-product-id="{{ $producto->id_producto }}"
+                                                        data-cart-key="{{ $producto->id_producto }}"
+                                                        title="{{ $productoEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
+                                                        {{ $agotado || $productoEnCarrito ? 'disabled' : '' }}>
+
+                                                        <i
+                                                            class="bi {{ $productoEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
+
+                                                    </button>
+                                                @endif
+                                                <a href="{{ route('tienda.productos.show', $producto->slug) }}"
+                                                    class="store-product-action store-product-action-catalog"
+                                                    title="Ver producto">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

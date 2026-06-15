@@ -1,8 +1,6 @@
-
 /* =========================================
 carrito
 ========================================= */
-
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -16,15 +14,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function marcarProductoAgregado(productId) {
-        document
-            .querySelectorAll(`.js-add-cart[data-product-id="${productId}"]`)
-            .forEach(function (button) {
-                button.classList.add('is-added');
-                button.innerHTML = '<i class="bi bi-check-lg"></i>';
-                button.title = 'Producto agregado';
-                button.disabled = true;
-            });
+    function marcarProductoAgregado(btnAgregado) {
+        const cartKey = btnAgregado.dataset.cartKey;
+        const productId = btnAgregado.dataset.productId;
+
+        const selector = cartKey
+            ? `.js-add-cart[data-cart-key="${cartKey}"]`
+            : `.js-add-cart[data-product-id="${productId}"]`;
+
+        document.querySelectorAll(selector).forEach(function (button) {
+            button.classList.add('is-added');
+            button.innerHTML = '<i class="bi bi-check-lg"></i>';
+            button.title = 'Producto agregado';
+            button.disabled = true;
+        });
     }
 
     async function cargarMasProductos() {
@@ -145,6 +148,14 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.disabled = true;
         btn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
 
+        const payload = {
+            cantidad: 1
+        };
+
+        if (btn.dataset.productVariantId) {
+            payload.id_producto_variante = btn.dataset.productVariantId;
+        }
+
         try {
             const response = await fetch(btn.dataset.url, {
                 method: 'POST',
@@ -154,9 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    cantidad: 1
-                })
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
@@ -169,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             actualizarContadorCarrito(data.total_items);
-            marcarProductoAgregado(btn.dataset.productId);
+            marcarProductoAgregado(btn);
 
         } catch (error) {
             console.error(error);

@@ -1,4 +1,4 @@
-{{-- resources/views/tienda/categorias/show.blade.php --}}
+{{-- resources/views/tienda/categorias/show.blade.php 
 
 @extends('tienda.layouts.app')
 
@@ -13,7 +13,7 @@
     @endphp
     <section class="store-category-show-page">
 
-        {{-- HERO --}}
+
         <div class="store-category-show-hero">
 
             <img src="{{ $categoria->imagen
@@ -27,7 +27,7 @@
 
                 <div class="store-category-show-content">
 
-                    {{-- BREADCRUMB --}}
+            
                     <div class="store-detail-breadcrumb text-white mb-3">
 
                         <a href="{{ route('tienda.home') }}" class="text-white">
@@ -83,10 +83,9 @@
         </div>
 
 
-        {{-- PRODUCTOS --}}
         <div class="container py-4 py-lg-5">
 
-            {{-- TOOLBAR --}}
+   
             <div class="store-products-toolbar">
 
                 <div>
@@ -106,7 +105,7 @@
                 </a>
 
             </div>
-            {{-- GRID PRODUCTOS --}}
+      
             <div class="row g-3 g-md-4">
 
                 @forelse($productos as $producto)
@@ -139,7 +138,6 @@
 
                         <div class="store-product-card">
 
-                            {{-- IMAGEN --}}
                             <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                 class="store-product-image-wrap">
 
@@ -170,27 +168,27 @@
 
                             </a>
 
-                            {{-- BODY --}}
+                     
                             <div class="store-product-body">
 
-                                {{-- MARCA --}}
+                         
                                 <div class="store-product-meta">
                                     {{ $producto->marca->nombre ?? 'Sin marca' }}
                                 </div>
 
-                                {{-- NOMBRE --}}
+                        
                                 <a href="{{ route('tienda.productos.show', $producto->slug) }}" class="store-product-name">
 
                                     {{ $producto->nombre }}
 
                                 </a>
 
-                                {{-- CATEGORÍA --}}
+                    
                                 <div class="store-product-category">
                                     {{ $producto->categoriaPrincipal->nombre ?? 'General' }}
                                 </div>
 
-                                {{-- FOOTER --}}
+                           
                                 <div class="store-product-footer">
 
                                     <div>
@@ -295,3 +293,4 @@
 @push('scripts')
     <script src="{{ asset('assets/js/carrito.js') }}"></script>
 @endpush
+--}}

@@ -1,4 +1,4 @@
-{{-- resources/views/tienda/marcas/show.blade.php --}}
+{{-- resources/views/tienda/marcas/show.blade.php 
 
 @extends('tienda.layouts.app')
 
@@ -13,7 +13,7 @@
     @endphp
     <section class="store-brand-show-page">
 
-        {{-- HERO --}}
+       
         <div class="store-brand-show-hero">
 
             @if ($marca->imagen)
@@ -28,7 +28,7 @@
 
                 <div class="store-brand-show-content">
 
-                    {{-- BREADCRUMB --}}
+                  
                     <div class="store-detail-breadcrumb text-white mb-3">
 
                         <a href="{{ route('tienda.home') }}" class="text-white">
@@ -54,7 +54,6 @@
                     </div>
 
 
-                    {{-- LOGO --}}
                     <div class="store-brand-show-logo">
 
                         {{ strtoupper(substr($marca->nombre, 0, 2)) }}
@@ -77,7 +76,7 @@
                     </p>
 
 
-                    {{-- STATS --}}
+                    
                     <div class="store-brand-show-stats">
 
                         <div class="store-brand-show-stat">
@@ -115,10 +114,10 @@
         </div>
 
 
-        {{-- PRODUCTOS --}}
+   
         <div class="container py-4 py-lg-5">
 
-            {{-- TOOLBAR --}}
+        
             <div class="store-products-toolbar">
 
                 <div>
@@ -147,7 +146,6 @@
             </div>
 
 
-            {{-- GRID --}}
             <div class="row g-3 g-md-4">
 
                 @forelse($productos as $producto)
@@ -179,7 +177,7 @@
 
                         <div class="store-product-card">
 
-                            {{-- IMAGEN --}}
+                       
                             <a href="{{ route('tienda.productos.show', $producto->slug) }}"
                                 class="store-product-image-wrap">
 
@@ -195,7 +193,7 @@
                                 @endif
 
 
-                                {{-- FAVORITO --}}
+                                
                                 <button type="button"
                                     class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
                                     data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}"
@@ -207,7 +205,7 @@
                                 </button>
 
 
-                                {{-- BADGES --}}
+                             
                                 @if ($agotado)
                                     <span class="store-product-badge store-product-badge-muted">
                                         Agotado
@@ -221,7 +219,7 @@
                             </a>
 
 
-                            {{-- BODY --}}
+              
                             <div class="store-product-body">
 
                                 <div class="store-product-meta">
@@ -243,7 +241,6 @@
                                 </div>
 
 
-                                {{-- FOOTER --}}
                                 <div class="store-product-footer">
 
                                     <div>
@@ -354,3 +351,4 @@
 @push('scripts')
     <script src="{{ asset('assets/js/carrito.js') }}"></script>
 @endpush
+--}}
