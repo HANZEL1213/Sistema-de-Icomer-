@@ -8,17 +8,22 @@
 
 @section('content')
 
-    @php
-        $imagenes = $producto->imagenes->count() ? $producto->imagenes : collect();
+   <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+     <link rel="stylesheet" href="{{ asset('assets/css/tiendaProductoShow.css') }}">
 
-        $imagenPrincipal = $producto->imagenPrincipal
-            ? asset('storage/' . $producto->imagenPrincipal->ruta)
-            : ($imagenes->first()
-                ? asset('storage/' . $imagenes->first()->ruta)
-                : asset('assets/img/no-image.png'));
+@php
+    $imagenes = $producto->imagenes->count() ? $producto->imagenes : collect();
 
-        $stock = $producto->stockDisponible();
-    @endphp
+    $imagenPrincipal = $producto->imagenPrincipal
+        ? asset('storage/' . $producto->imagenPrincipal->ruta)
+        : ($imagenes->first()
+            ? asset('storage/' . $imagenes->first()->ruta)
+            : asset('assets/img/no-image.png'));
+
+    $stock = $producto->stockDisponible();
+
+    $carritoIds = collect(session('carrito', []))->keys()->toArray();
+@endphp
 
     <section class="store-product-detail-page">
 
@@ -109,15 +114,17 @@
 
                         @php
                             if ($producto->usa_variantes && $varianteInicial) {
-                                $tienePromo = false;
+                                $tienePromo = $varianteInicial->promocionVigente();
 
                                 $precioNormal = (float) $varianteInicial->precio;
-                                $precioVenta = (float) $varianteInicial->precio;
+
+                                $precioVenta = (float) $varianteInicial->precioVenta();
                             } else {
                                 $tienePromo = $producto->tienePromocionActiva();
 
                                 $precioNormal = (float) $producto->precio;
-                                $precioVenta = $producto->precioVenta();
+
+                                $precioVenta = (float) $producto->precioVenta();
                             }
 
                             $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
@@ -156,7 +163,7 @@
                                     </div>
                                 </div>
 
-                                <span class="store-discount-badge">
+                                <span class="store-discount-badge" id="storeProductDiscountBadge">
                                     {{ $porcentaje }}%
                                 </span>
                             </div>
@@ -192,16 +199,36 @@
                                                 $variante->opcion?->etiqueta ??
                                                     ($variante->opcion?->valor ?? 'Variante');
 
-                                            $precioVariante = $variante->precio ?? $producto->precioVenta();
+                                            $precioNormalVariante = (float) $variante->precio;
+
+                                            $precioVentaVariante = (float) $variante->precioVenta();
+
+                                            $tienePromoVariante = $variante->promocionVigente();
+
+                                            $ahorroVariante = $tienePromoVariante
+                                                ? max(0, $precioNormalVariante - $precioVentaVariante)
+                                                : 0;
+
+                                            $porcentajeVariante =
+                                                $tienePromoVariante && $precioNormalVariante > 0
+                                                    ? round(($ahorroVariante / $precioNormalVariante) * 100)
+                                                    : 0;
                                         @endphp
 
                                         <button type="button"
                                             class="store-variant-btn {{ $variante->stock_actual <= 0 ? 'is-disabled' : '' }}"
                                             data-id="{{ $variante->id_producto_variante }}"
-                                            data-stock="{{ $variante->stock_actual }}" data-precio="{{ $precioVariante }}"
+                                            data-stock="{{ $variante->stock_actual }}"
+                                            data-precio="{{ $precioVentaVariante }}"
+                                            data-precio-normal="{{ $precioNormalVariante }}"
+                                            data-precio-venta="{{ $precioVentaVariante }}"
+                                            data-tiene-promo="{{ $tienePromoVariante ? 1 : 0 }}"
+                                            data-porcentaje="{{ $porcentajeVariante }}"
                                             data-nombre="{{ $nombreVariante }}"
                                             data-agotada="{{ $variante->stock_actual <= 0 ? 1 : 0 }}">
+
                                             {{ $nombreVariante }}
+
                                         </button>
                                     @endforeach
                                 </div>
@@ -294,159 +321,191 @@
 
             </div>
 
-            {{-- PRODUCTOS RELACIONADOS --}}
-            @if ($relacionados->count())
+        
 
-                <section class="store-section px-0 pb-0">
 
-                    <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
+{{-- PRODUCTOS RELACIONADOS --}}
+@if ($relacionados->count())
 
-                        <div>
+    <section class="store-section px-0 pb-0">
 
-                            <div class="store-mini-label">
-                                También te puede gustar
-                            </div>
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
 
-                            <h2 class="store-section-title mb-2">
-                                Productos relacionados
-                            </h2>
+            <div>
 
-                            <p class="store-section-subtitle">
-                                Más opciones con la misma línea visual del catálogo.
-                            </p>
+                <div class="store-mini-label">
+                    También te puede gustar
+                </div>
 
-                        </div>
+                <h2 class="store-section-title mb-2">
+                    Productos relacionados
+                </h2>
 
-                        <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
-                            Ver catálogo
+                <p class="store-section-subtitle">
+                    Más opciones con la misma línea visual del catálogo.
+                </p>
+
+            </div>
+
+            <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+                Ver catálogo
+            </a>
+
+        </div>
+
+        <div class="row g-3 g-md-4">
+
+            @foreach ($relacionados as $item)
+                @php
+                    $itemEnCarrito = in_array($item->id_producto, $carritoIds ?? []);
+
+                    $imagenRelacionado = $item->imagenPrincipal
+                        ? asset('storage/' . $item->imagenPrincipal->ruta)
+                        : asset('assets/img/no-image.png');
+
+                    $varianteRelacionada = $item->usa_variantes
+                        ? ($item->variantePrincipal ?? $item->variantesActivas->first())
+                        : null;
+
+                    if ($item->usa_variantes && $varianteRelacionada) {
+                        $stockRelacionado = (int) $varianteRelacionada->stock_actual;
+                        $tienePromoRelacionado = $varianteRelacionada->promocionVigente();
+                        $precioNormalRelacionado = (float) $varianteRelacionada->precio;
+                        $precioVentaRelacionado = (float) $varianteRelacionada->precioVenta();
+                    } else {
+                        $stockRelacionado = (int) ($item->stock_actual ?? 0);
+                        $tienePromoRelacionado = $item->tienePromocionActiva();
+                        $precioNormalRelacionado = (float) $item->precio;
+                        $precioVentaRelacionado = (float) $item->precioVenta();
+                    }
+
+                    $ahorroRelacionado = $tienePromoRelacionado
+                        ? max(0, $precioNormalRelacionado - $precioVentaRelacionado)
+                        : 0;
+
+                    $porcentajeRelacionado = ($tienePromoRelacionado && $precioNormalRelacionado > 0)
+                        ? round(($ahorroRelacionado / $precioNormalRelacionado) * 100)
+                        : 0;
+                @endphp
+
+                <div class="col-6 col-md-4 col-xl-3">
+
+                    <div class="store-product-card">
+
+                        <a href="{{ route('tienda.productos.show', $item->slug) }}"
+                            class="store-product-image-wrap">
+
+                            <img src="{{ $imagenRelacionado }}" alt="{{ $item->nombre }}"
+                                class="store-product-image">
+
+                            <button type="button"
+                                class="store-product-heart js-favorite-btn {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
+                                data-url="{{ route('tienda.favoritos.toggle', $item->id_producto) }}"
+                                aria-label="Agregar a favoritos">
+
+                                <i
+                                    class="bi {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+
+                            </button>
+
+                            @if ($stockRelacionado <= 0)
+                                <span class="store-product-badge store-product-badge-muted">
+                                    Agotado
+                                </span>
+                            @endif
+
                         </a>
 
-                    </div>
+                        <div class="store-product-body">
 
-                    <div class="row g-3 g-md-4">
+                            <div class="store-product-meta">
+                                {{ $item->marca?->nombre ?? 'Sin marca' }}
+                            </div>
 
-                        @foreach ($relacionados as $item)
-                            @php
-                                $imagenRelacionado = $item->imagenPrincipal
-                                    ? asset('storage/' . $item->imagenPrincipal->ruta)
-                                    : asset('assets/img/no-image.png');
+                            <a href="{{ route('tienda.productos.show', $item->slug) }}"
+                                class="store-product-name">
+                                {{ $item->nombre }}
+                            </a>
 
-                                $varianteRelacionada = $item->usa_variantes
-                                    ? $item->variantePrincipal ?? $item->variantesActivas->first()
-                                    : null;
+                            <div class="store-product-category">
+                                {{ $item->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
+                            </div>
 
-                                if ($item->usa_variantes) {
-                                    $stockRelacionado = $varianteRelacionada?->stock_actual ?? 0;
+                            <div class="store-product-footer">
 
-                                    $tienePromoRelacionado = false;
-                                    $precioNormalRelacionado = (float) ($varianteRelacionada?->precio ?? 0);
-                                    $precioVentaRelacionado = $precioNormalRelacionado;
-                                } else {
-                                    $stockRelacionado = $item->stock_actual ?? 0;
+                                <div>
+                                    @if ($tienePromoRelacionado)
+                                        <span class="badge bg-danger mb-1">
+                                            -{{ $porcentajeRelacionado }}% OFF
+                                        </span>
 
-                                    $tienePromoRelacionado = $item->tienePromocionActiva();
-                                    $precioNormalRelacionado = (float) $item->precio;
-                                    $precioVentaRelacionado = $item->precioVenta();
-                                }
+                                        <div class="text-muted text-decoration-line-through small">
+                                            ₡{{ number_format($precioNormalRelacionado, 2) }}
+                                        </div>
 
-                                $ahorroRelacionado = $tienePromoRelacionado
-                                    ? max(0, $precioNormalRelacionado - $precioVentaRelacionado)
-                                    : 0;
+                                        <div class="store-product-price text-danger">
+                                            ₡{{ number_format($precioVentaRelacionado, 2) }}
+                                        </div>
+                                    @else
+                                        <div class="store-product-price">
+                                            ₡{{ number_format($precioVentaRelacionado, 2) }}
+                                        </div>
+                                    @endif
 
-                                $porcentajeRelacionado =
-                                    $tienePromoRelacionado && $precioNormalRelacionado > 0
-                                        ? round(($ahorroRelacionado / $precioNormalRelacionado) * 100)
-                                        : 0;
-                            @endphp
+                                    <small class="store-product-stock">
+                                        Stock: {{ $stockRelacionado }}
+                                    </small>
+                                </div>
 
-                            <div class="col-6 col-md-4 col-xl-3">
+                                <div class="d-flex gap-2">
 
-                                <div class="store-product-card">
+                                    @if ($item->usa_variantes)
+                                        <a href="{{ route('tienda.productos.show', $item->slug) }}"
+                                            class="store-product-action"
+                                            title="Seleccionar variante">
 
-                                    <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                        class="store-product-image-wrap">
+                                            <i class="bi bi-cart-plus"></i>
 
-                                        <img src="{{ $imagenRelacionado }}" alt="{{ $item->nombre }}"
-                                            class="store-product-image">
-
+                                        </a>
+                                    @else
                                         <button type="button"
-                                            class="store-product-heart js-favorite-btn {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
-                                            data-url="{{ route('tienda.favoritos.toggle', $item->id_producto) }}"
-                                            aria-label="Agregar a favoritos">
+                                            class="store-product-action js-add-cart {{ $itemEnCarrito ? 'is-added' : '' }}"
+                                            data-url="{{ route('tienda.carrito.agregar', $item->id_producto) }}"
+                                            data-product-id="{{ $item->id_producto }}"
+                                            title="{{ $itemEnCarrito ? 'Producto agregado' : 'Agregar al carrito' }}"
+                                            {{ $stockRelacionado <= 0 || $itemEnCarrito ? 'disabled' : '' }}>
 
                                             <i
-                                                class="bi {{ in_array($item->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                                                class="bi {{ $itemEnCarrito ? 'bi-check-lg' : 'bi-cart-plus' }}"></i>
 
                                         </button>
+                                    @endif
 
-                                        @if ($stockRelacionado <= 0)
-                                            <span class="store-product-badge store-product-badge-muted">
-                                                Agotado
-                                            </span>
-                                        @endif
+                                    <a href="{{ route('tienda.productos.show', $item->slug) }}"
+                                        class="store-product-action"
+                                        title="Ver producto">
+
+                                        <i class="bi bi-eye"></i>
 
                                     </a>
-
-                                    <div class="store-product-body">
-
-                                        <div class="store-product-meta">
-                                            {{ $item->marca?->nombre ?? 'Sin marca' }}
-                                        </div>
-
-                                        <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                            class="store-product-name">
-                                            {{ $item->nombre }}
-                                        </a>
-
-                                        <div class="store-product-category">
-                                            {{ $item->categoriaPrincipal?->nombre ?? 'Sin categoría' }}
-                                        </div>
-
-                                        <div class="store-product-footer">
-
-                                            <div>
-                                                @if ($tienePromoRelacionado)
-                                                    <span class="badge bg-danger mb-1">
-                                                        -{{ $porcentajeRelacionado }}% OFF
-                                                    </span>
-
-                                                    <div class="text-muted text-decoration-line-through small">
-                                                        ₡{{ number_format($precioNormalRelacionado, 2) }}
-                                                    </div>
-
-                                                    <div class="store-product-price text-danger">
-                                                        ₡{{ number_format($precioVentaRelacionado, 2) }}
-                                                    </div>
-                                                @else
-                                                    <div class="store-product-price">
-                                                        ₡{{ number_format($precioVentaRelacionado, 2) }}
-                                                    </div>
-                                                @endif
-
-                                                <small class="store-product-stock">
-                                                    Stock: {{ $stockRelacionado }}
-                                                </small>
-                                            </div>
-
-                                            <a href="{{ route('tienda.productos.show', $item->slug) }}"
-                                                class="store-product-action">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                        </div>
-
-                                    </div>
 
                                 </div>
 
                             </div>
-                        @endforeach
+
+                        </div>
 
                     </div>
 
-                </section>
+                </div>
+            @endforeach
 
-            @endif
+        </div>
+
+    </section>
+
+@endif
+
 
         </div>
 
@@ -457,4 +516,5 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/tiendaProductoShow.js') }}"></script>
+    <script src="{{ asset('assets/js/carrito.js') }}"></script>
 @endpush

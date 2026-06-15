@@ -22,12 +22,15 @@ class ProductoController extends Controller
             ->orderBy('nombre')
             ->get();
 
-        $productos = Producto::with([
+        $query = Producto::with([
                 'marca',
                 'categoriaPrincipal',
                 'imagenPrincipal',
-                'variantePrincipal',
-                'variantesActivas',
+
+                // Necesario para precio/descuento de variante
+                'tipoVariante',
+                'variantePrincipal.opcion',
+                'variantesActivas.opcion',
             ])
             ->where('activo', 1)
             ->whereNull('deleted_at')
@@ -50,18 +53,32 @@ class ProductoController extends Controller
             })
             ->when($request->filled('marca'), function ($query) use ($request) {
                 $query->where('id_marca', $request->marca);
-            })
-            ->when($request->filled('orden'), function ($query) use ($request) {
-                match ($request->orden) {
-                    'precio_menor' => $query->orderBy('precio'),
-                    'precio_mayor' => $query->orderByDesc('precio'),
-                    'az' => $query->orderBy('nombre'),
-                    default => $query->orderByDesc('created_at'),
-                };
-            }, function ($query) {
-                $query->orderByDesc('created_at');
-            })
-            ->get();
+            });
+
+        if ($request->orden === 'az') {
+            $query->orderBy('nombre');
+        } elseif (!$request->filled('orden')) {
+            $query->orderByDesc('created_at');
+        } elseif (!in_array($request->orden, ['precio_menor', 'precio_mayor'])) {
+            $query->orderByDesc('created_at');
+        }
+
+        $productos = $query->get();
+
+        // IMPORTANTE:
+        // El precio ya no siempre vive en productos.precio.
+        // Si usa variantes, precioVenta() toma el precio/descuento de la variante inicial.
+        if ($request->orden === 'precio_menor') {
+            $productos = $productos
+                ->sortBy(fn ($producto) => $producto->precioVenta())
+                ->values();
+        }
+
+        if ($request->orden === 'precio_mayor') {
+            $productos = $productos
+                ->sortByDesc(fn ($producto) => $producto->precioVenta())
+                ->values();
+        }
 
         $favoritosIds = Favorito::where(function ($query) {
             if (Auth::check()) {
@@ -89,6 +106,7 @@ class ProductoController extends Controller
                 'categorias',
                 'imagenes',
                 'imagenPrincipal',
+
                 'tipoVariante',
                 'variantePrincipal.opcion',
                 'variantesActivas.opcion',
@@ -170,9 +188,12 @@ class ProductoController extends Controller
             ->with([
                 'marca',
                 'imagenPrincipal',
-                'variantePrincipal',
+                'tipoVariante',
+                'variantePrincipal.opcion',
+                'variantesActivas.opcion',
             ])
             ->where('activo', 1)
+            ->whereNull('deleted_at')
             ->where(function ($query) use ($q) {
                 $query->where('nombre', 'LIKE', "%{$q}%");
             })
@@ -182,7 +203,10 @@ class ProductoController extends Controller
                 return [
                     'nombre' => $producto->nombre,
                     'slug' => $producto->slug,
+
+                    // Ya toma descuento de producto normal o descuento de variante inicial
                     'precio' => number_format($producto->precioVenta(), 2),
+
                     'marca' => $producto->marca?->nombre,
                     'imagen' => $producto->imagenPrincipal?->ruta
                         ? asset('storage/' . $producto->imagenPrincipal->ruta)

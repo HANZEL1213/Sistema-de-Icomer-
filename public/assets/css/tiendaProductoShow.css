@@ -1,0 +1,134 @@
+/* =========================================================
+   PRODUCTOS RELACIONADOS - BOTONES MÁS GRANDES Y A LA DERECHA
+   (SOLO TAMAÑO, SIN CAMBIAR COLORES/HOVER)
+   ========================================================== */
+
+/* Contenedor footer del producto relacionado */
+.store-product-detail-page .store-product-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+}
+
+/* Área del precio - empuja los botones a la derecha cuando hay espacio */
+.store-product-detail-page .store-product-footer > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+    margin-right: auto;
+}
+
+/* Botones de acción en productos relacionados (SOLO MÁS GRANDES - SIN CAMBIAR COLORES/HOVER) */
+.store-product-detail-page .store-product-action {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    padding: 0;
+    border: 0;
+    font-size: 1.1rem;
+}
+
+.store-product-detail-page .store-product-action i {
+    line-height: 1;
+    font-size: 1.1rem;
+}
+
+/* Contenedor de botones */
+.store-product-detail-page .store-product-footer .d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   CUANDO EL PRECIO ES LARGO - LOS BOTONES BAJAN PERO A LA DERECHA
+   ========================================================== */
+
+@media (max-width: 480px) {
+    .store-product-detail-page .store-product-footer {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.6rem;
+    }
+    
+    .store-product-detail-page .store-product-footer > div:first-child {
+        margin-right: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    
+    .store-product-detail-page .store-product-footer .d-flex {
+        width: auto;
+        justify-content: flex-end;
+    }
+    
+    .store-product-detail-page .store-product-footer .store-product-price,
+    .store-product-detail-page .store-product-footer .text-muted,
+    .store-product-detail-page .store-product-footer .badge,
+    .store-product-detail-page .store-product-footer .store-product-stock {
+        text-align: right;
+        width: 100%;
+    }
+    
+    .store-product-detail-page .store-product-footer .badge {
+        align-self: flex-end;
+        width: auto;
+    }
+}
+
+/* Móvil pequeño - botones proporcionados */
+@media (max-width: 575.98px) {
+    .store-product-detail-page .store-product-action {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        font-size: 1rem;
+    }
+    
+    .store-product-detail-page .store-product-action i {
+        font-size: 1rem;
+    }
+    
+    .store-product-detail-page .store-product-footer .store-product-price {
+        font-size: 0.85rem;
+    }
+    
+    .store-product-detail-page .store-product-footer .badge {
+        font-size: 0.6rem;
+        padding: 0.25rem 0.45rem;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .store-product-detail-page .store-product-footer {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+    }
+    
+    .store-product-detail-page .store-product-footer > div:first-child {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+    
+    .store-product-detail-page .store-product-action {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .store-product-detail-page .store-product-footer .store-product-price {
+        font-size: 0.8rem;
+    }
+}

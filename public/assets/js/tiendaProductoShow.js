@@ -22,7 +22,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const variantButtons = document.querySelectorAll('.store-variant-btn');
     const variantHidden = document.getElementById('storeProductVariantHidden');
+
     const priceText = document.getElementById('storeProductPrice');
+    const oldPriceText = document.getElementById('storeProductOldPrice');
+    const discountBadge = document.getElementById('storeProductDiscountBadge');
+
     const stockText = document.getElementById('storeProductStockText');
     const addCartBtn = document.getElementById('storeAddCartBtn');
     const variantHelp = document.getElementById('storeVariantHelp');
@@ -36,6 +40,42 @@ document.addEventListener('DOMContentLoaded', function () {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
+    }
+
+    function actualizarVistaPrecio(precioNormal, precioVenta, tienePromo, porcentaje) {
+        precioUnitarioActual = Number(precioVenta || 0);
+
+        if (!priceText) return;
+
+        const cantidad = qtyInput ? parseInt(qtyInput.value || 1) : 1;
+        priceText.textContent = formatCRC(precioUnitarioActual * cantidad);
+        priceText.dataset.precioBase = precioUnitarioActual;
+
+        if (tienePromo) {
+            priceText.classList.add('text-danger');
+
+            if (oldPriceText) {
+                oldPriceText.textContent = formatCRC(precioNormal);
+                oldPriceText.classList.remove('d-none');
+            }
+
+            if (discountBadge) {
+                discountBadge.textContent = porcentaje + '%';
+                discountBadge.classList.remove('d-none');
+            }
+        } else {
+            priceText.classList.remove('text-danger');
+
+            if (oldPriceText) {
+                oldPriceText.textContent = '';
+                oldPriceText.classList.add('d-none');
+            }
+
+            if (discountBadge) {
+                discountBadge.textContent = '';
+                discountBadge.classList.add('d-none');
+            }
+        }
     }
 
     function actualizarPrecioTotal() {
@@ -76,11 +116,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const id = button.dataset.id;
         const stock = parseInt(button.dataset.stock || 0);
-        const precio = parseFloat(button.dataset.precio || 0);
+
+        const precioNormal = parseFloat(button.dataset.precioNormal || button.dataset.precio || 0);
+        const precioVenta = parseFloat(button.dataset.precioVenta || button.dataset.precio || 0);
+
+        const tienePromo = button.dataset.tienePromo === '1';
+        const porcentaje = parseInt(button.dataset.porcentaje || 0);
+
         const nombre = button.dataset.nombre || 'esta opción';
         const agotada = button.dataset.agotada === '1' || stock <= 0;
-
-        precioUnitarioActual = precio;
 
         if (qtyInput) {
             qtyInput.max = Math.max(stock, 1);
@@ -91,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             qtyHidden.value = 1;
         }
 
-        actualizarPrecioTotal();
+        actualizarVistaPrecio(precioNormal, precioVenta, tienePromo, porcentaje);
 
         if (stockText) {
             stockText.classList.remove('is-available', 'is-empty');
