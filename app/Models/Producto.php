@@ -207,7 +207,7 @@ public function precioVenta(): float
     if ($this->usa_variantes) {
         $variante = $this->obtenerVarianteInicial();
 
-        return round((float) ($variante?->precio ?? 0), 2);
+        return round((float) ($variante?->precioVenta() ?? 0), 2);
     }
 
     return $this->tienePromocionActiva()

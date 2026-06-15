@@ -165,6 +165,24 @@ public function store(Request $request)
         'variantes.*.nombre' => 'nullable|string|max:120',
         'variantes.*.sku' => 'nullable|string|max:80',
         'variantes.*.precio' => 'nullable|integer|min:0',
+        'variantes.*.descuento_activo' => 'nullable|boolean',
+'variantes.*.precio_descuento' => [
+    'nullable',
+    'integer',
+    'min:0',
+    'lt:variantes.*.precio',
+],
+
+'variantes.*.descuento_inicio' => [
+    'nullable',
+    'date',
+],
+
+'variantes.*.descuento_fin' => [
+    'nullable',
+    'date',
+    'after_or_equal:variantes.*.descuento_inicio',
+],
         'variantes.*.stock_actual' => 'nullable|integer|min:0',
         'variantes.*.activo' => 'nullable|boolean',
         'variantes.*.es_principal' => 'nullable|boolean',
@@ -284,19 +302,32 @@ if ($indicePrincipal === false) {
 foreach ($variantes as $index => $variante) {
     $esPrincipal = $index === $indicePrincipal;
 
-                    ProductoVariante::create([
-                        'id_producto' => $item->id_producto,
-                        'id_opcion_variante' => $variante['id_opcion_variante'] ?? null,
-                        'nombre' => $this->nullIfBlank($variante['nombre'] ?? null) ?? 'Variante',
-                        'sku' => $this->nullIfBlank($variante['sku'] ?? null),
+             ProductoVariante::create([
+    'id_producto' => $item->id_producto,
+    'id_opcion_variante' => $variante['id_opcion_variante'] ?? null,
+    'nombre' => $this->nullIfBlank($variante['nombre'] ?? null) ?? 'Variante',
+    'sku' => $this->nullIfBlank($variante['sku'] ?? null),
 
-                        // La variante NO hereda precio del producto padre
-                        'precio' => $this->nullIfBlank($variante['precio'] ?? null) ?? 0,
+    'precio' => $this->nullIfBlank($variante['precio'] ?? null) ?? 0,
 
-                        'stock_actual' => (int) ($variante['stock_actual'] ?? 0),
-                        'activo' => !empty($variante['activo']) ? 1 : 0,
-                        'es_principal' => $esPrincipal ? 1 : 0,
-                    ]);
+    'descuento_activo' => !empty($variante['descuento_activo']) ? 1 : 0,
+
+    'precio_descuento' => !empty($variante['descuento_activo'])
+        ? $this->nullIfBlank($variante['precio_descuento'] ?? null)
+        : null,
+
+    'descuento_inicio' => !empty($variante['descuento_activo'])
+        ? $this->nullIfBlank($variante['descuento_inicio'] ?? null)
+        : null,
+
+    'descuento_fin' => !empty($variante['descuento_activo'])
+        ? $this->nullIfBlank($variante['descuento_fin'] ?? null)
+        : null,
+
+    'stock_actual' => (int) ($variante['stock_actual'] ?? 0),
+    'activo' => !empty($variante['activo']) ? 1 : 0,
+    'es_principal' => $esPrincipal ? 1 : 0,
+]);
                 }
 
                 if (!$item->variantes()->where('es_principal', 1)->exists()) {
@@ -587,6 +618,26 @@ public function update(Request $request, string $id)
         'variantes.*.nombre' => 'nullable|string|max:120',
         'variantes.*.sku' => 'nullable|string|max:80',
         'variantes.*.precio' => 'nullable|integer|min:0',
+
+        'variantes.*.descuento_activo' => 'nullable|boolean',
+
+        'variantes.*.precio_descuento' => [
+            'nullable',
+            'integer',
+            'min:0',
+        ],
+
+        'variantes.*.descuento_inicio' => [
+            'nullable',
+            'date',
+        ],
+
+        'variantes.*.descuento_fin' => [
+            'nullable',
+            'date',
+            'after_or_equal:variantes.*.descuento_inicio',
+        ],
+
         'variantes.*.stock_actual' => 'nullable|integer|min:0',
         'variantes.*.activo' => 'nullable|boolean',
         'variantes.*.es_principal' => 'nullable|boolean',
@@ -691,7 +742,6 @@ public function update(Request $request, string $id)
                 'sku' => $this->nullIfBlank($request->sku),
                 'descripcion' => $this->nullIfBlank($request->descripcion),
 
-                // Si usa variantes, el producto padre pierde precio propio
                 'precio' => $usaVariantes ? 0 : $request->precio,
 
                 'descuento_activo' => $usaVariantes
@@ -710,7 +760,6 @@ public function update(Request $request, string $id)
                     ? $this->nullIfBlank($request->descuento_fin)
                     : null,
 
-                // Si usa variantes, el stock vive en las variantes
                 'stock_actual' => $usaVariantes ? 0 : $request->stock_actual,
 
                 'usa_variantes' => $usaVariantes ? 1 : 0,
@@ -724,26 +773,29 @@ public function update(Request $request, string $id)
 
             if ($usaVariantes) {
                 $idsVariantesRecibidas = [];
-        $variantes = collect($request->input('variantes', []))
-    ->filter(function ($variante) {
-        return !empty($variante['id_opcion_variante'])
-            || !empty($variante['nombre']);
-    })
-    ->values();
 
-$indicePrincipal = $variantes->search(function ($variante) {
-    return !empty($variante['es_principal']) && !empty($variante['activo']);
-});
+                $variantes = collect($request->input('variantes', []))
+                    ->filter(function ($variante) {
+                        return !empty($variante['id_opcion_variante'])
+                            || !empty($variante['nombre']);
+                    })
+                    ->values();
 
-if ($indicePrincipal === false) {
-    $indicePrincipal = $variantes->search(function ($variante) {
-        return !empty($variante['activo']);
-    });
-}
+                $indicePrincipal = $variantes->search(function ($variante) {
+                    return !empty($variante['es_principal']) && !empty($variante['activo']);
+                });
 
-foreach ($variantes as $index => $variante) {
-    $idVariante = $variante['id_producto_variante'] ?? null;
-    $esPrincipal = $index === $indicePrincipal;
+                if ($indicePrincipal === false) {
+                    $indicePrincipal = $variantes->search(function ($variante) {
+                        return !empty($variante['activo']);
+                    });
+                }
+
+                foreach ($variantes as $index => $variante) {
+                    $idVariante = $variante['id_producto_variante'] ?? null;
+                    $esPrincipal = $index === $indicePrincipal;
+
+                    $descuentoActivoVariante = !empty($variante['descuento_activo']);
 
                     $dataVariante = [
                         'id_producto' => $item->id_producto,
@@ -751,8 +803,21 @@ foreach ($variantes as $index => $variante) {
                         'nombre' => $this->nullIfBlank($variante['nombre'] ?? null) ?? 'Variante',
                         'sku' => $this->nullIfBlank($variante['sku'] ?? null),
 
-                        // La variante NO hereda precio del padre
                         'precio' => $this->nullIfBlank($variante['precio'] ?? null) ?? 0,
+
+                        'descuento_activo' => $descuentoActivoVariante ? 1 : 0,
+
+                        'precio_descuento' => $descuentoActivoVariante
+                            ? $this->nullIfBlank($variante['precio_descuento'] ?? null)
+                            : null,
+
+                        'descuento_inicio' => $descuentoActivoVariante
+                            ? $this->nullIfBlank($variante['descuento_inicio'] ?? null)
+                            : null,
+
+                        'descuento_fin' => $descuentoActivoVariante
+                            ? $this->nullIfBlank($variante['descuento_fin'] ?? null)
+                            : null,
 
                         'stock_actual' => (int) ($variante['stock_actual'] ?? 0),
                         'activo' => !empty($variante['activo']) ? 1 : 0,
@@ -1018,19 +1083,42 @@ private function validarVariantesProducto(Request $request): void
         ]);
     }
 
-    foreach ($variantesActivas as $index => $variante) {
-        if (($variante['precio'] ?? '') === '') {
-            throw ValidationException::withMessages([
-                "variantes.$index.precio" => 'Cada variante activa debe tener su propio precio.',
-            ]);
-        }
+foreach ($variantesActivas as $index => $variante) {
 
-        if (($variante['stock_actual'] ?? '') === '') {
-            throw ValidationException::withMessages([
-                "variantes.$index.stock_actual" => 'Cada variante activa debe tener su propio stock.',
-            ]);
-        }
+    if (($variante['precio'] ?? '') === '') {
+        throw ValidationException::withMessages([
+            "variantes.$index.precio" =>
+                'Cada variante activa debe tener su propio precio.',
+        ]);
     }
+
+    if (($variante['stock_actual'] ?? '') === '') {
+        throw ValidationException::withMessages([
+            "variantes.$index.stock_actual" =>
+                'Cada variante activa debe tener su propio stock.',
+        ]);
+    }
+
+    if (
+        !empty($variante['descuento_activo']) &&
+        ($variante['precio_descuento'] ?? '') === ''
+    ) {
+        throw ValidationException::withMessages([
+            "variantes.$index.precio_descuento" =>
+                'Debes indicar el precio de promoción para la variante.',
+        ]);
+    }
+
+    if (
+        !empty($variante['descuento_activo']) &&
+        (float) ($variante['precio_descuento'] ?? 0) >= (float) ($variante['precio'] ?? 0)
+    ) {
+        throw ValidationException::withMessages([
+            "variantes.$index.precio_descuento" =>
+                'El precio promocional debe ser menor que el precio normal.',
+        ]);
+    }
+}
 }
     private function nullIfBlank($value): ?string
     {
