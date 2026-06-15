@@ -949,6 +949,9 @@ if (productoForm) {
 actualizarDescuentoProducto();
 
 
+/* =========================================
+   VARIANTES PRODUCTO
+========================================= */
 
 /* =========================================
    VARIANTES PRODUCTO
@@ -970,6 +973,10 @@ const tipoVarianteSelect = document.getElementById('id_tipo_variante');
 const generarVariantesBtn = document.getElementById('generarVariantesBtn');
 const variantesContainer = document.getElementById('variantesContainer');
 
+function formatoColonesVariante(valor) {
+    return '₡' + Math.round(valor).toLocaleString('es-CR');
+}
+
 function actualizarVariantesUI() {
     if (!usaVariantesSwitch) return;
 
@@ -980,13 +987,8 @@ function actualizarVariantesUI() {
         if (descuentoPrincipalCard) descuentoPrincipalCard.style.display = 'none';
         if (stockPrincipalCard) stockPrincipalCard.style.display = 'none';
 
-        if (precioVarianteInput && !precioVarianteInput.value) {
-            precioVarianteInput.value = 0;
-        }
-
-        if (stockVarianteInput) {
-            stockVarianteInput.value = 0;
-        }
+        if (precioVarianteInput && !precioVarianteInput.value) precioVarianteInput.value = 0;
+        if (stockVarianteInput) stockVarianteInput.value = 0;
 
         if (descuentoVarianteSwitch) {
             descuentoVarianteSwitch.checked = false;
@@ -996,7 +998,6 @@ function actualizarVariantesUI() {
         variantesTexto.classList.remove('bg-secondary');
         variantesTexto.classList.add('bg-success');
         variantesTexto.innerHTML = '<i class="bx bx-check-circle me-1"></i> Con variantes';
-
     } else {
         variantesCampos.style.display = 'none';
 
@@ -1012,14 +1013,10 @@ function actualizarVariantesUI() {
 
 function asegurarUnaVariantePrincipal() {
     const radios = document.querySelectorAll('.variante-principal-radio');
-
     if (!radios.length) return;
 
     const hayMarcada = Array.from(radios).some(radio => radio.checked);
-
-    if (!hayMarcada) {
-        radios[0].checked = true;
-    }
+    if (!hayMarcada) radios[0].checked = true;
 }
 
 function actualizarHiddenVariantePrincipal() {
@@ -1030,12 +1027,8 @@ function actualizarHiddenVariantePrincipal() {
 
     radios.forEach(radio => {
         if (radio.checked) {
-            const index = radio.value;
-            const hidden = document.querySelector(`input[name="variantes[${index}][es_principal]"]`);
-
-            if (hidden) {
-                hidden.value = '1';
-            }
+            const hidden = document.querySelector(`input[name="variantes[${radio.value}][es_principal]"]`);
+            if (hidden) hidden.value = '1';
         }
     });
 }
@@ -1043,7 +1036,6 @@ function actualizarHiddenVariantePrincipal() {
 function actualizarRequeridosVariantes() {
     document.querySelectorAll('.variante-activo-check').forEach(check => {
         const fila = check.closest('tr');
-
         if (!fila) return;
 
         const precio = fila.querySelector('.variante-precio-input');
@@ -1059,6 +1051,172 @@ function actualizarRequeridosVariantes() {
     });
 }
 
+function limpiarErrorDescuentoVariante(fila) {
+    if (!fila) return;
+
+    const input = fila.querySelector('.variante-descuento-precio-input');
+    const error = fila.querySelector('.variante-descuento-error');
+
+    if (input) input.classList.remove('is-invalid');
+    if (error) error.remove();
+}
+
+function mostrarErrorDescuentoVariante(fila, mensaje) {
+    if (!fila) return;
+
+    const input = fila.querySelector('.variante-descuento-precio-input');
+    if (!input) return;
+
+    limpiarErrorDescuentoVariante(fila);
+
+    input.classList.add('is-invalid');
+
+    const error = document.createElement('div');
+    error.className = 'invalid-feedback d-block variante-descuento-error';
+    error.textContent = mensaje;
+
+    const grupoInput = input.closest('.input-group');
+
+    if (grupoInput) {
+        grupoInput.insertAdjacentElement('afterend', error);
+    } else {
+        input.insertAdjacentElement('afterend', error);
+    }
+}
+
+function descuentoVarianteEsValido(fila) {
+    if (!fila) return true;
+
+    const check = fila.querySelector('.variante-descuento-check');
+    const precioInput = fila.querySelector('.variante-precio-input');
+    const precioDescuentoInput = fila.querySelector('.variante-descuento-precio-input');
+    const preview = fila.querySelector('.variante-descuento-preview');
+
+    if (!check || !precioInput || !precioDescuentoInput) return true;
+
+    if (!check.checked) {
+        limpiarErrorDescuentoVariante(fila);
+        if (preview) preview.style.display = 'none';
+        return true;
+    }
+
+    const precio = parseFloat(precioInput.value || 0);
+    const precioDescuento = parseFloat(precioDescuentoInput.value || 0);
+
+    if (precioDescuento <= 0 || precio <= 0) {
+        limpiarErrorDescuentoVariante(fila);
+        if (preview) preview.style.display = 'none';
+        return true;
+    }
+
+    if (precioDescuento >= precio) {
+        mostrarErrorDescuentoVariante(
+            fila,
+            'El precio con descuento debe ser menor que el precio normal.'
+        );
+
+        if (preview) preview.style.display = 'none';
+
+        return false;
+    }
+
+    limpiarErrorDescuentoVariante(fila);
+    return true;
+}
+
+function actualizarPreviewDescuentoVariante(fila) {
+    if (!fila) return;
+
+    const check = fila.querySelector('.variante-descuento-check');
+    const precioInput = fila.querySelector('.variante-precio-input');
+    const precioDescuentoInput = fila.querySelector('.variante-descuento-precio-input');
+    const preview = fila.querySelector('.variante-descuento-preview');
+    const previewPorcentaje = fila.querySelector('.variante-descuento-preview-porcentaje');
+    const previewAhorro = fila.querySelector('.variante-descuento-preview-ahorro');
+
+    if (!check || !precioInput || !precioDescuentoInput || !preview || !previewPorcentaje || !previewAhorro) {
+        return;
+    }
+
+    if (!descuentoVarianteEsValido(fila)) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    const precio = parseFloat(precioInput.value || 0);
+    const precioDescuento = parseFloat(precioDescuentoInput.value || 0);
+
+    if (!check.checked || precio <= 0 || precioDescuento <= 0) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    const ahorro = precio - precioDescuento;
+    const porcentaje = Math.round((ahorro / precio) * 100);
+
+    previewPorcentaje.textContent = `-${porcentaje}% OFF`;
+    previewAhorro.textContent = formatoColonesVariante(ahorro);
+    preview.style.display = 'block';
+}
+
+function actualizarRequeridosDescuentoVariantes() {
+    document.querySelectorAll('.variante-descuento-check').forEach(check => {
+        const fila = check.closest('tr');
+        if (!fila) return;
+
+        const texto = fila.querySelector('.variante-descuento-texto');
+        const precioDescuento = fila.querySelector('.variante-descuento-precio-input');
+        const inicioDescuento = fila.querySelector('.variante-descuento-inicio-input');
+        const finDescuento = fila.querySelector('.variante-descuento-fin-input');
+
+        const campos = [precioDescuento, inicioDescuento, finDescuento];
+        const contenedor = fila.querySelector('.variante-descuento-campo');
+
+        if (check.checked) {
+            if (texto) {
+                texto.classList.remove('bg-secondary');
+                texto.classList.add('bg-success');
+                texto.innerHTML = '<i class="bx bx-check-circle me-1"></i> Con descuento';
+            }
+
+            if (contenedor) contenedor.style.display = 'block';
+
+            campos.forEach(input => {
+                if (!input) return;
+                input.required = true;
+                input.disabled = false;
+            });
+        } else {
+            if (texto) {
+                texto.classList.remove('bg-success');
+                texto.classList.add('bg-secondary');
+                texto.innerHTML = '<i class="bx bx-x-circle me-1"></i> Sin descuento';
+            }
+
+            if (contenedor) contenedor.style.display = 'none';
+
+            campos.forEach(input => {
+                if (!input) return;
+                input.required = false;
+                input.value = '';
+                input.disabled = true;
+            });
+
+            limpiarErrorDescuentoVariante(fila);
+
+            const preview = fila.querySelector('.variante-descuento-preview');
+            if (preview) preview.style.display = 'none';
+        }
+
+        actualizarPreviewDescuentoVariante(fila);
+    });
+}
+
+function normalizarFechaDateTimeLocal(valor) {
+    if (!valor) return '';
+    return String(valor).replace(' ', 'T').slice(0, 16);
+}
+
 function renderizarTablaVariantes(variantes) {
     if (!variantesContainer) return;
 
@@ -1071,6 +1229,7 @@ function renderizarTablaVariantes(variantes) {
                         <th class="text-center">Principal</th>
                         <th>SKU</th>
                         <th>Precio</th>
+                        <th>Descuento</th>
                         <th>Stock</th>
                         <th>Activo</th>
                     </tr>
@@ -1081,12 +1240,12 @@ function renderizarTablaVariantes(variantes) {
     variantes.forEach((variante, index) => {
         const esPrincipal = variante.es_principal == 1 || variante.es_principal === true;
         const estaActiva = variante.activo == 1 || variante.activo === true;
+        const tieneDescuento = variante.descuento_activo == 1 || variante.descuento_activo === true;
 
         html += `
             <tr>
                 <td>
                     ${variante.nombre ?? 'Variante'}
-
                     <input type="hidden" name="variantes[${index}][id_producto_variante]" value="${variante.id_producto_variante ?? ''}">
                     <input type="hidden" name="variantes[${index}][id_opcion_variante]" value="${variante.id_opcion_variante ?? ''}">
                     <input type="hidden" name="variantes[${index}][nombre]" value="${variante.nombre ?? 'Variante'}">
@@ -1118,9 +1277,71 @@ function renderizarTablaVariantes(variantes) {
                         step="1"
                         class="form-control variante-precio-input"
                         name="variantes[${index}][precio]"
-                        placeholder="Precio de la variante"
+                        placeholder="Precio"
                         value="${variante.precio ?? ''}"
                         ${estaActiva ? 'required' : ''}>
+                </td>
+
+                <td>
+                    <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                        <span class="badge estado-badge variante-descuento-texto px-2 py-2 ${tieneDescuento ? 'bg-success' : 'bg-secondary'}">
+                            ${tieneDescuento
+                                ? '<i class="bx bx-check-circle me-1"></i> Con descuento'
+                                : '<i class="bx bx-x-circle me-1"></i> Sin descuento'}
+                        </span>
+
+                        <label class="switch">
+                            <input type="checkbox"
+                                class="variante-descuento-check"
+                                value="1"
+                                name="variantes[${index}][descuento_activo]"
+                                ${tieneDescuento ? 'checked' : ''}>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
+                    <div class="variante-descuento-campo">
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Precio con descuento</label>
+                            <div class="input-group custom-dark-input">
+                                <span class="input-group-text">₡</span>
+                                <input type="number"
+                                    min="0"
+                                    step="1"
+                                    class="form-control variante-descuento-precio-input"
+                                    name="variantes[${index}][precio_descuento]"
+                                    placeholder="Precio con descuento"
+                                    value="${variante.precio_descuento ?? ''}">
+                            </div>
+                        </div>
+
+                        <div class="discount-preview-admin variante-descuento-preview mt-2 mb-2" style="display:none;">
+                            <div class="discount-preview-badge variante-descuento-preview-porcentaje">
+                                -0% OFF
+                            </div>
+
+                            <div class="discount-preview-text">
+                                Ahorro estimado:
+                                <strong class="variante-descuento-preview-ahorro">₡0</strong>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small mb-1">Inicio descuento</label>
+                            <input type="datetime-local"
+                                class="form-control variante-descuento-inicio-input"
+                                name="variantes[${index}][descuento_inicio]"
+                                value="${normalizarFechaDateTimeLocal(variante.descuento_inicio)}">
+                        </div>
+
+                        <div>
+                            <label class="form-label small mb-1">Fin descuento</label>
+                            <input type="datetime-local"
+                                class="form-control variante-descuento-fin-input"
+                                name="variantes[${index}][descuento_fin]"
+                                value="${normalizarFechaDateTimeLocal(variante.descuento_fin)}">
+                        </div>
+                    </div>
                 </td>
 
                 <td>
@@ -1155,6 +1376,7 @@ function renderizarTablaVariantes(variantes) {
     asegurarUnaVariantePrincipal();
     actualizarHiddenVariantePrincipal();
     actualizarRequeridosVariantes();
+    actualizarRequeridosDescuentoVariantes();
 }
 
 function cargarVariantesExistentes() {
@@ -1189,6 +1411,10 @@ function generarVariantes() {
             nombre: opcion.etiqueta ?? opcion.valor,
             sku: '',
             precio: '',
+            descuento_activo: 0,
+            precio_descuento: '',
+            descuento_inicio: '',
+            descuento_fin: '',
             stock_actual: '',
             activo: 1,
             es_principal: index === 0 ? 1 : 0
@@ -1205,6 +1431,23 @@ document.addEventListener('change', function (e) {
 
     if (e.target.classList.contains('variante-activo-check')) {
         actualizarRequeridosVariantes();
+    }
+
+    if (e.target.classList.contains('variante-descuento-check')) {
+        actualizarRequeridosDescuentoVariantes();
+    }
+});
+
+document.addEventListener('input', function (e) {
+    if (
+        e.target.classList.contains('variante-precio-input') ||
+        e.target.classList.contains('variante-descuento-precio-input')
+    ) {
+        const fila = e.target.closest('tr');
+
+        if (fila) {
+            actualizarPreviewDescuentoVariante(fila);
+        }
     }
 });
 

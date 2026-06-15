@@ -418,142 +418,7 @@
         </div>
     </div>
 
-    {{-- VARIANTES --}}
-    @php
-        $usaVariantesOld = old('usa_variantes', $item->usa_variantes ? '1' : '0');
-        $usaVariantes =
-            $usaVariantesOld == '1' ||
-            $usaVariantesOld === 1 ||
-            $usaVariantesOld === true ||
-            $usaVariantesOld === 'on';
 
-        $variantesParaJs = collect(old('variantes', $item->variantes->map(function ($variante) {
-            return [
-                'id_producto_variante' => $variante->id_producto_variante,
-                'id_opcion_variante' => $variante->id_opcion_variante,
-                'nombre' => $variante->nombre,
-                'sku' => $variante->sku,
-                'precio' => $variante->precio !== null ? (int) $variante->precio : '',
-                'stock_actual' => $variante->stock_actual !== null ? (int) $variante->stock_actual : '',
-                'activo' => $variante->activo ? 1 : 0,
-                'es_principal' => $variante->es_principal ? 1 : 0,
-            ];
-        })->toArray()))->values();
-    @endphp
-
-    <div class="card border-0 bg-light mb-3">
-        <div class="card-body">
-
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                    <label class="fw-semibold d-block mb-1">
-                        Variantes del producto
-                    </label>
-                    <small class="text-muted">
-                        Activa esta opción para manejar tallas, colores u otras variantes.
-                    </small>
-                </div>
-
-                <div class="d-flex align-items-center gap-3">
-                    <span id="variantesTexto"
-                        class="badge estado-badge px-3 py-2 {{ $usaVariantes ? 'bg-success' : 'bg-secondary' }}">
-                        @if ($usaVariantes)
-                            <i class="bx bx-check-circle me-1"></i> Con variantes
-                        @else
-                            <i class="bx bx-x-circle me-1"></i> Sin variantes
-                        @endif
-                    </span>
-
-                    <label class="switch">
-                        <input type="checkbox" id="usaVariantesSwitch" name="usa_variantes"
-                            value="1" {{ $usaVariantes ? 'checked' : '' }}>
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div id="variantesCampos" style="{{ $usaVariantes ? 'display:block;' : 'display:none;' }}">
-                <hr class="my-3">
-
-                <div class="mb-3">
-                    <label class="fw-semibold mb-2">
-                        Tipo de variante <span class="text-danger">*</span>
-                    </label>
-
-                    <select name="id_tipo_variante" id="id_tipo_variante"
-                        class="form-select @error('id_tipo_variante') is-invalid @enderror">
-                        <option value="">Seleccione un tipo de variante</option>
-
-                        @foreach ($tiposVariantes as $tipo)
-                            <option value="{{ $tipo->id_tipo_variante }}"
-                                data-opciones='@json($tipo->opcionesActivas)'
-                                {{ old('id_tipo_variante', $item->id_tipo_variante) == $tipo->id_tipo_variante ? 'selected' : '' }}>
-                                {{ $tipo->etiqueta ?? $tipo->nombre }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    @error('id_tipo_variante')
-                        <div class="invalid-feedback d-block">{{ $message }}</div>
-                    @enderror
-
-                    <small class="text-muted d-block mt-2">
-                        Ejemplo: Talla, Color, Tamaño, Presentación.
-                    </small>
-                </div>
-
-                <div class="border rounded bg-white p-3">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                        <div>
-                            <label class="fw-semibold mb-0">
-                                Opciones de variantes
-                            </label>
-                            <small class="text-muted d-block">
-                                Puedes ajustar SKU, precio y stock por cada variante activa.
-                            </small>
-                        </div>
-
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="generarVariantesBtn">
-                            <i class="bx bx-refresh"></i>
-                            Generar opciones
-                        </button>
-                    </div>
-
-                    <div id="variantesContainer"
-                        data-variantes='@json($variantesParaJs)'></div>
-
-                    @error('variantes')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    @error('variantes.*.id_opcion_variante')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    @error('variantes.*.nombre')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    @error('variantes.*.sku')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    @error('variantes.*.precio')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    @error('variantes.*.stock_actual')
-                        <div class="text-danger small mt-2">{{ $message }}</div>
-                    @enderror
-
-                    <small class="text-muted d-block mt-3">
-                        Solo las variantes activas necesitan precio y stock. La variante principal será la que se muestra primero en la tienda.
-                    </small>
-                </div>
-            </div>
-
-        </div>
-    </div>
 
     {{-- Estado --}}
     <div class="card border-0 bg-light">
@@ -734,6 +599,201 @@
                             </div>
                         </div>
                     </div>
+
+
+
+
+<div class="col-12 mt-4">
+
+    {{-- VARIANTES --}}
+    @php
+        $usaVariantesOld = old('usa_variantes', $item->usa_variantes ? '1' : '0');
+        $usaVariantes =
+            $usaVariantesOld == '1' ||
+            $usaVariantesOld === 1 ||
+            $usaVariantesOld === true ||
+            $usaVariantesOld === 'on';
+
+        $variantesParaJs = collect(old('variantes', $item->variantes->map(function ($variante) {
+            return [
+                'id_producto_variante' => $variante->id_producto_variante,
+                'id_opcion_variante' => $variante->id_opcion_variante,
+                'nombre' => $variante->nombre,
+                'sku' => $variante->sku,
+
+                'precio' => $variante->precio !== null ? (int) $variante->precio : '',
+
+                'descuento_activo' => $variante->descuento_activo ? 1 : 0,
+                'precio_descuento' => $variante->precio_descuento !== null ? (int) $variante->precio_descuento : '',
+                'descuento_inicio' => $variante->descuento_inicio ? $variante->descuento_inicio->format('Y-m-d\TH:i') : '',
+                'descuento_fin' => $variante->descuento_fin ? $variante->descuento_fin->format('Y-m-d\TH:i') : '',
+
+                'stock_actual' => $variante->stock_actual !== null ? (int) $variante->stock_actual : '',
+                'activo' => $variante->activo ? 1 : 0,
+                'es_principal' => $variante->es_principal ? 1 : 0,
+            ];
+        })->toArray()))->values();
+    @endphp
+
+    <div class="card border-0 bg-light shadow-sm">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <label class="fw-semibold d-block mb-1">
+                        Variantes del producto
+                    </label>
+                    <small class="text-muted">
+                        Activa esta opción para manejar tallas, colores u otras variantes.
+                    </small>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <span id="variantesTexto"
+                        class="badge estado-badge px-3 py-2 {{ $usaVariantes ? 'bg-success' : 'bg-secondary' }}">
+                        @if ($usaVariantes)
+                            <i class="bx bx-check-circle me-1"></i> Con variantes
+                        @else
+                            <i class="bx bx-x-circle me-1"></i> Sin variantes
+                        @endif
+                    </span>
+
+                    <label class="switch">
+                        <input type="checkbox"
+                            id="usaVariantesSwitch"
+                            name="usa_variantes"
+                            value="1"
+                            {{ $usaVariantes ? 'checked' : '' }}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="variantesCampos"
+                style="{{ $usaVariantes ? 'display:block;' : 'display:none;' }}">
+
+                <hr class="my-3">
+
+                <div class="mb-3">
+                    <label class="fw-semibold mb-2">
+                        Tipo de variante
+                        <span class="text-danger">*</span>
+                    </label>
+
+                    <select name="id_tipo_variante"
+                        id="id_tipo_variante"
+                        class="form-select @error('id_tipo_variante') is-invalid @enderror">
+
+                        <option value="">
+                            Seleccione un tipo de variante
+                        </option>
+
+                        @foreach ($tiposVariantes as $tipo)
+                            <option value="{{ $tipo->id_tipo_variante }}"
+                                data-opciones='@json($tipo->opcionesActivas)'
+                                {{ old('id_tipo_variante', $item->id_tipo_variante) == $tipo->id_tipo_variante ? 'selected' : '' }}>
+
+                                {{ $tipo->etiqueta ?? $tipo->nombre }}
+
+                            </option>
+                        @endforeach
+
+                    </select>
+
+                    @error('id_tipo_variante')
+                        <div class="invalid-feedback d-block">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
+                    <small class="text-muted d-block mt-2">
+                        Ejemplo: Talla, Color, Tamaño, Presentación.
+                    </small>
+                </div>
+
+                <div class="border rounded bg-white p-3">
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+
+                        <div>
+                            <label class="fw-semibold mb-0">
+                                Opciones de variantes
+                            </label>
+
+                            <small class="text-muted d-block">
+                                Puedes ajustar SKU, precio, promoción y stock por cada variante.
+                            </small>
+                        </div>
+
+                        <button type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            id="generarVariantesBtn">
+
+                            <i class="bx bx-refresh"></i>
+                            Generar opciones
+
+                        </button>
+
+                    </div>
+
+                    <div id="variantesContainer"
+                        data-variantes='@json($variantesParaJs)'></div>
+
+                    @error('variantes')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.id_opcion_variante')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.nombre')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.sku')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.precio')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.descuento_activo')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.precio_descuento')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.descuento_inicio')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.descuento_fin')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    @error('variantes.*.stock_actual')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+
+                    <small class="text-muted d-block mt-3">
+                        Cada variante debe tener su propio precio, promoción y stock.
+                        La variante principal será la que se muestra primero en la tienda.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
 
                     {{-- PRODUCTOS RELACIONADOS --}}
                     <div class="col-12 mt-4">

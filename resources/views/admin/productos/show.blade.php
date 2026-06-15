@@ -567,73 +567,119 @@
 
                 @if ($item->variantes->count() > 0)
 
-                    <div class="table-responsive">
-                        <table class="table table-bordered align-middle mb-0">
+                <div class="table-responsive">
+    <table class="table table-bordered align-middle mb-0">
 
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Variante</th>
-                                    <th>SKU</th>
-                                    <th>Precio</th>
-                                    <th>Stock</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
+        <thead class="table-light">
+            <tr>
+                <th>Variante</th>
+                <th>SKU</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Descuento</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
 
-                            <tbody>
+        <tbody>
+            @foreach ($item->variantes as $variante)
+                @php
+                    $tieneDescuento = $variante->descuento_activo && $variante->precio_descuento;
+                    $ahorroVariante = $tieneDescuento ? $variante->precio - $variante->precio_descuento : 0;
+                    $porcentajeVariante =
+                        $tieneDescuento && $variante->precio > 0
+                            ? round(($ahorroVariante / $variante->precio) * 100)
+                            : 0;
+                @endphp
 
-                                @foreach ($item->variantes as $variante)
+                <tr>
+                    <td class="fw-semibold">
+                        @if ($variante->es_principal)
+                            <span class="badge bg-primary me-1">
+                                Principal
+                            </span>
+                        @endif
 
-                                    <tr>
+                        {{ $variante->nombre ?: ($variante->opcion?->etiqueta ?? ($variante->opcion?->valor ?? 'Variante')) }}
+                    </td>
 
-                                        <td class="fw-semibold">
+                    <td>
+                        {{ $variante->sku ?: '—' }}
+                    </td>
 
-                                            @if ($variante->es_principal)
-                                                <span class="badge bg-primary me-1">
-                                                    Principal
-                                                </span>
-                                            @endif
+                    <td>
+                        @if ($tieneDescuento)
+                            <div class="fw-bold text-danger">
+                                ₡{{ number_format((float) $variante->precio_descuento, 0, ',', '.') }}
+                            </div>
 
-                                            {{ $variante->nombre ?: ($variante->opcion?->etiqueta ?? ($variante->opcion?->valor ?? 'Variante')) }}
+                            <div class="small text-muted text-decoration-line-through">
+                                ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
+                            </div>
+                        @else
+                            ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
+                        @endif
+                    </td>
 
-                                        </td>
+                    <td>
+                        {{ number_format((int) $variante->stock_actual) }}
+                    </td>
 
-                                        <td>
-                                            {{ $variante->sku ?: '—' }}
-                                        </td>
+                    <td>
+                        @if ($tieneDescuento)
+                            <div class="discount-badge d-inline-flex mb-1">
+                                <i class="bx bx-purchase-tag-alt"></i>
+                                -{{ $porcentajeVariante }}% OFF
+                            </div>
 
-                                        <td>
-                                            ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
-                                        </td>
+                            <div class="small text-muted">
+                                Ahorro:
+                                ₡{{ number_format((float) $ahorroVariante, 0, ',', '.') }}
+                            </div>
 
-                                        <td>
-                                            {{ number_format((int) $variante->stock_actual) }}
-                                        </td>
+                            @if ($variante->descuento_inicio || $variante->descuento_fin)
+                                <div class="small text-muted mt-1">
+                                    @if ($variante->descuento_inicio)
+                                        <div>
+                                            Inicio:
+                                            {{ $variante->descuento_inicio->format('d/m/Y H:i') }}
+                                        </div>
+                                    @endif
 
-                                        <td>
+                                    @if ($variante->descuento_fin)
+                                        <div>
+                                            Fin:
+                                            {{ $variante->descuento_fin->format('d/m/Y H:i') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        @else
+                            <span class="estado-badge bg-secondary text-white">
+                                Sin descuento
+                            </span>
+                        @endif
+                    </td>
 
-                                            @if ($variante->activo)
-                                                <span class="estado-badge bg-success text-white">
-                                                    <i class="bx bx-check-circle me-1"></i>
-                                                    Activa
-                                                </span>
-                                            @else
-                                                <span class="estado-badge bg-secondary text-white">
-                                                    <i class="bx bx-x-circle me-1"></i>
-                                                    Inactiva
-                                                </span>
-                                            @endif
+                    <td>
+                        @if ($variante->activo)
+                            <span class="estado-badge bg-success text-white">
+                                <i class="bx bx-check-circle me-1"></i>
+                                Activa
+                            </span>
+                        @else
+                            <span class="estado-badge bg-secondary text-white">
+                                <i class="bx bx-x-circle me-1"></i>
+                                Inactiva
+                            </span>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
 
-                                        </td>
-
-                                    </tr>
-
-                                @endforeach
-
-                            </tbody>
-
-                        </table>
-                    </div>
+    </table>
+</div> 
 
                 @else
 

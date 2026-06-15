@@ -78,15 +78,13 @@
             </div>
 
             {{-- Tabla --}}
+
             <div class="table-responsive">
                 <table id="tabla_index" class="table table-hover table-bordered align-middle text-center w-100">
                     <thead class="table-light">
                         <tr>
                             <th class="fw-semibold">ID</th>
                             <th class="fw-semibold">Producto</th>
-                            {{-- <th class="fw-semibold">Slug</th>
-                            <th class="fw-semibold">Código</th>
-                            <th class="fw-semibold">SKU</th> --}}
                             <th class="fw-semibold">Marca</th>
                             <th class="fw-semibold">Categoría</th>
                             <th class="fw-semibold">Precio</th>
@@ -94,7 +92,6 @@
                             <th class="fw-semibold">Stock</th>
                             <th class="fw-semibold">Estado</th>
                             <th class="fw-semibold">Destacado</th>
-
                             <th class="fw-semibold">Acciones</th>
                         </tr>
                     </thead>
@@ -110,6 +107,31 @@
                                         ? $item->imagenPrincipal->ruta
                                         : asset('storage/' . $item->imagenPrincipal->ruta))
                                     : null;
+
+                                $variantesActivas = $item->variantesActivas ?? collect();
+
+                                $variantePrincipalIndex = $item->variantePrincipal ?: $variantesActivas->first();
+
+                                $variantesConDescuento = $variantesActivas->filter(
+                                    fn($variante) => $variante->descuento_activo && $variante->precio_descuento,
+                                );
+
+                                $variantesPromocionActiva = $variantesConDescuento->filter(function ($variante) {
+                                    if (!$variante->descuento_inicio || !$variante->descuento_fin) {
+                                        return false;
+                                    }
+
+                                    return now()->gte($variante->descuento_inicio) &&
+                                        now()->lte($variante->descuento_fin);
+                                });
+
+                                $variantesPromocionProgramada = $variantesConDescuento->filter(function ($variante) {
+                                    return $variante->descuento_inicio && now()->lt($variante->descuento_inicio);
+                                });
+
+                                $stockReal = $item->usa_variantes
+                                    ? $variantesActivas->sum('stock_actual')
+                                    : $item->stock_actual;
                             @endphp
 
                             <tr>
@@ -133,31 +155,20 @@
 
                                         <div>
                                             <div class="fw-semibold">{{ $item->nombre }}</div>
-                                            <small class="text-muted">
-                                                {{ $item->marca?->nombre ?: 'Sin marca' }}
-                                            </small>
+
+                                            @if ($item->usa_variantes)
+                                                <small class="text-primary">
+                                                    <i class="bx bx-git-branch"></i>
+                                                    Con variantes
+                                                </small>
+                                            @else
+                                                <small class="text-muted">
+                                                    {{ $item->marca?->nombre ?: 'Sin marca' }}
+                                                </small>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
-
-                                {{-- SLUG --}}
-                                {{-- <td>
-                                    @if ($item->slug)
-                                        <span class="order-badge">{{ $item->slug }}</span>
-                                    @else
-                                        <span class="text-muted">—</span>
-                                    @endif
-                                </td> --}}
-
-                                {{-- CÓDIGO --}}
-                                {{-- <td class="fw-semibold">
-                                    {{ $item->codigo ?: '—' }}
-                                </td> --}}
-
-                                {{-- SKU --}}
-                                {{-- <td class="fw-semibold">
-                                    {{ $item->sku ?: '—' }}
-                                </td> --}}
 
                                 {{-- MARCA --}}
                                 <td>
@@ -168,70 +179,144 @@
                                 <td>
                                     {{ $item->categoriaPrincipal?->nombre ?: '—' }}
                                 </td>
+
                                 {{-- PRECIO --}}
+
                                 <td class="fw-semibold">
-                                    @if ($item->descuento_activo && $item->precio_descuento)
-                                        @php
-                                            $ahorro = $item->precio - $item->precio_descuento;
-                                            $porcentaje =
-                                                $item->precio > 0 ? round(($ahorro / $item->precio) * 100) : 0;
-                                        @endphp
+                                    @if ($item->usa_variantes)
 
-                                        <div class="index-price-discount">
-                                            <span class="index-discount-badge">
-                                                -{{ $porcentaje }}%
+                                        @if ($variantePrincipalIndex)
+                                            @if ($variantePrincipalIndex->descuento_activo && $variantePrincipalIndex->precio_descuento)
+                                                @php
+                                                    $ahorroVariante =
+                                                        $variantePrincipalIndex->precio -
+                                                        $variantePrincipalIndex->precio_descuento;
+
+                                                    $porcentajeVariante =
+                                                        $variantePrincipalIndex->precio > 0
+                                                            ? round(
+                                                                ($ahorroVariante / $variantePrincipalIndex->precio) *
+                                                                    100,
+                                                            )
+                                                            : 0;
+                                                @endphp
+
+                                                <div class="index-price-discount">
+
+                                                    <span class="index-discount-badge">
+                                                        -{{ $porcentajeVariante }}%
+                                                    </span>
+
+                                                    <span class="index-old-price">
+                                                        ₡{{ number_format((float) $variantePrincipalIndex->precio, 0, ',', '.') }}
+                                                    </span>
+
+                                                    <span class="index-current-price">
+                                                        ₡{{ number_format((float) $variantePrincipalIndex->precio_descuento, 0, ',', '.') }}
+                                                    </span>
+
+                                                </div>
+                                            @else
+                                                <span class="index-normal-price">
+                                                    ₡{{ number_format((float) $variantePrincipalIndex->precio, 0, ',', '.') }}
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-muted">
+                                                Sin variante principal
                                             </span>
+                                        @endif
+                                    @else
+                                        @if ($item->descuento_activo && $item->precio_descuento)
+                                            @php
+                                                $ahorro = $item->precio - $item->precio_descuento;
 
-                                            <span class="index-old-price">
+                                                $porcentaje =
+                                                    $item->precio > 0 ? round(($ahorro / $item->precio) * 100) : 0;
+                                            @endphp
+
+                                            <div class="index-price-discount">
+
+                                                <span class="index-discount-badge">
+                                                    -{{ $porcentaje }}%
+                                                </span>
+
+                                                <span class="index-old-price">
+                                                    ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
+                                                </span>
+
+                                                <span class="index-current-price">
+                                                    ₡{{ number_format((float) $item->precio_descuento, 0, ',', '.') }}
+                                                </span>
+
+                                            </div>
+                                        @else
+                                            <span class="index-normal-price">
                                                 ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
                                             </span>
+                                        @endif
 
-                                            <span class="index-current-price">
-                                                ₡{{ number_format((float) $item->precio_descuento, 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    @else
-                                        <span class="index-normal-price">
-                                            ₡{{ number_format((float) $item->precio, 0, ',', '.') }}
-                                        </span>
                                     @endif
                                 </td>
                                 {{-- PROMOCIÓN --}}
                                 <td>
-                                    @if ($item->descuento_activo && $item->precio_descuento && $item->descuento_inicio && $item->descuento_fin)
-                                        @php
-                                            $activaAhora =
-                                                now()->gte($item->descuento_inicio) && now()->lte($item->descuento_fin);
-                                        @endphp
-
-                                        @if ($activaAhora)
+                                    @if ($item->usa_variantes)
+                                        @if ($variantesPromocionActiva->count() > 0)
                                             <span class="status-badge status-active">
                                                 <i class="bx bx-purchase-tag-alt me-1"></i>
                                                 Activa
                                             </span>
-                                        @else
+
+                                            <div class="small text-muted mt-1">
+                                                {{ $variantesPromocionActiva->count() }}
+                                                {{ $variantesPromocionActiva->count() === 1 ? 'variante' : 'variantes' }}
+                                            </div>
+                                        @elseif ($variantesPromocionProgramada->count() > 0)
                                             <span class="status-badge status-inactive">
                                                 <i class="bx bx-time-five me-1"></i>
                                                 Programada
                                             </span>
+
+                                            <div class="small text-muted mt-1">
+                                                {{ $variantesPromocionProgramada->count() }}
+                                                {{ $variantesPromocionProgramada->count() === 1 ? 'variante' : 'variantes' }}
+                                            </div>
+                                        @else
+                                            <span class="status-badge status-inactive">
+                                                <i class="bx bx-x-circle me-1"></i>
+                                                Desactivada
+                                            </span>
                                         @endif
                                     @else
-                                        <span class="status-badge status-inactive">
-                                            <i class="bx bx-x-circle me-1"></i>
-                                            Desactivada
-                                        </span>
+                                        @if ($item->descuento_activo && $item->precio_descuento && $item->descuento_inicio && $item->descuento_fin)
+                                            @php
+                                                $activaAhora =
+                                                    now()->gte($item->descuento_inicio) &&
+                                                    now()->lte($item->descuento_fin);
+                                            @endphp
+
+                                            @if ($activaAhora)
+                                                <span class="status-badge status-active">
+                                                    <i class="bx bx-purchase-tag-alt me-1"></i>
+                                                    Activa
+                                                </span>
+                                            @else
+                                                <span class="status-badge status-inactive">
+                                                    <i class="bx bx-time-five me-1"></i>
+                                                    Programada
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="status-badge status-inactive">
+                                                <i class="bx bx-x-circle me-1"></i>
+                                                Desactivada
+                                            </span>
+                                        @endif
                                     @endif
                                 </td>
 
-
                                 {{-- STOCK --}}
                                 <td>
-                                    @php
-                                        $stockReal = $item->usa_variantes
-                                            ? $item->variantesActivas->sum('stock_actual')
-                                            : $item->stock_actual;
-                                    @endphp
-
                                     @if ((int) $stockReal > 0)
                                         <span class="order-badge">
                                             {{ $stockReal }}
@@ -242,6 +327,7 @@
                                         </span>
                                     @endif
                                 </td>
+
                                 {{-- ESTADO --}}
                                 <td>
                                     @if ($item->activo)
@@ -254,6 +340,7 @@
                                         </span>
                                     @endif
                                 </td>
+
                                 {{-- DESTACADO --}}
                                 <td>
                                     @if ($item->destacado)
@@ -267,14 +354,12 @@
                                     @endif
                                 </td>
 
-                                {{-- REGISTRO --}}
-
                                 {{-- ACCIONES --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
-
                                         <a class="btn-action btn-view"
-                                            href="{{ route('admin.productos.show', $item->id_producto) }}" title="Ver">
+                                            href="{{ route('admin.productos.show', $item->id_producto) }}"
+                                            title="Ver">
                                             <i class="bx bx-show"></i>
                                         </a>
 
@@ -294,7 +379,6 @@
                                                 <i class="bx bx-trash"></i>
                                             </button>
                                         </form>
-
                                     </div>
                                 </td>
                             </tr>
@@ -302,7 +386,6 @@
                     </tbody>
                 </table>
             </div>
-
             {{-- Paginación --}}
             <div class="custom-pagination-container mt-3">
                 <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 py-2">

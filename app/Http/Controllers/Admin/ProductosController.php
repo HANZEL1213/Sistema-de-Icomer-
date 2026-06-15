@@ -170,9 +170,7 @@ public function store(Request $request)
     'nullable',
     'integer',
     'min:0',
-    'lt:variantes.*.precio',
 ],
-
 'variantes.*.descuento_inicio' => [
     'nullable',
     'date',
@@ -1063,9 +1061,7 @@ private function validarVariantesProducto(Request $request): void
         ]);
     }
 
-    $variantesActivas = $variantes->filter(function ($variante) {
-        return !empty($variante['activo']);
-    })->values();
+    $variantesActivas = $variantes->filter(fn ($variante) => !empty($variante['activo']))->values();
 
     if ($variantesActivas->isEmpty()) {
         throw ValidationException::withMessages([
@@ -1073,9 +1069,7 @@ private function validarVariantesProducto(Request $request): void
         ]);
     }
 
-    $principalesActivas = $variantesActivas->filter(function ($variante) {
-        return !empty($variante['es_principal']);
-    });
+    $principalesActivas = $variantesActivas->filter(fn ($variante) => !empty($variante['es_principal']));
 
     if ($principalesActivas->count() > 1) {
         throw ValidationException::withMessages([
@@ -1083,42 +1077,64 @@ private function validarVariantesProducto(Request $request): void
         ]);
     }
 
-foreach ($variantesActivas as $index => $variante) {
+    foreach ($variantesActivas as $index => $variante) {
+        $descuentoActivo = !empty($variante['descuento_activo']);
 
-    if (($variante['precio'] ?? '') === '') {
-        throw ValidationException::withMessages([
-            "variantes.$index.precio" =>
-                'Cada variante activa debe tener su propio precio.',
-        ]);
-    }
+        if (($variante['precio'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                "variantes.$index.precio" => 'Cada variante activa debe tener su propio precio.',
+            ]);
+        }
 
-    if (($variante['stock_actual'] ?? '') === '') {
-        throw ValidationException::withMessages([
-            "variantes.$index.stock_actual" =>
-                'Cada variante activa debe tener su propio stock.',
-        ]);
-    }
+        if (($variante['stock_actual'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                "variantes.$index.stock_actual" => 'Cada variante activa debe tener su propio stock.',
+            ]);
+        }
 
-    if (
-        !empty($variante['descuento_activo']) &&
-        ($variante['precio_descuento'] ?? '') === ''
-    ) {
-        throw ValidationException::withMessages([
-            "variantes.$index.precio_descuento" =>
-                'Debes indicar el precio de promoción para la variante.',
-        ]);
-    }
+        if (!$descuentoActivo) {
+            if (
+                ($variante['precio_descuento'] ?? '') !== '' ||
+                ($variante['descuento_inicio'] ?? '') !== '' ||
+                ($variante['descuento_fin'] ?? '') !== ''
+            ) {
+                throw ValidationException::withMessages([
+                    "variantes.$index.descuento_activo" =>
+                        'Para indicar precio o fechas de descuento, primero debes activar el descuento de la variante.',
+                ]);
+            }
 
-    if (
-        !empty($variante['descuento_activo']) &&
-        (float) ($variante['precio_descuento'] ?? 0) >= (float) ($variante['precio'] ?? 0)
-    ) {
-        throw ValidationException::withMessages([
-            "variantes.$index.precio_descuento" =>
-                'El precio promocional debe ser menor que el precio normal.',
-        ]);
+            continue;
+        }
+
+        if (($variante['precio_descuento'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                "variantes.$index.precio_descuento" =>
+                    'Debes indicar el precio de descuento para la variante.',
+            ]);
+        }
+
+        if (($variante['descuento_inicio'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                "variantes.$index.descuento_inicio" =>
+                    'Debes indicar la fecha de inicio del descuento.',
+            ]);
+        }
+
+        if (($variante['descuento_fin'] ?? '') === '') {
+            throw ValidationException::withMessages([
+                "variantes.$index.descuento_fin" =>
+                    'Debes indicar la fecha de finalización del descuento.',
+            ]);
+        }
+
+        if ((float) $variante['precio_descuento'] >= (float) $variante['precio']) {
+            throw ValidationException::withMessages([
+                "variantes.$index.precio_descuento" =>
+                    'El precio con descuento debe ser menor que el precio normal.',
+            ]);
+        }
     }
-}
 }
     private function nullIfBlank($value): ?string
     {
