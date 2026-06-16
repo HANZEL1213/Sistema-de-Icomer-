@@ -12,12 +12,14 @@ class VentasController extends Controller
     ============================================ */
     public function index()
     {
-    $items = Venta::with([
-        'pedido.usuario',
-        'pedido.detalle',
-        'ventaLocal.cajero',
-        'ventaLocal.detalle',
-    ])
+        $items = Venta::with([
+            'pedido.usuario',
+            'pedido.cupon', // ← agregado
+            'pedido.detalle',
+
+            'ventaLocal.cajero',
+            'ventaLocal.detalle',
+        ])
             ->orderByDesc('created_at')
             ->get();
 
@@ -29,15 +31,16 @@ class VentasController extends Controller
     ============================================ */
     public function show(string $id)
     {
-$item = Venta::with([
-        'pedido.usuario',
-        'pedido.cupon',
-        'pedido.pagoUltimo',
-        'pedido.detalle',
-        'ventaLocal.cajero',
-        'ventaLocal.pagos',
-        'ventaLocal.detalle',
-    ])
+        $item = Venta::with([
+            'pedido.usuario',
+            'pedido.cupon',
+            'pedido.pagoUltimo',
+            'pedido.detalle',
+
+            'ventaLocal.cajero',
+            'ventaLocal.pagos',
+            'ventaLocal.detalle',
+        ])
             ->findOrFail($id);
 
         return view('admin.ventas.show', compact('item'));

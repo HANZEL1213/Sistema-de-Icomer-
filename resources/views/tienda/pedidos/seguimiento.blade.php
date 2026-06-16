@@ -430,7 +430,7 @@
             </div>
 
             <div>
-                <span>Descuento</span>
+                <span>Cupon de Descuento</span>
                 <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
             </div>
 
