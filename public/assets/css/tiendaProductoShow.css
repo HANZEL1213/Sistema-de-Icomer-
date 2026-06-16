@@ -132,3 +132,88 @@
         font-size: 0.8rem;
     }
 }
+
+
+/* =========================================================
+   BOTÓN VOLVER
+========================================================== */
+
+.store-back-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.store-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+
+    padding: .75rem 1rem;
+
+    border-radius: 16px;
+
+    text-decoration: none;
+
+    background: #ffffff;
+    border: 1px solid var(--store-border);
+
+    color: var(--store-primary);
+
+    font-size: .9rem;
+    font-weight: 800;
+
+    box-shadow: var(--store-shadow-sm);
+
+    transition: all .25s ease;
+}
+
+.store-back-link i {
+    width: 38px;
+    height: 38px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--store-soft-2);
+
+    transition: all .25s ease;
+}
+
+.store-back-link:hover {
+    color: var(--store-accent);
+
+    border-color: rgba(220, 161, 23, .25);
+
+    transform: translateY(-2px);
+
+    box-shadow: var(--store-shadow-md);
+}
+
+.store-back-link:hover i {
+    background: rgba(220, 161, 23, .12);
+    color: var(--store-accent);
+}
+
+@media (max-width: 575.98px) {
+
+    .store-back-nav {
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .store-back-link {
+        width: 100%;
+        justify-content: center;
+        font-size: .85rem;
+    }
+
+    .store-back-link i {
+        width: 34px;
+        height: 34px;
+    }
+
+}

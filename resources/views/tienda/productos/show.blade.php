@@ -38,6 +38,23 @@
                 <span>{{ $producto->nombre }}</span>
             </div>
 
+      {{-- NAVEGACIÓN --}}
+<div class="store-back-nav">
+
+    <a href="{{ route('tienda.productos.index') }}"
+       class="store-back-link">
+
+        <i class="bi bi-arrow-left"></i>
+
+        <span>
+            Volver al catálogo
+        </span>
+
+    </a>
+
+</div>
+
+
             {{-- DETALLE PRINCIPAL --}}
             <div class="row g-4 g-lg-5 align-items-start">
 
