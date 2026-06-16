@@ -372,9 +372,12 @@ public function confirmar(Request $request)
                 $nombreVariante = $variante->nombre
                     ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
 
-                $precioUnitario = $variante->precioVenta();
-                $precioOriginal = $variante->precioOriginal();
-                $promocionAplicada = $variante->promocionVigente();
+         $precioUnitario = $variante->precioVenta();
+$precioOriginal = $variante->precioOriginal();
+
+$promocionAplicada =
+    $variante->promocionVigente()
+    && $precioOriginal > $precioUnitario;
 
                 DetallePedido::create([
                     'id_pedido' => $pedido->id_pedido,
@@ -398,22 +401,25 @@ public function confirmar(Request $request)
                     'Pedido: ' . $pedido->numero_pedido
                 );
             } else {
-                $precioUnitario = $producto->precioVenta();
-                $precioOriginal = (float) $producto->precio;
+  $precioUnitario = $producto->precioVenta();
+$precioOriginal = (float) $producto->precio;
 
-                DetallePedido::create([
-                    'id_pedido' => $pedido->id_pedido,
-                    'id_producto' => $producto->id_producto,
-                    'id_producto_variante' => null,
-                    'nombre_producto' => $producto->nombre,
-                    'sku_snapshot' => $producto->sku,
-                    'precio_unitario' => $precioUnitario,
-                    'cantidad' => $item['cantidad'],
-                    'total_linea' => $precioUnitario * $item['cantidad'],
-                    'promocion_aplicada' => $producto->tienePromocionActiva(),
-                    'precio_original' => $precioOriginal,
-                ]);
+$promocionAplicada =
+    $producto->tienePromocionActiva()
+    && $precioOriginal > $precioUnitario;
 
+DetallePedido::create([
+    'id_pedido' => $pedido->id_pedido,
+    'id_producto' => $producto->id_producto,
+    'id_producto_variante' => null,
+    'nombre_producto' => $producto->nombre,
+    'sku_snapshot' => $producto->sku,
+    'precio_unitario' => $precioUnitario,
+    'cantidad' => $item['cantidad'],
+    'total_linea' => $precioUnitario * $item['cantidad'],
+    'promocion_aplicada' => $promocionAplicada,
+    'precio_original' => $precioOriginal,
+]);
                 $producto->registrarSalidaInventario(
                     $item['cantidad'],
                     'Pedido online',

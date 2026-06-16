@@ -561,65 +561,113 @@
                 </div>
             </div>
 
-            {{-- PRODUCTOS --}}
-            <div class="show-section-card mt-4">
-                <div class="card-header-soft">
-                    <h6 class="mb-0 fw-bold">Productos del Pedido</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover align-middle show-table mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>SKU</th>
-                                    <th>Precio</th>
-                                    <th>Cantidad</th>
-                                    <th>Total Línea</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($item->detalle as $detalle)
-                                    <tr>
-                                        <td>
-                                            <div class="fw-semibold">
-                                                {{ $detalle->nombre_producto }}
-                                            </div>
 
-                                            @if ($detalle->variante)
-                                                <small class="text-muted d-block">
-                                                    Variante:
-                                                    {{ $detalle->variante->opcion?->etiqueta ?? ($detalle->variante->opcion?->valor ?? $detalle->variante->nombre) }}
-                                                </small>
 
-                                                @if ($detalle->variante)
-                                                    <small class="text-primary d-block fw-semibold">
-                                                        Variante:
-                                                        {{ $detalle->variante->opcion?->etiqueta ?? ($detalle->variante->opcion?->valor ?? $detalle->variante->nombre) }}
-                                                    </small>
-                                                @endif
-                                            @endif
-                                        </td>
-                                        <td>
-                                            {{ $detalle->sku_snapshot ?: ($detalle->variante?->sku ?: '—') }}
-                                        </td>
-                                        <td>₡{{ number_format((float) $detalle->precio_unitario, 2, '.', ',') }}</td>
-                                        <td>{{ $detalle->cantidad }}</td>
-                                        <td class="fw-bold">
-                                            ₡{{ number_format((float) $detalle->total_linea, 2, '.', ',') }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            No hay productos registrados en este pedido.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+
+
+
+{{-- PRODUCTOS --}}
+<div class="show-section-card mt-4">
+    <div class="card-header-soft">
+        <h6 class="mb-0 fw-bold">Productos del Pedido</h6>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle show-table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto</th>
+                        <th>SKU</th>
+                        <th>Precio</th>
+                        <th>Cantidad</th>
+                        <th>Total Línea</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse ($item->detalle as $detalle)
+                        @php
+                            $precioUnitario = (float) $detalle->precio_unitario;
+                            $precioOriginal = (float) ($detalle->precio_original ?? $precioUnitario);
+
+                            $tienePromo = (bool) $detalle->promocion_aplicada
+                                && $precioOriginal > $precioUnitario;
+
+                            $porcentaje = $tienePromo
+                                ? round((($precioOriginal - $precioUnitario) / $precioOriginal) * 100)
+                                : 0;
+
+                            $nombreVariante = $detalle->variante
+                                ? (
+                                    $detalle->variante->opcion?->etiqueta
+                                    ?? $detalle->variante->opcion?->valor
+                                    ?? $detalle->variante->nombre
+                                )
+                                : null;
+                        @endphp
+
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">
+                                    {{ $detalle->nombre_producto }}
+                                </div>
+
+                                @if ($detalle->tieneVariante() && $nombreVariante)
+                                    <small class="text-primary d-block fw-semibold">
+                                        Variante: {{ $nombreVariante }}
+                                    </small>
+                                @endif
+                            </td>
+
+                            <td>
+                                {{ $detalle->sku_snapshot ?: ($detalle->variante?->sku ?: '—') }}
+                            </td>
+
+                            <td>
+                                @if ($tienePromo)
+                                    <div class="text-muted text-decoration-line-through small">
+                                        ₡{{ number_format($precioOriginal, 2, '.', ',') }}
+                                    </div>
+
+                                    <div class="fw-bold text-success">
+                                        ₡{{ number_format($precioUnitario, 2, '.', ',') }}
+                                    </div>
+
+                                    <span class="badge bg-danger">
+                                        -{{ $porcentaje }}%
+                                    </span>
+                                @else
+                                    <div class="fw-semibold">
+                                        ₡{{ number_format($precioUnitario, 2, '.', ',') }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            <td>{{ $detalle->cantidad }}</td>
+
+                            <td class="fw-bold">
+                                ₡{{ number_format((float) $detalle->total_linea, 2, '.', ',') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                No hay productos registrados en este pedido.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 
             {{-- HISTORIAL DE PAGOS --}}
             <div class="show-section-card mt-4">

@@ -41,8 +41,11 @@ public function show(string $id)
     $item = Pedido::with([
             'usuario',
             'cupon',
-            'detalle.producto',
+
+            // Detalle del pedido con producto, imagen y variante
+            'detalle.producto.imagenPrincipal',
             'detalle.variante.opcion',
+
             'pagos',
             'pagoUltimo',
             'venta',
@@ -63,8 +66,11 @@ public function verificar(string $id)
     $item = Pedido::with([
             'usuario',
             'cupon',
-            'detalle.producto',
+
+            // Detalle del pedido con producto, imagen y variante
+            'detalle.producto.imagenPrincipal',
             'detalle.variante.opcion',
+
             'pagos',
             'pagoUltimo',
             'venta',
@@ -77,7 +83,14 @@ public function verificar(string $id)
     $estados = $this->estadosPedido();
     $transicionesDisponibles = $this->transicionesPermitidas($item);
 
-    return view('admin.pedidos.verificar', compact('item', 'estados', 'transicionesDisponibles'));
+    return view(
+        'admin.pedidos.verificar',
+        compact(
+            'item',
+            'estados',
+            'transicionesDisponibles'
+        )
+    );
 }
     /* ============================================
        ✅ APROBAR PAGO
@@ -411,6 +424,9 @@ public function actualizarEstado(Request $request, string $id)
         }
     }
 
+
+
+
 private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
 {
     $pedido->loadMissing([
@@ -424,17 +440,38 @@ private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
             continue;
         }
 
-        $yaDevuelto = MovimientoInventario::where('id_pedido', $pedido->id_pedido)
+        $notas = 'Pedido: ' . $pedido->numero_pedido;
+
+        /*
+        |--------------------------------------------------------------------------
+        | EVITAR DEVOLVER DOS VECES EL MISMO DETALLE
+        |--------------------------------------------------------------------------
+        | Si el detalle tiene variante, se valida también por id_producto_variante.
+        | Así no se confunden dos variantes del mismo producto.
+        */
+        $yaDevueltoQuery = MovimientoInventario::where('id_pedido', $pedido->id_pedido)
             ->where('id_producto', $detalle->id_producto)
             ->where('tipo', 'entrada')
             ->where('motivo', $motivo)
-            ->where('notas', 'Pedido: ' . $pedido->numero_pedido)
-            ->exists();
+            ->where('notas', $notas);
 
-        if ($yaDevuelto) {
+        if ($detalle->id_producto_variante) {
+            $yaDevueltoQuery->where('id_producto_variante', $detalle->id_producto_variante);
+        } else {
+            $yaDevueltoQuery->whereNull('id_producto_variante');
+        }
+
+        if ($yaDevueltoQuery->exists()) {
             continue;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DEVOLVER INVENTARIO A LA VARIANTE
+        |--------------------------------------------------------------------------
+        | registrarEntradaInventario() ya incrementa stock y crea MovimientoInventario.
+        | Por eso NO se debe crear MovimientoInventario manualmente aquí.
+        */
         if ($detalle->id_producto_variante) {
             $variante = ProductoVariante::where('id_producto_variante', $detalle->id_producto_variante)
                 ->where('id_producto', $detalle->id_producto)
@@ -445,22 +482,23 @@ private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
                 continue;
             }
 
-            $variante->registrarEntradaInventario($detalle->cantidad);
-
-            MovimientoInventario::create([
-                'id_producto' => $detalle->id_producto,
-                'tipo' => 'entrada',
-                'cantidad' => $detalle->cantidad,
-                'motivo' => $motivo,
-                'id_pedido' => $pedido->id_pedido,
-                'id_venta_local' => null,
-                'id_usuario_realizador' => Auth::id() ?? 1,
-                'notas' => 'Pedido: ' . $pedido->numero_pedido . ' | Variante: ' . $detalle->id_producto_variante,
-            ]);
+            $variante->registrarEntradaInventario(
+                $detalle->cantidad,
+                $motivo,
+                $pedido->id_pedido,
+                null,
+                Auth::id() ?? 1,
+                $notas
+            );
 
             continue;
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DEVOLVER INVENTARIO AL PRODUCTO SIMPLE
+        |--------------------------------------------------------------------------
+        */
         $producto = Producto::where('id_producto', $detalle->id_producto)
             ->lockForUpdate()
             ->first();
@@ -475,8 +513,12 @@ private function devolverInventarioPedido(Pedido $pedido, string $motivo): void
             $pedido->id_pedido,
             null,
             Auth::id() ?? 1,
-            'Pedido: ' . $pedido->numero_pedido
+            $notas
         );
     }
 }
+
+
+
+
 }
