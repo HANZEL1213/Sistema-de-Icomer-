@@ -82,12 +82,11 @@
                         <i class="bx bx-arrow-back"></i>
                         <span class="btn-text">Volver</span>
                     </a>
-<a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
-   target="_blank"
-   class="btn btn-primary-custom">
-    <i class="bx bx-printer"></i>
-    <span>Imprimir</span>
-</a>
+                    <a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}" target="_blank"
+                        class="btn btn-primary-custom">
+                        <i class="bx bx-printer"></i>
+                        <span>Imprimir</span>
+                    </a>
                 </div>
             </div>
 
@@ -136,158 +135,158 @@
         <div class="col-xl-8">
 
             {{-- INFORMACIÓN GENERAL + CLIENTE + CAJERO + NOTAS --}}
-<div class="row g-4">
+            <div class="row g-4">
 
-    {{-- INFORMACIÓN GENERAL --}}
-    <div class="col-lg-6">
-        <div class="show-section-card h-100">
-            <div class="card-header-soft">
-                <h6 class="mb-0 fw-bold">Información General</h6>
-            </div>
-
-            <div class="card-body">
-                <div class="row g-3">
-
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Número de Ticket</small>
-                            <div class="fw-semibold">{{ $item->numero_ticket }}</div>
+                {{-- INFORMACIÓN GENERAL --}}
+                <div class="col-lg-6">
+                    <div class="show-section-card h-100">
+                        <div class="card-header-soft">
+                            <h6 class="mb-0 fw-bold">Información General</h6>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <div class="show-kv">
-                            <small class="text-muted">ID Venta Local</small>
-                            <div class="fw-semibold">{{ $item->id_venta_local }}</div>
-                        </div>
-                    </div>
+                        <div class="card-body">
+                            <div class="row g-3">
 
-                    <div class="col-md-6">
-                        <div class="show-kv">
-                            <small class="text-muted">Canal consolidado</small>
-                            <div class="fw-semibold">
-                                {{ strtoupper($item->venta?->canal ?? 'LOCAL') }}
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Número de Ticket</small>
+                                        <div class="fw-semibold">{{ $item->numero_ticket }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="show-kv">
+                                        <small class="text-muted">ID Venta Local</small>
+                                        <div class="fw-semibold">{{ $item->id_venta_local }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Canal consolidado</small>
+                                        <div class="fw-semibold">
+                                            {{ strtoupper($item->venta?->canal ?? 'LOCAL') }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Estado de pago</small>
+                                        <div>
+                                            <span class="status-badge {{ $estadoBadge }}">
+                                                <i class="bx {{ $estadoIcon }} me-1"></i>{{ $estadoTexto }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Métodos utilizados</small>
+                                        <div class="fw-semibold">{{ $metodosUsados }}</div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Estado de pago</small>
-                            <div>
-                                <span class="status-badge {{ $estadoBadge }}">
-                                    <i class="bx {{ $estadoIcon }} me-1"></i>{{ $estadoTexto }}
-                                </span>
+                {{-- DATOS DEL CLIENTE --}}
+                <div class="col-lg-6">
+                    <div class="show-section-card h-100">
+                        <div class="card-header-soft">
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bx bx-user me-1"></i>
+                                Datos del Cliente
+                            </h6>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="row g-3">
+
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Nombre del cliente</small>
+                                        <div class="fw-semibold">{{ $clienteNombre }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Teléfono</small>
+                                        <div>{{ $clienteTelefono }}</div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Métodos utilizados</small>
-                            <div class="fw-semibold">{{ $metodosUsados }}</div>
-                        </div>
-                    </div>
-
                 </div>
-            </div>
-        </div>
-    </div>
 
-    {{-- DATOS DEL CLIENTE --}}
-    <div class="col-lg-6">
-        <div class="show-section-card h-100">
-            <div class="card-header-soft">
-                <h6 class="mb-0 fw-bold">
-                    <i class="bx bx-user me-1"></i>
-                    Datos del Cliente
-                </h6>
-            </div>
-
-            <div class="card-body">
-                <div class="row g-3">
-
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Nombre del cliente</small>
-                            <div class="fw-semibold">{{ $clienteNombre }}</div>
+                {{-- DATOS DEL CAJERO --}}
+                <div class="col-lg-6">
+                    <div class="show-section-card h-100">
+                        <div class="card-header-soft">
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bx bx-user-check me-1"></i>
+                                Datos del Cajero
+                            </h6>
                         </div>
-                    </div>
 
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Teléfono</small>
-                            <div>{{ $clienteTelefono }}</div>
-                        </div>
-                    </div>
+                        <div class="card-body">
+                            <div class="row g-3">
 
-                </div>
-            </div>
-        </div>
-    </div>
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Cajero responsable</small>
+                                        <div class="fw-semibold">
+                                            {{ $item->cajero?->nombre ?: 'No registrado' }}
+                                        </div>
+                                    </div>
+                                </div>
 
-    {{-- DATOS DEL CAJERO --}}
-    <div class="col-lg-6">
-        <div class="show-section-card h-100">
-            <div class="card-header-soft">
-                <h6 class="mb-0 fw-bold">
-                    <i class="bx bx-user-check me-1"></i>
-                    Datos del Cajero
-                </h6>
-            </div>
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">Correo del cajero</small>
+                                        <div>{{ $item->cajero?->correo ?: 'Sin correo registrado' }}</div>
+                                    </div>
+                                </div>
 
-            <div class="card-body">
-                <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="show-kv">
+                                        <small class="text-muted">ID usuario cajero</small>
+                                        <div class="fw-semibold">
+                                            {{ $item->id_usuario_cajero ?: '—' }}
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Cajero responsable</small>
-                            <div class="fw-semibold">
-                                {{ $item->cajero?->nombre ?: 'No registrado' }}
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">Correo del cajero</small>
-                            <div>{{ $item->cajero?->correo ?: 'Sin correo registrado' }}</div>
+                {{-- NOTAS --}}
+                <div class="col-lg-6">
+                    <div class="show-section-card h-100">
+                        <div class="card-header-soft">
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bx bx-note me-1"></i>
+                                Notas de la Venta
+                            </h6>
                         </div>
-                    </div>
 
-                    <div class="col-12">
-                        <div class="show-kv">
-                            <small class="text-muted">ID usuario cajero</small>
-                            <div class="fw-semibold">
-                                {{ $item->id_usuario_cajero ?: '—' }}
+                        <div class="card-body">
+                            <div class="soft-alert h-100">
+                                {{ $notasVenta }}
                             </div>
                         </div>
                     </div>
-
                 </div>
-            </div>
-        </div>
-    </div>
 
-    {{-- NOTAS --}}
-    <div class="col-lg-6">
-        <div class="show-section-card h-100">
-            <div class="card-header-soft">
-                <h6 class="mb-0 fw-bold">
-                    <i class="bx bx-note me-1"></i>
-                    Notas de la Venta
-                </h6>
             </div>
-
-            <div class="card-body">
-                <div class="soft-alert h-100">
-                    {{ $notasVenta }}
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
 
             {{-- RESUMEN FINANCIERO --}}
             <div class="show-section-card mt-4">
@@ -368,7 +367,9 @@
                     <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
                         <div>
                             <h6 class="mb-1 fw-bold">Productos de la Venta</h6>
-                            <small class="text-muted">Detalle exacto de líneas vendidas registradas en la base.</small>
+                            <small class="text-muted">
+                                Detalle exacto de líneas vendidas registradas en la base.
+                            </small>
                         </div>
 
                         <div class="show-floating-note">
@@ -389,66 +390,92 @@
                                     <th>Total Línea</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 @forelse ($detalle as $d)
+                                    @php
+                                        $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
+                                        $precioVenta = (float) $d->precio_unitario;
+                                        $tienePromo = (bool) ($d->promocion_aplicada ?? false);
+
+                                        $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
+
+                                        $porcentaje =
+                                            $tienePromo && $precioOriginal > 0
+                                                ? round(($ahorro / $precioOriginal) * 100)
+                                                : 0;
+
+                                        $nombreVariante =
+                                            $d->variante?->nombre ?:
+                                            $d->variante?->opcion?->etiqueta ?? ($d->variante?->opcion?->valor ?? null);
+                                    @endphp
+
                                     <tr>
-                              @php
-    $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
-    $precioVenta = (float) $d->precio_unitario;
-    $tienePromo = (bool) ($d->promocion_aplicada ?? false);
 
-    $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
-    $porcentaje = $tienePromo && $precioOriginal > 0
-        ? round(($ahorro / $precioOriginal) * 100)
-        : 0;
-@endphp
+                                        <td>
+                                            <div class="fw-semibold">
+                                                {{ $d->nombre_producto }}
+                                            </div>
 
-<tr>
-    <td>
-        <div class="fw-semibold">{{ $d->nombre_producto }}</div>
+                                            @if ($d->tieneVariante())
+                                                <span class="badge bg-info mt-1">
+                                                    <i class="bx bx-git-branch"></i>
+                                                    {{ $nombreVariante ?: 'Variante' }}
+                                                </span>
+                                                <br>
+                                            @endif
 
-        @if ($tienePromo)
-            <span class="badge bg-danger mt-1">
-                <i class="bx bx-purchase-tag-alt"></i>
-                Promoción aplicada
-            </span>
-        @endif
-    </td>
+                                            @if ($tienePromo)
+                                                <span class="badge bg-danger mt-1">
+                                                    <i class="bx bx-purchase-tag-alt"></i>
+                                                    Promoción aplicada
+                                                </span>
+                                            @endif
+                                        </td>
 
-    <td>{{ $d->sku_snapshot ?: '—' }}</td>
+                                        <td>
+                                            {{ $d->sku_snapshot ?: '—' }}
+                                        </td>
 
-    <td>
-        @if ($tienePromo)
-            <div class="d-flex flex-column gap-1">
-                <span class="badge bg-danger">
-                    -{{ $porcentaje }}% OFF
-                </span>
+                                        <td>
+                                            @if ($tienePromo)
+                                                <div class="d-flex flex-column gap-1">
 
-                <small class="text-muted text-decoration-line-through">
-                    ₡{{ number_format($precioOriginal, 2, '.', ',') }}
-                </small>
+                                                    <span class="badge bg-danger">
+                                                        -{{ $porcentaje }}% OFF
+                                                    </span>
 
-                <strong class="text-danger">
-                    ₡{{ number_format($precioVenta, 2, '.', ',') }}
-                </strong>
+                                                    <small class="text-muted text-decoration-line-through">
+                                                        ₡{{ number_format($precioOriginal, 2, '.', ',') }}
+                                                    </small>
 
-                <small class="text-success">
-                    Ahorro: ₡{{ number_format($ahorro, 2, '.', ',') }}
-                </small>
-            </div>
-        @else
-            ₡{{ number_format($precioVenta, 2, '.', ',') }}
-        @endif
-    </td>
+                                                    <strong class="text-danger">
+                                                        ₡{{ number_format($precioVenta, 2, '.', ',') }}
+                                                    </strong>
 
-    <td>{{ $d->cantidad }}</td>
+                                                    <small class="text-success">
+                                                        Ahorro:
+                                                        ₡{{ number_format($ahorro, 2, '.', ',') }}
+                                                    </small>
 
-    <td class="fw-bold">
-        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
-    </td>
-</tr>
+                                                </div>
+                                            @else
+                                                ₡{{ number_format($precioVenta, 2, '.', ',') }}
+                                            @endif
+                                        </td>
+
+                                        <td>
+                                            {{ $d->cantidad }}
+                                        </td>
+
+                                        <td class="fw-bold">
+                                            ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
+                                        </td>
+
                                     </tr>
+
                                 @empty
+
                                     <tr>
                                         <td colspan="5" class="text-center text-muted py-4">
                                             No hay productos registrados en esta venta.
@@ -459,15 +486,23 @@
 
                             @if ($detalle->count())
                                 <tfoot class="table-light">
+
                                     <tr>
-                                        <td colspan="4" class="text-end fw-bold">SUBTOTAL:</td>
-                                        <td class="fw-bold">₡{{ number_format((float) $item->subtotal, 2, '.', ',') }}
+                                        <td colspan="4" class="text-end fw-bold">
+                                            SUBTOTAL:
+                                        </td>
+
+                                        <td class="fw-bold">
+                                            ₡{{ number_format((float) $item->subtotal, 2, '.', ',') }}
                                         </td>
                                     </tr>
 
                                     @if ((float) $item->descuento > 0)
                                         <tr>
-                                            <td colspan="4" class="text-end text-success fw-semibold">DESCUENTO:</td>
+                                            <td colspan="4" class="text-end text-success fw-semibold">
+                                                DESCUENTO:
+                                            </td>
+
                                             <td class="text-success fw-semibold">
                                                 ₡{{ number_format((float) $item->descuento, 2, '.', ',') }}
                                             </td>
@@ -475,11 +510,18 @@
                                     @endif
 
                                     <tr>
-                                        <td colspan="4" class="text-end fw-bold">TOTAL:</td>
-                                        <td class="fw-bold">₡{{ number_format((float) $item->total, 2, '.', ',') }}</td>
+                                        <td colspan="4" class="text-end fw-bold">
+                                            TOTAL:
+                                        </td>
+
+                                        <td class="fw-bold">
+                                            ₡{{ number_format((float) $item->total, 2, '.', ',') }}
+                                        </td>
                                     </tr>
+
                                 </tfoot>
                             @endif
+
                         </table>
                     </div>
                 </div>
@@ -646,12 +688,11 @@
                         <div class="d-grid gap-2">
 
 
-<a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}"
-   target="_blank"
-   class="btn btn-primary-custom">
-    <i class="bx bx-printer"></i>
-    <span>Imprimir ticket</span>
-</a>
+                            <a href="{{ route('admin.ventas-locales.ticket', $item->id_venta_local) }}" target="_blank"
+                                class="btn btn-primary-custom">
+                                <i class="bx bx-printer"></i>
+                                <span>Imprimir ticket</span>
+                            </a>
                             <button type="button" class="btn btn-light border text-muted" disabled>
                                 <i class="bx bx-lock-alt"></i>
                                 <span>Edición bloqueada</span>

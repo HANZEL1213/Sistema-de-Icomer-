@@ -12,17 +12,24 @@ class DetalleVentaLocal extends Model
     protected $fillable = [
         'id_venta_local',
         'id_producto',
+        'id_producto_variante',
+
         'nombre_producto',
         'sku_snapshot',
+
+        'precio_original',
         'precio_unitario',
         'cantidad',
         'total_linea',
+        'promocion_aplicada',
     ];
 
     protected $casts = [
+        'precio_original' => 'decimal:2',
         'precio_unitario' => 'decimal:2',
         'cantidad' => 'integer',
         'total_linea' => 'decimal:2',
+        'promocion_aplicada' => 'boolean',
     ];
 
     public function ventaLocal()
@@ -33,5 +40,19 @@ class DetalleVentaLocal extends Model
     public function producto()
     {
         return $this->belongsTo(Producto::class, 'id_producto', 'id_producto');
+    }
+
+    public function variante()
+    {
+        return $this->belongsTo(
+            ProductoVariante::class,
+            'id_producto_variante',
+            'id_producto_variante'
+        );
+    }
+
+    public function tieneVariante(): bool
+    {
+        return !is_null($this->id_producto_variante);
     }
 }

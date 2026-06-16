@@ -8,21 +8,58 @@
 
 @php
     $productosJs = $productos
-        ->map(
-            fn($p) => [
+        ->flatMap(function ($p) {
+            $imagenUrl = $p->imagenPrincipal?->ruta
+                ? asset('storage/' . $p->imagenPrincipal->ruta)
+                : null;
+
+            if ($p->usa_variantes) {
+                return $p->variantesActivas->map(function ($v) use ($p, $imagenUrl) {
+                    $nombreVariante = $v->nombre
+                        ?: ($v->opcion?->etiqueta ?? $v->opcion?->valor ?? 'Variante');
+
+                    return [
+                        'id' => $p->id_producto,
+                        'id_producto_variante' => $v->id_producto_variante,
+
+                        'nombre' => $p->nombre . ' - ' . $nombreVariante,
+                        'nombre_base' => $p->nombre,
+                        'variante' => $nombreVariante,
+
+                        'codigo_barras' => $p->codigo,
+                        'sku' => $v->sku ?? $p->sku,
+
+                        'precio_venta' => $v->precioVenta(),
+                        'precio_normal' => $v->precioOriginal(),
+                        'tiene_promocion' => $v->promocionVigente() && $v->precioOriginal() > $v->precioVenta(),
+
+                        'stock' => (int) $v->stock_actual,
+                        'usa_variantes' => true,
+                        'imagen_url' => $imagenUrl,
+                    ];
+                });
+            }
+
+            return [[
                 'id' => $p->id_producto,
+                'id_producto_variante' => null,
+
                 'nombre' => $p->nombre,
+                'nombre_base' => $p->nombre,
+                'variante' => null,
+
                 'codigo_barras' => $p->codigo,
                 'sku' => $p->sku,
-               'precio_venta' => $p->precioVenta(),
-'precio_normal' => (float) $p->precio,
-'tiene_promocion' => $p->tienePromocionActiva(),
+
+                'precio_venta' => $p->precioVenta(),
+                'precio_normal' => (float) $p->precio,
+                'tiene_promocion' => $p->tienePromocionActiva() && (float) $p->precio > $p->precioVenta(),
+
                 'stock' => (int) $p->stock_actual,
-                'imagen_url' => $p->imagenPrincipal?->ruta
-                    ? asset('storage/' . $p->imagenPrincipal->ruta)
-                    : null,
-            ],
-        )
+                'usa_variantes' => false,
+                'imagen_url' => $imagenUrl,
+            ]];
+        })
         ->values()
         ->all();
 @endphp

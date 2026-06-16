@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function escapeHtml(text) {
         if (!text) return '';
+
         return String(text).replace(/[&<>"]/g, function (m) {
             return ({
                 '&': '&amp;',
@@ -61,133 +62,143 @@ document.addEventListener('DOMContentLoaded', function () {
             maximumFractionDigits: 2
         });
     }
-function searchProducts(query) {
-    const term = String(query || '').trim().toLowerCase();
 
-    if (!term) {
-        searchResults.style.display = 'none';
-        searchResults.innerHTML = '';
-        currentProductSelected = null;
-        selectedIndex = -1;
-        return;
-    }
+    function searchProducts(query) {
+        const term = String(query || '').trim().toLowerCase();
 
-    const filtered = productos.filter(p =>
-        (p.nombre || '').toLowerCase().includes(term) ||
-        (p.codigo_barras || '').toLowerCase().includes(term) ||
-        (p.sku || '').toLowerCase().includes(term)
-    );
-
-    if (filtered.length === 0) {
-        searchResults.innerHTML = `
-            <div class="list-group-item text-muted text-center">
-                <i class="bx bx-search-alt"></i>
-                No se encontraron productos
-            </div>
-        `;
-        searchResults.style.display = 'block';
-        currentProductSelected = null;
-        selectedIndex = -1;
-        return;
-    }
-
-    searchResults.innerHTML = filtered.map(p => {
-        const nombre = escapeHtml(p.nombre);
-        const codigoSku = escapeHtml(p.codigo_barras || p.sku || '');
-        const imagenUrl = p.imagen_url ? escapeHtml(p.imagen_url) : null;
-        const precioVenta = Number(p.precio_venta || 0);
-        const precioNormal = Number(p.precio_normal || precioVenta);
-        const tienePromocion = Boolean(p.tiene_promocion);
-
-        return `
-            <a href="#" class="list-group-item list-group-item-action" data-product='${escapeHtml(JSON.stringify(p))}'>
-                <div class="search-product-item">
-
-                    ${imagenUrl ? `
-                        <img 
-                            src="${imagenUrl}" 
-                            alt="${nombre}" 
-                            class="search-product-img"
-                        >
-                    ` : `
-                        <div class="search-product-img search-product-no-img">
-                            <i class="bx bx-image"></i>
-                        </div>
-                    `}
-
-                    <div class="search-product-info">
-                        <strong>${nombre}</strong>
-
-                        ${codigoSku ? `
-                            <br>
-                            <small class="text-muted">${codigoSku}</small>
-                        ` : ''}
-
-                        ${tienePromocion ? `
-                            <br>
-                            <small class="badge bg-danger mt-1">Promoción activa</small>
-                        ` : ''}
-                    </div>
-
-                    <div class="search-product-price text-end">
-                        ${tienePromocion ? `
-                            <span class="badge bg-danger">
-                                Promo ₡ ${formatMoney(precioVenta)}
-                            </span>
-                            <br>
-                            <small class="text-muted text-decoration-line-through">
-                                ₡ ${formatMoney(precioNormal)}
-                            </small>
-                        ` : `
-                            <span class="badge bg-primary">
-                                ₡ ${formatMoney(precioVenta)}
-                            </span>
-                        `}
-
-                        <br>
-                        <small class="text-muted">Stock: ${p.stock}</small>
-                    </div>
-
-                </div>
-            </a>
-        `;
-    }).join('');
-
-    searchResults.style.display = 'block';
-    selectedIndex = -1;
-    currentProductSelected = null;
-
-    document.querySelectorAll('.list-group-item[data-product]').forEach(el => {
-        el.addEventListener('click', function (e) {
-            e.preventDefault();
-
-            const p = JSON.parse(this.dataset.product);
-
-            currentProductSelected = p;
-            addProductFromSearch(p, parseInt(productQuantity.value) || 1);
-
-            searchInput.value = '';
+        if (!term) {
             searchResults.style.display = 'none';
-            productQuantity.value = 1;
+            searchResults.innerHTML = '';
             currentProductSelected = null;
             selectedIndex = -1;
-        });
-    });
-}
-
-function updateSelection() {
-    const items = searchResults.querySelectorAll('.list-group-item[data-product]');
-
-    items.forEach((item, index) => {
-        item.classList.toggle('search-selected', index === selectedIndex);
-
-        if (index === selectedIndex) {
-            item.scrollIntoView({
-                block: 'nearest'
-            });
+            return;
         }
-    });
-}
+
+        const filtered = productos.filter(p =>
+            (p.nombre || '').toLowerCase().includes(term) ||
+            (p.nombre_base || '').toLowerCase().includes(term) ||
+            (p.variante || '').toLowerCase().includes(term) ||
+            (p.codigo_barras || '').toLowerCase().includes(term) ||
+            (p.sku || '').toLowerCase().includes(term)
+        );
+
+        if (filtered.length === 0) {
+            searchResults.innerHTML = `
+                <div class="list-group-item text-muted text-center">
+                    <i class="bx bx-search-alt"></i>
+                    No se encontraron productos
+                </div>
+            `;
+
+            searchResults.style.display = 'block';
+            currentProductSelected = null;
+            selectedIndex = -1;
+            return;
+        }
+
+        searchResults.innerHTML = filtered.map(p => {
+            const nombre = escapeHtml(p.nombre);
+            const codigoSku = escapeHtml(p.codigo_barras || p.sku || '');
+            const imagenUrl = p.imagen_url ? escapeHtml(p.imagen_url) : null;
+            const precioVenta = Number(p.precio_venta || 0);
+            const precioNormal = Number(p.precio_normal || precioVenta);
+            const tienePromocion = Boolean(p.tiene_promocion);
+
+            return `
+                <a href="#" class="list-group-item list-group-item-action" data-product='${escapeHtml(JSON.stringify(p))}'>
+                    <div class="search-product-item">
+
+                        ${imagenUrl ? `
+                            <img 
+                                src="${imagenUrl}" 
+                                alt="${nombre}" 
+                                class="search-product-img"
+                            >
+                        ` : `
+                            <div class="search-product-img search-product-no-img">
+                                <i class="bx bx-image"></i>
+                            </div>
+                        `}
+
+                        <div class="search-product-info">
+                            <strong>${nombre}</strong>
+
+                            ${codigoSku ? `
+                                <br>
+                                <small class="text-muted">${codigoSku}</small>
+                            ` : ''}
+
+                            ${p.usa_variantes ? `
+                                <br>
+                                <small class="badge bg-info mt-1">Variante</small>
+                            ` : ''}
+
+                            ${tienePromocion ? `
+                                <br>
+                                <small class="badge bg-danger mt-1">Promoción activa</small>
+                            ` : ''}
+                        </div>
+
+                        <div class="search-product-price text-end">
+                            ${tienePromocion ? `
+                                <span class="badge bg-danger">
+                                    Promo ₡ ${formatMoney(precioVenta)}
+                                </span>
+                                <br>
+                                <small class="text-muted text-decoration-line-through">
+                                    ₡ ${formatMoney(precioNormal)}
+                                </small>
+                            ` : `
+                                <span class="badge bg-primary">
+                                    ₡ ${formatMoney(precioVenta)}
+                                </span>
+                            `}
+
+                            <br>
+                            <small class="text-muted">Stock: ${p.stock}</small>
+                        </div>
+
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        searchResults.style.display = 'block';
+        selectedIndex = -1;
+        currentProductSelected = null;
+
+        document.querySelectorAll('.list-group-item[data-product]').forEach(el => {
+            el.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const p = JSON.parse(this.dataset.product);
+
+                currentProductSelected = p;
+                addProductFromSearch(p, parseInt(productQuantity.value) || 1);
+
+                searchInput.value = '';
+                searchResults.style.display = 'none';
+                productQuantity.value = 1;
+                currentProductSelected = null;
+                selectedIndex = -1;
+            });
+        });
+    }
+
+    function updateSelection() {
+        const items = searchResults.querySelectorAll('.list-group-item[data-product]');
+
+        items.forEach((item, index) => {
+            item.classList.toggle('search-selected', index === selectedIndex);
+
+            if (index === selectedIndex) {
+                item.scrollIntoView({
+                    block: 'nearest'
+                });
+            }
+        });
+    }
+
     function addProductFromSearch(productData, cantidad = 1) {
         if (!productData) return false;
 
@@ -197,6 +208,7 @@ function updateSelection() {
                 title: 'Stock insuficiente',
                 text: `Solo hay ${productData.stock} unidades disponibles.`,
             });
+
             return false;
         }
 
@@ -204,7 +216,10 @@ function updateSelection() {
         let existingRow = null;
 
         existingRows.forEach(row => {
-            if (row.dataset.productId === String(productData.id)) {
+            if (
+                row.dataset.productId === String(productData.id) &&
+                String(row.dataset.variantId || '') === String(productData.id_producto_variante || '')
+            ) {
                 existingRow = row;
             }
         });
@@ -219,48 +234,65 @@ function updateSelection() {
                     title: 'Stock insuficiente',
                     text: `Stock disponible: ${productData.stock}`,
                 });
+
                 return false;
             }
 
             qtyInput.value = nuevaCantidad;
             calcularTotales();
+
             existingRow.style.backgroundColor = '#d4edda';
             setTimeout(() => existingRow.style.backgroundColor = '', 500);
+
             return true;
         }
 
         emptyState.classList.add('d-none');
 
         const row = document.createElement('tr');
+
         row.dataset.productId = String(productData.id);
+        row.dataset.variantId = productData.id_producto_variante
+            ? String(productData.id_producto_variante)
+            : '';
         row.dataset.stock = String(productData.stock);
 
         row.innerHTML = `
-          <td class="text-start">
-    <div class="fw-semibold">
-        ${escapeHtml(productData.nombre)}
-    </div>
+            <td class="text-start">
+                <div class="fw-semibold">
+                    ${escapeHtml(productData.nombre)}
+                </div>
 
-    ${productData.tiene_promocion ? `
-        <small class="badge bg-danger">
-            Promoción aplicada
-        </small>
-        <br>
-    ` : ''}
+                ${productData.usa_variantes ? `
+                    <small class="badge bg-info">
+                        Variante
+                    </small>
+                    <br>
+                ` : ''}
 
-    <small class="text-muted">
-        Stock disponible: ${productData.stock}
-    </small>
-</td>
+                ${productData.tiene_promocion ? `
+                    <small class="badge bg-danger">
+                        Promoción aplicada
+                    </small>
+                    <br>
+                ` : ''}
+
+                <small class="text-muted">
+                    Stock disponible: ${productData.stock}
+                </small>
+            </td>
+
             <td>
                 <small class="text-muted">${escapeHtml(productData.codigo_barras || productData.sku || 'N/A')}</small>
             </td>
+
             <td>
                 <input type="number"
                     class="form-control form-control-sm input-precio"
                     value="${Number(productData.precio_venta).toFixed(2)}"
                     readonly>
             </td>
+
             <td>
                 <input type="number"
                     class="form-control form-control-sm input-cantidad"
@@ -268,9 +300,13 @@ function updateSelection() {
                     min="1"
                     max="${productData.stock}">
             </td>
+
             <td>
-                <span class="fw-bold">₡ <span class="label-fila-total">${formatMoney(Number(productData.precio_venta) * cantidad)}</span></span>
+                <span class="fw-bold">
+                    ₡ <span class="label-fila-total">${formatMoney(Number(productData.precio_venta) * cantidad)}</span>
+                </span>
             </td>
+
             <td>
                 <button type="button" class="btn btn-sm btn-outline-danger btn-remove">
                     <i class="bx bx-trash"></i>
@@ -280,7 +316,11 @@ function updateSelection() {
 
         productosBody.appendChild(row);
         calcularTotales();
-        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        row.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+        });
 
         return true;
     }
@@ -292,10 +332,12 @@ function updateSelection() {
 
         rows.forEach((row, index) => {
             const productId = row.dataset.productId;
+            const variantId = row.dataset.variantId || '';
             const qty = row.querySelector('.input-cantidad')?.value || 1;
 
             detalleInputsContainer.insertAdjacentHTML('beforeend', `
                 <input type="hidden" name="detalle[${index}][id_producto]" value="${productId}">
+                <input type="hidden" name="detalle[${index}][id_producto_variante]" value="${variantId}">
                 <input type="hidden" name="detalle[${index}][cantidad]" value="${qty}">
             `);
         });
@@ -311,6 +353,7 @@ function updateSelection() {
             const totalFila = precio * cantidad;
 
             const totalSpan = row.querySelector('.label-fila-total');
+
             if (totalSpan) {
                 totalSpan.innerText = formatMoney(totalFila);
             }
@@ -379,6 +422,7 @@ function updateSelection() {
             } else {
                 mixtoVueltoInfo.classList.add('d-none');
             }
+
             return;
         }
 
@@ -397,6 +441,7 @@ function updateSelection() {
                 <input type="hidden" name="pagos[0][monto]" value="${total.toFixed(2)}">
                 <input type="hidden" name="pagos[0][referencia]" value="">
             `);
+
             return;
         }
 
@@ -406,6 +451,7 @@ function updateSelection() {
                 <input type="hidden" name="pagos[0][monto]" value="${total.toFixed(2)}">
                 <input type="hidden" name="pagos[0][referencia]" value="${escapeHtml(referenciaPago.value || '')}">
             `);
+
             return;
         }
 
@@ -420,6 +466,7 @@ function updateSelection() {
                     <input type="hidden" name="pagos[${idx}][monto]" value="${efectivo.toFixed(2)}">
                     <input type="hidden" name="pagos[${idx}][referencia]" value="">
                 `);
+
                 idx++;
             }
 
@@ -433,24 +480,27 @@ function updateSelection() {
         }
     }
 
-searchInput?.addEventListener('input', function () {
-    selectedIndex = -1;
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => searchProducts(this.value), 250);
-});
+    searchInput?.addEventListener('input', function () {
+        selectedIndex = -1;
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => searchProducts(this.value), 250);
+    });
 
     btnAddProduct?.addEventListener('click', () => {
         if (currentProductSelected) {
             addProductFromSearch(currentProductSelected, parseInt(productQuantity.value) || 1);
+
             searchInput.value = '';
             searchResults.style.display = 'none';
             productQuantity.value = 1;
             currentProductSelected = null;
+
             return;
         }
 
         if (searchInput.value.trim()) {
             const firstResult = document.querySelector('.list-group-item[data-product]');
+
             if (firstResult) {
                 firstResult.click();
                 return;
@@ -470,43 +520,43 @@ searchInput?.addEventListener('input', function () {
         searchInput.focus();
     });
 
- searchInput?.addEventListener('keydown', e => {
-    const items = searchResults.querySelectorAll('.list-group-item[data-product]');
+    searchInput?.addEventListener('keydown', e => {
+        const items = searchResults.querySelectorAll('.list-group-item[data-product]');
 
-    if (!items.length) return;
+        if (!items.length) return;
 
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
 
-        selectedIndex++;
+            selectedIndex++;
 
-        if (selectedIndex >= items.length) {
-            selectedIndex = 0;
+            if (selectedIndex >= items.length) {
+                selectedIndex = 0;
+            }
+
+            updateSelection();
+
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+
+            selectedIndex--;
+
+            if (selectedIndex < 0) {
+                selectedIndex = items.length - 1;
+            }
+
+            updateSelection();
+
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+
+            if (selectedIndex >= 0) {
+                items[selectedIndex].click();
+            } else {
+                items[0].click();
+            }
         }
-
-        updateSelection();
-
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-
-        selectedIndex--;
-
-        if (selectedIndex < 0) {
-            selectedIndex = items.length - 1;
-        }
-
-        updateSelection();
-
-    } else if (e.key === 'Enter') {
-        e.preventDefault();
-
-        if (selectedIndex >= 0) {
-            items[selectedIndex].click();
-        } else {
-            items[0].click();
-        }
-    }
-});
+    });
 
     document.addEventListener('click', e => {
         if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
@@ -555,6 +605,7 @@ searchInput?.addEventListener('input', function () {
         const total = parseFloat(inputTotalHidden.value) || 0;
         const recibido = parseFloat(this.value) || 0;
         const vuelto = Math.max(0, recibido - total);
+
         vueltoLabel.innerText = formatMoney(vuelto);
     });
 
@@ -568,6 +619,7 @@ searchInput?.addEventListener('input', function () {
                 title: 'Venta inválida',
                 text: 'Agrega al menos un producto válido.',
             });
+
             return;
         }
 
@@ -590,11 +642,13 @@ searchInput?.addEventListener('input', function () {
 
         if (productosBody.querySelectorAll('tr').length === 0) {
             e.preventDefault();
+
             Swal.fire({
                 icon: 'error',
                 title: 'Sin productos',
                 text: 'Debe agregar al menos un producto.',
             });
+
             return false;
         }
 
@@ -603,11 +657,13 @@ searchInput?.addEventListener('input', function () {
 
             if (recibido < total) {
                 e.preventDefault();
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Monto insuficiente',
                     text: 'El monto recibido debe ser mayor o igual al total.',
                 });
+
                 return false;
             }
         }
@@ -615,11 +671,13 @@ searchInput?.addEventListener('input', function () {
         if (metodoActual === 'tarjeta' || metodoActual === 'sinpe') {
             if (!String(referenciaPago.value || '').trim()) {
                 e.preventDefault();
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Referencia requerida',
                     text: 'Ingrese el número de comprobante.',
                 });
+
                 return false;
             }
         }
@@ -630,17 +688,20 @@ searchInput?.addEventListener('input', function () {
 
             if ((efectivo + digital) < total) {
                 e.preventDefault();
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Pago incompleto',
                     text: 'La suma de efectivo y digital debe cubrir el total.',
                 });
+
                 return false;
             }
         }
 
         rebuildDetalleInputs();
         rebuildPagosInputs();
+
         return true;
     });
 
@@ -648,7 +709,6 @@ searchInput?.addEventListener('input', function () {
 });
 
 function initToggleCard(toggleId, contentId, iconId) {
-
     const toggle = document.getElementById(toggleId);
     const content = document.getElementById(contentId);
     const icon = document.getElementById(iconId);
@@ -656,7 +716,6 @@ function initToggleCard(toggleId, contentId, iconId) {
     if (!toggle || !content || !icon) return;
 
     toggle.addEventListener('click', () => {
-
         const isOpen = content.classList.contains('show');
 
         content.classList.toggle('show');
