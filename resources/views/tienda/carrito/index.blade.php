@@ -311,6 +311,18 @@
                                             </div>
                                         @enderror
 
+                                        @if (session('error'))
+                                            <div class="text-danger small mt-2">
+                                                {{ session('error') }}
+                                            </div>
+                                        @endif
+
+                                        @if (session('success'))
+                                            <div class="text-success small mt-2">
+                                                {{ session('success') }}
+                                            </div>
+                                        @endif
+
                                     </form>
 
                                 @endif

@@ -148,24 +148,17 @@ public function index()
 
     if ($cuponAplicado) {
 
-        $cupon = Cupon::where(
-            'codigo',
-            $cuponAplicado['codigo']
-        )->first();
+        $cupon = Cupon::whereRaw('UPPER(TRIM(codigo)) = ?', [
+            strtoupper(trim($cuponAplicado['codigo']))
+        ])->first();
 
         if ($cupon) {
 
-            $validacion = $this->validarCupon(
-                $cupon,
-                $subtotal
-            );
+            $validacion = $this->validarCupon($cupon, $subtotal);
 
             if ($validacion === true) {
 
-                $descuento = $this->calcularDescuentoCupon(
-                    $cupon,
-                    $subtotal
-                );
+                $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
 
                 session([
                     'cupon' => [
@@ -176,6 +169,8 @@ public function index()
                         'descuento' => $descuento,
                     ],
                 ]);
+
+                $cuponAplicado = session('cupon');
 
             } else {
 
@@ -513,49 +508,56 @@ public function actualizar(Request $request, Producto $producto)
             ->with('success', 'Carrito vaciado correctamente.');
     }
 
-    public function aplicarCupon(Request $request)
-    {
-        $request->validate([
-            'codigo_cupon' => ['required', 'string', 'max:60'],
-        ]);
+   public function aplicarCupon(Request $request)
+{
+    $request->validate([
+        'codigo_cupon' => ['required', 'string', 'max:60'],
+    ]);
 
-        $codigo = strtoupper(trim($request->codigo_cupon));
+    $codigo = strtoupper(trim($request->codigo_cupon));
 
-        $carrito = collect(session('carrito', []));
+    $carrito = collect(session('carrito', []));
 
-        if ($carrito->isEmpty()) {
-            return back()->with('error', 'No puedes aplicar un cupón con el carrito vacío.');
-        }
-
-        $subtotal = $carrito->sum(fn ($item) => $item['precio'] * $item['cantidad']);
-
-        $cupon = Cupon::where('codigo', $codigo)->first();
-
-        if (!$cupon) {
-            return back()->with('error', 'El cupón ingresado no existe.');
-        }
-
-        $validacion = $this->validarCupon($cupon, $subtotal);
-
-        if ($validacion !== true) {
-            return back()->with('error', $validacion);
-        }
-
-        $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
-
-        session([
-            'cupon' => [
-                'id_cupon' => $cupon->id_cupon,
-                'codigo' => $cupon->codigo,
-                'tipo' => $cupon->tipo,
-                'valor' => $cupon->valor,
-                'descuento' => $descuento,
-            ],
-        ]);
-
-        return back()->with('success', 'Cupón aplicado correctamente.');
+    if ($carrito->isEmpty()) {
+        return back()
+            ->withInput()
+            ->with('error', 'No puedes aplicar un cupón con el carrito vacío.');
     }
 
+    $subtotal = $carrito->sum(
+        fn ($item) => $item['precio'] * $item['cantidad']
+    );
+
+    $cupon = Cupon::whereRaw('UPPER(TRIM(codigo)) = ?', [$codigo])->first();
+
+    if (!$cupon) {
+        return back()
+            ->withInput()
+            ->with('error', 'El cupón ingresado no existe.');
+    }
+
+    $validacion = $this->validarCupon($cupon, $subtotal);
+
+    if ($validacion !== true) {
+        return back()
+            ->withInput()
+            ->with('error', $validacion);
+    }
+
+    $descuento = $this->calcularDescuentoCupon($cupon, $subtotal);
+
+    session([
+        'cupon' => [
+            'id_cupon' => $cupon->id_cupon,
+            'codigo' => $cupon->codigo,
+            'tipo' => $cupon->tipo,
+            'valor' => $cupon->valor,
+            'descuento' => $descuento,
+        ],
+    ]);
+
+    return back()->with('success', 'Cupón aplicado correctamente.');
+}
     public function eliminarCupon()
     {
         session()->forget('cupon');

@@ -316,7 +316,7 @@
 
                                 <div class="col-md-6">
                                     <div class="show-kv">
-                                        <small class="text-muted">Descuento</small>
+                                        <small class="text-muted">Cupon de Descuento</small>
                                         <div class="fw-semibold text-success">
                                             ₡{{ number_format((float) $item->descuento, 2, '.', ',') }}</div>
                                     </div>
