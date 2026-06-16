@@ -14,6 +14,7 @@ class PedidoController extends Controller
 
         $pedidos = Pedido::with([
                 'detalle.producto.imagenPrincipal',
+                'detalle.variante.opcion',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',
@@ -29,6 +30,7 @@ class PedidoController extends Controller
     {
         $pedido = Pedido::with([
                 'detalle.producto.imagenPrincipal',
+                'detalle.variante.opcion',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',
@@ -44,6 +46,7 @@ class PedidoController extends Controller
     {
         $pedido = Pedido::with([
                 'detalle.producto.imagenPrincipal',
+                'detalle.variante.opcion',
                 'pagoUltimo',
                 'cupon',
                 'usoCupon',

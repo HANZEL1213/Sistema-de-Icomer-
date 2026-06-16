@@ -140,7 +140,8 @@
                     </div>
 
 
-                {{-- PRODUCTOS --}}
+                 
+{{-- PRODUCTOS --}}
 <div class="store-order-show-card mb-4">
 
     <div class="store-order-show-card-header">
@@ -167,7 +168,8 @@
                 $precioVenta = (float) $detalle->precio_unitario;
                 $precioNormal = (float) ($detalle->precio_original ?? $precioVenta);
 
-                $tienePromo = $detalle->promocion_aplicada && $precioNormal > $precioVenta;
+                $tienePromo = (bool) $detalle->promocion_aplicada
+                    && $precioNormal > $precioVenta;
 
                 $porcentaje = $tienePromo && $precioNormal > 0
                     ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
@@ -198,11 +200,11 @@
                         {{ $detalle->nombre_producto }}
                     </h3>
 
-                    @if ($variante)
+                    @if ($detalle->tieneVariante() && $variante)
                         <div class="mb-2">
                             <span class="badge bg-light text-dark border">
                                 Variante:
-                                {{ $opcion?->etiqueta ?? $opcion?->valor ?? $variante->nombre }}
+                                {{ $opcion?->etiqueta ?? ($opcion?->valor ?? $variante->nombre) }}
                             </span>
                         </div>
                     @endif
@@ -214,7 +216,6 @@
                     @endif
 
                     <p>
-
                         Cantidad:
                         {{ $detalle->cantidad }}
 
@@ -233,7 +234,6 @@
                         @else
                             ₡{{ number_format($precioVenta, 2) }}
                         @endif
-
                     </p>
 
                 </div>
@@ -264,7 +264,6 @@
     </div>
 
 </div>
-
 
                     {{-- ENTREGA --}}
                     <div class="store-order-show-card mb-4">
