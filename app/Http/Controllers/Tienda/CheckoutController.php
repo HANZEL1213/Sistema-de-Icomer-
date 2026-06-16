@@ -373,6 +373,8 @@ public function confirmar(Request $request)
                     ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
 
                 $precioUnitario = $variante->precioVenta();
+                $precioOriginal = $variante->precioOriginal();
+                $promocionAplicada = $variante->promocionVigente();
 
                 DetallePedido::create([
                     'id_pedido' => $pedido->id_pedido,
@@ -383,18 +385,18 @@ public function confirmar(Request $request)
                     'precio_unitario' => $precioUnitario,
                     'cantidad' => $item['cantidad'],
                     'total_linea' => $precioUnitario * $item['cantidad'],
-                    'promocion_aplicada' => false,
-                    'precio_original' => $precioUnitario,
+                    'promocion_aplicada' => $promocionAplicada,
+                    'precio_original' => $precioOriginal,
                 ]);
 
-      $variante->registrarSalidaInventario(
-    $item['cantidad'],
-    'Pedido online',
-    $pedido->id_pedido,
-    null,
-    Auth::id() ?? 1,
-    'Pedido: ' . $pedido->numero_pedido
-);
+                $variante->registrarSalidaInventario(
+                    $item['cantidad'],
+                    'Pedido online',
+                    $pedido->id_pedido,
+                    null,
+                    Auth::id() ?? 1,
+                    'Pedido: ' . $pedido->numero_pedido
+                );
             } else {
                 $precioUnitario = $producto->precioVenta();
                 $precioOriginal = (float) $producto->precio;
@@ -450,13 +452,13 @@ public function confirmar(Request $request)
         DB::commit();
 
         if (!empty($pedido->correo_cliente)) {
-        try {
-            Mail::to($pedido->correo_cliente)
-                ->send(new PedidoRecibidoMail($pedido));
-        } catch (\Throwable $mailError) {
-            report($mailError);
+            try {
+                Mail::to($pedido->correo_cliente)
+                    ->send(new PedidoRecibidoMail($pedido));
+            } catch (\Throwable $mailError) {
+                report($mailError);
+            }
         }
-    }
 
         session()->forget([
             'carrito',

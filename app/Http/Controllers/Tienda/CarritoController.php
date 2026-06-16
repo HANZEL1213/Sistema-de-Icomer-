@@ -10,7 +10,6 @@ use App\Models\ProductoVariante;
 
 class CarritoController extends Controller
 {
-
 public function index()
 {
     $carritoSession = session('carrito', []);
@@ -46,6 +45,16 @@ public function index()
                 ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
 
             $precioVenta = $variante->precioVenta();
+            $precioNormal = $variante->precioOriginal();
+            $tienePromocion = $variante->promocionVigente();
+
+            $ahorro = $tienePromocion
+                ? max(0, $precioNormal - $precioVenta)
+                : 0;
+
+            $porcentajeDescuento = $tienePromocion && $precioNormal > 0
+                ? round(($ahorro / $precioNormal) * 100)
+                : 0;
 
             $item['cart_key'] = $cartKey;
             $item['id_producto'] = $producto->id_producto;
@@ -56,10 +65,10 @@ public function index()
             $item['slug'] = $producto->slug;
 
             $item['precio'] = $precioVenta;
-            $item['precio_normal'] = $precioVenta;
-            $item['tiene_promocion'] = false;
-            $item['ahorro'] = 0;
-            $item['porcentaje_descuento'] = 0;
+            $item['precio_normal'] = $precioNormal;
+            $item['tiene_promocion'] = $tienePromocion;
+            $item['ahorro'] = $ahorro;
+            $item['porcentaje_descuento'] = $porcentajeDescuento;
 
             $item['stock'] = $variante->stock_actual;
             $item['marca'] = $producto->marca?->nombre;
@@ -195,6 +204,7 @@ public function index()
         'cuponAplicado'
     ));
 }
+
    public function agregar(Request $request, Producto $producto)
 {
     abort_if(!$producto->activo || $producto->deleted_at, 404);
@@ -258,6 +268,16 @@ public function index()
             ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
 
         $precioVenta = $variante->precioVenta();
+        $precioNormal = $variante->precioOriginal();
+        $tienePromocion = $variante->promocionVigente();
+
+        $ahorro = $tienePromocion
+            ? max(0, $precioNormal - $precioVenta)
+            : 0;
+
+        $porcentajeDescuento = $tienePromocion && $precioNormal > 0
+            ? round(($ahorro / $precioNormal) * 100)
+            : 0;
 
         $carrito[$id] = [
             'cart_key' => $id,
@@ -270,10 +290,10 @@ public function index()
             'slug' => $producto->slug,
 
             'precio' => $precioVenta,
-            'precio_normal' => $precioVenta,
-            'tiene_promocion' => false,
-            'ahorro' => 0,
-            'porcentaje_descuento' => 0,
+            'precio_normal' => $precioNormal,
+            'tiene_promocion' => $tienePromocion,
+            'ahorro' => $ahorro,
+            'porcentaje_descuento' => $porcentajeDescuento,
 
             'cantidad' => $nuevaCantidad,
             'stock' => $variante->stock_actual,
@@ -362,6 +382,8 @@ public function index()
     return back()->with('success', 'Producto agregado al carrito.');
 }
 
+
+
 public function actualizar(Request $request, Producto $producto)
 {
     $request->validate([
@@ -398,15 +420,32 @@ public function actualizar(Request $request, Producto $producto)
             return back()->with('error', 'La cantidad supera el stock disponible.');
         }
 
+        $precioVenta = $variante->precioVenta();
+        $precioNormal = $variante->precioOriginal();
+        $tienePromocion = $variante->promocionVigente();
+
+        $ahorro = $tienePromocion
+            ? max(0, $precioNormal - $precioVenta)
+            : 0;
+
+        $porcentajeDescuento = $tienePromocion && $precioNormal > 0
+            ? round(($ahorro / $precioNormal) * 100)
+            : 0;
+
+        $nombreVariante = $variante->nombre
+            ?: ($variante->opcion?->etiqueta ?? $variante->opcion?->valor ?? 'Variante');
+
         $carrito[$cartKey]['cantidad'] = (int) $request->cantidad;
         $carrito[$cartKey]['stock'] = $variante->stock_actual;
 
-        $carrito[$cartKey]['precio'] = $variante->precioVenta();
-        $carrito[$cartKey]['precio_normal'] = $variante->precioVenta();
+        $carrito[$cartKey]['variante'] = $nombreVariante;
+        $carrito[$cartKey]['id_producto_variante'] = $variante->id_producto_variante;
 
-        $carrito[$cartKey]['tiene_promocion'] = false;
-        $carrito[$cartKey]['ahorro'] = 0;
-        $carrito[$cartKey]['porcentaje_descuento'] = 0;
+        $carrito[$cartKey]['precio'] = $precioVenta;
+        $carrito[$cartKey]['precio_normal'] = $precioNormal;
+        $carrito[$cartKey]['tiene_promocion'] = $tienePromocion;
+        $carrito[$cartKey]['ahorro'] = $ahorro;
+        $carrito[$cartKey]['porcentaje_descuento'] = $porcentajeDescuento;
 
     } else {
 
@@ -440,6 +479,7 @@ public function actualizar(Request $request, Producto $producto)
 
     return back()->with('success', 'Carrito actualizado.');
 }
+
     public function eliminar(Request $request, Producto $producto)
 {
     $carrito = session('carrito', []);
