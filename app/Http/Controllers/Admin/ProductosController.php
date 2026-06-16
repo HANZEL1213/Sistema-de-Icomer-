@@ -51,7 +51,14 @@ public function create()
         ->orderBy('nombre')
         ->get();
 
-    $productosRelacionados = Producto::with('imagenPrincipal')
+    $productosRelacionados = Producto::with([
+            'imagenPrincipal',
+            'marca',
+            'categoriaPrincipal',
+            'tipoVariante',
+            'variantePrincipal.opcion',
+            'variantesActivas.opcion',
+        ])
         ->whereNull('deleted_at')
         ->orderBy('nombre')
         ->get();
@@ -416,8 +423,15 @@ public function show(string $id)
         'tipoVariante',
         'variantes',
         'variantes.opcion',
+        'variantePrincipal.opcion',
+        'variantesActivas.opcion',
 
         'relacionados.imagenPrincipal',
+        'relacionados.marca',
+        'relacionados.categoriaPrincipal',
+        'relacionados.tipoVariante',
+        'relacionados.variantePrincipal.opcion',
+        'relacionados.variantesActivas.opcion',
     ])->findOrFail($id);
 
     return view('admin.productos.show', compact('item'));
@@ -430,9 +444,18 @@ public function edit(string $id)
     $item = Producto::with([
         'categorias',
         'relacionados',
+        'relacionados.imagenPrincipal',
+        'relacionados.marca',
+        'relacionados.categoriaPrincipal',
+        'relacionados.tipoVariante',
+        'relacionados.variantePrincipal.opcion',
+        'relacionados.variantesActivas.opcion',
+
         'imagenes',
         'tipoVariante',
         'variantes.opcion',
+        'variantePrincipal.opcion',
+        'variantesActivas.opcion',
     ])->findOrFail($id);
 
     $marcas = Marca::where(function ($query) use ($item) {
@@ -461,22 +484,30 @@ public function edit(string $id)
         ->orderBy('nombre')
         ->get();
 
-    $productosRelacionados = Producto::with('imagenPrincipal')
+    $productosRelacionados = Producto::with([
+            'imagenPrincipal',
+            'marca',
+            'categoriaPrincipal',
+            'tipoVariante',
+            'variantePrincipal.opcion',
+            'variantesActivas.opcion',
+        ])
         ->whereNull('deleted_at')
         ->where('id_producto', '!=', $item->id_producto)
         ->orderBy('nombre')
         ->get();
 
- $tiposVariantes = TipoVariante::with('opcionesActivas')
-    ->where(function ($query) use ($item) {
-        $query->where('activo', 1);
+    $tiposVariantes = TipoVariante::with('opcionesActivas')
+        ->where(function ($query) use ($item) {
+            $query->where('activo', 1);
 
-        if ($item->id_tipo_variante) {
-            $query->orWhere('id_tipo_variante', $item->id_tipo_variante);
-        }
-    })
-    ->orderBy('nombre')
-    ->get();
+            if ($item->id_tipo_variante) {
+                $query->orWhere('id_tipo_variante', $item->id_tipo_variante);
+            }
+        })
+        ->orderBy('nombre')
+        ->get();
+
     return view('admin.productos.edit', compact(
         'item',
         'marcas',
