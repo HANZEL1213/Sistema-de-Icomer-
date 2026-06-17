@@ -294,3 +294,13 @@ document.addEventListener('click', async function (event) {
     }
 
 });
+
+
+window.addEventListener('pageshow', function (event) {
+    const navEntries = performance.getEntriesByType('navigation');
+    const isBackForward = navEntries.length && navEntries[0].type === 'back_forward';
+
+    if (event.persisted || isBackForward) {
+        window.location.reload();
+    }
+});
