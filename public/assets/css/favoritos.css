@@ -1,0 +1,93 @@
+/* =========================================================
+   FAVORITOS - RESPONSIVE PREMIUM
+========================================================== */
+
+.store-favorites-page .store-product-footer-catalog {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.store-favorites-page .store-product-price-area {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.store-favorites-page .store-product-card-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-shrink: 0;
+}
+
+.store-favorites-page .store-product-action-catalog {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    padding: 0;
+}
+
+.store-favorites-page .store-product-action-catalog i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 575.98px) {
+
+    .store-favorites-page .store-product-footer-catalog {
+        flex-direction: column;
+        align-items: stretch;
+        gap: .55rem;
+    }
+
+    .store-favorites-page .store-product-price-area {
+        width: 100%;
+    }
+
+    .store-favorites-page .store-product-card-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .45rem;
+    }
+
+    .store-favorites-page .store-product-action-catalog {
+        width: 100%;
+        min-width: 0;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .store-favorites-page .store-product-action-catalog i {
+        font-size: .8rem;
+    }
+
+    .store-favorites-page .store-product-stock {
+        display: none;
+    }
+
+    .store-favorites-page .store-product-price {
+        font-size: .85rem;
+    }
+
+    .store-favorites-page .badge {
+        font-size: .58rem;
+        padding: .18rem .38rem;
+    }
+
+    .store-favorites-page .store-product-name {
+        font-size: .78rem;
+        min-height: 34px;
+    }
+
+    .store-favorites-page .store-product-category {
+        font-size: .7rem;
+        margin-bottom: .45rem;
+    }
+}
