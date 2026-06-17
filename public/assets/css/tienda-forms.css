@@ -1281,6 +1281,10 @@
             border-radius: 22px;
         }
 
+        .store-footer {
+        padding-bottom: calc(var(--store-bottom-nav-height) + 1rem);
+        }
+
         .store-footer-main {
             padding-bottom: 0.5rem;
         }
