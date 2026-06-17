@@ -38,21 +38,20 @@
                 <span>{{ $producto->nombre }}</span>
             </div>
 
-      {{-- NAVEGACIÓN --}}
-<div class="store-back-nav">
+            {{-- NAVEGACIÓN --}}
+            <div class="store-back-nav">
 
-    <a href="{{ route('tienda.productos.index') }}"
-       class="store-back-link">
+                <a href="{{ route('tienda.productos.index') }}" class="store-back-link">
 
-        <i class="bi bi-arrow-left"></i>
+                    <i class="bi bi-arrow-left"></i>
 
-        <span>
-            Volver al catálogo
-        </span>
+                    <span>
+                        Volver al catálogo
+                    </span>
 
-    </a>
+                </a>
 
-</div>
+            </div>
 
 
             {{-- DETALLE PRINCIPAL --}}
@@ -166,30 +165,38 @@
                                 "https://wa.me/506{$numeroWhatsappProducto}?text=" .
                                 urlencode($mensajeProductoWhatsapp);
                         @endphp
+                        <div class="store-price-row">
 
-                        @if ($tienePromo)
-                            <div class="store-price-row">
-                                <div>
-                                    <div class="store-product-detail-price text-danger" id="storeProductPrice"
-                                        data-precio-base="{{ $precioVenta }}">
-                                        ₡{{ number_format($precioVenta, 2) }}
-                                    </div>
+                            <div>
 
-                                    <div class="text-muted text-decoration-line-through" id="storeProductOldPrice">
-                                        ₡{{ number_format($precioNormal, 2) }}
-                                    </div>
+                                <div class="store-product-detail-price {{ $tienePromo ? 'text-danger' : '' }}"
+                                    id="storeProductPrice" data-precio-base="{{ $precioVenta }}">
+
+                                    ₡{{ number_format($precioVenta, 2) }}
+
                                 </div>
 
-                                <span class="store-discount-badge" id="storeProductDiscountBadge">
+                                <div class="text-muted text-decoration-line-through {{ $tienePromo ? '' : 'd-none' }}"
+                                    id="storeProductOldPrice">
+
+                                    @if ($tienePromo)
+                                        ₡{{ number_format($precioNormal, 2) }}
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                            <span class="store-discount-badge {{ $tienePromo ? '' : 'd-none' }}"
+                                id="storeProductDiscountBadge">
+
+                                @if ($tienePromo)
                                     {{ $porcentaje }}%
-                                </span>
-                            </div>
-                        @else
-                            <div class="store-product-detail-price" id="storeProductPrice"
-                                data-precio-base="{{ $precioNormal }}">
-                                ₡{{ number_format($precioNormal, 2) }}
-                            </div>
-                        @endif
+                                @endif
+
+                            </span>
+
+                        </div>
 
                         <div class="store-product-detail-stock {{ $stock > 0 ? 'is-available' : 'is-empty' }}"
                             id="storeProductStockText">
