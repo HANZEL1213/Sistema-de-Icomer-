@@ -632,13 +632,11 @@
 
                                         <div class="col-12">
                                             <label class="store-form-label">
-                                                Imagen del comprobante
-                                                <span class="text-danger">*</span>
+                                                Imagen del comprobante (Opcional)
                                             </label>
                                             <input type="file" name="comprobante_pago" id="checkoutComprobanteInput"
                                                 accept="image/png,image/jpeg,image/jpg,image/webp"
-                                                class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror"
-                                                required>
+                                                class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror">
 
                                             <div class="store-checkout-proof-preview d-none mt-3"
                                                 id="checkoutProofPreviewWrap">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PedidoController extends Controller
@@ -56,5 +57,31 @@ class PedidoController extends Controller
             ->firstOrFail();
 
         return view('tienda.pedidos.seguimiento', compact('pedido'));
+    }
+
+    public function rastrear()
+    {
+        return view('tienda.pedidos.rastrear');
+    }
+
+    public function buscarSeguimiento(Request $request)
+    {
+        $request->validate([
+            'codigo' => ['required', 'string', 'max:100'],
+        ]);
+
+        $codigo = trim($request->codigo);
+
+        $pedido = Pedido::where('numero_pedido', $codigo)
+            ->orWhere('codigo_seguimiento_publico', $codigo)
+            ->first();
+
+        if (! $pedido) {
+            return back()
+                ->withInput()
+                ->with('error', 'No encontramos un pedido con ese código.');
+        }
+
+        return redirect()->route('tienda.pedidos.seguimiento', $pedido->codigo_seguimiento_publico);
     }
 }

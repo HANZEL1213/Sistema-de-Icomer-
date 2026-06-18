@@ -16,41 +16,6 @@
     use Illuminate\Support\Str;
 @endphp
 
-<style>
-    .store-offcanvas-dropdown-toggle {
-    width: 100%;
-    border: 0;
-    background: transparent;
-    text-align: left;
-}
-
-.store-offcanvas-submenu {
-    padding: 6px 0 8px 14px;
-}
-
-.store-offcanvas-sublink {
-    display: block;
-    padding: 9px 14px;
-    border-radius: 12px;
-    color: #555;
-    font-size: 14px;
-    text-decoration: none;
-}
-
-.store-offcanvas-sublink:hover {
-    background: #f7f1e6;
-    color: #dca117;
-}
-
-.store-offcanvas-dropdown-toggle .bi-chevron-down {
-    transition: transform .25s ease;
-}
-
-.store-offcanvas-dropdown-toggle[aria-expanded="true"] .bi-chevron-down {
-    transform: rotate(180deg);
-}
-</style>
-
 <header>
     {{-- TOP BAR --}}
     <div class="store-topbar d-none d-md-block">
@@ -74,9 +39,15 @@
                 </div>
 
                 <div class="store-topbar-right">
+                    @auth
                     <a href="{{ route('tienda.pedidos.mis') }}" class="store-topbar-link">
                         Mis pedidos
                     </a>
+                    @else
+                        <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-topbar-link">
+                            Dar seguimiento
+                        </a>
+                    @endauth
 
                     @auth
                         <a href="{{ route('tienda.cuenta') }}"
@@ -157,10 +128,23 @@
                 <div class="d-flex align-items-center gap-2 gap-md-3">
 
 
-                    <a href="{{ route('tienda.pedidos.mis') }}" class="store-icon-btn d-none d-md-inline-flex"
-                        aria-label="Mis pedidos">
-                        <i class="bi bi-box-seam fs-5"></i>
-                    </a>
+                    @auth
+                        <a href="{{ route('tienda.pedidos.mis') }}"
+                            class="store-icon-btn d-none d-md-inline-flex"
+                            aria-label="Mis pedidos">
+
+                            <i class="bi bi-box-seam fs-5"></i>
+
+                        </a>
+                    @else
+                        <a href="{{ route('tienda.pedidos.rastrear') }}"
+                            class="store-icon-btn d-none d-md-inline-flex"
+                            aria-label="Dar seguimiento">
+
+                            <i class="bi bi-search fs-5"></i>
+
+                        </a>
+                    @endauth
 
                    @auth
                         <a href="{{ route('tienda.cuenta') }}"
@@ -292,9 +276,15 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('tienda.pedidos.mis') }}" class="store-desktop-nav-link">
-                        Mis pedidos
-                    </a>
+                    @auth
+                        <a href="{{ route('tienda.pedidos.mis') }}" class="store-desktop-nav-link">
+                            Mis pedidos
+                        </a>
+                    @else
+                        <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-desktop-nav-link">
+                            Dar seguimiento
+                        </a>
+                    @endauth
                 </li>
             </ul>
         </div>
@@ -479,11 +469,25 @@
                     </span>
                 </a>
 
-                <a href="{{ route('tienda.pedidos.mis') }}" class="store-offcanvas-link"
-                    data-store-close-offcanvas="true">
-                    <span>Mis pedidos</span>
-                    <i class="bi bi-box-seam"></i>
-                </a>
+                @auth
+                    <a href="{{ route('tienda.pedidos.mis') }}"
+                        class="store-offcanvas-link"
+                        data-store-close-offcanvas="true">
+
+                        <span>Mis pedidos</span>
+                        <i class="bi bi-box-seam"></i>
+
+                    </a>
+                @else
+                    <a href="{{ route('tienda.pedidos.rastrear') }}"
+                        class="store-offcanvas-link"
+                        data-store-close-offcanvas="true">
+
+                        <span>Dar seguimiento</span>
+                        <i class="bi bi-search"></i>
+
+                    </a>
+                @endauth
 
                     @auth
 
@@ -568,15 +572,17 @@
                 </a>
 
                 {{-- PEDIDOS --}}
-                <a href="{{ route('tienda.pedidos.mis') }}" class="store-mobile-bottom-link">
-
-                    <i class="bi bi-box-seam"></i>
-
-                    <span>
-                        Pedidos
-                    </span>
-
-                </a>
+                @auth
+                    <a href="{{ route('tienda.pedidos.mis') }}" class="store-mobile-bottom-link">
+                        <i class="bi bi-box-seam"></i>
+                        <span>Pedidos</span>
+                    </a>
+                @else
+                    <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-mobile-bottom-link">
+                        <i class="bi bi-search"></i>
+                        <span>Seguimiento</span>
+                    </a>
+                @endauth
 
             </div>
 

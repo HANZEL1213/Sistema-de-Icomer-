@@ -220,9 +220,11 @@
                             </li>
 
                             <li>
-                                <a href="{{ route('tienda.pedidos.mis') }}">
+                                @auth
+                                    <a href="{{ route('tienda.pedidos.mis') }}">
                                     Mis pedidos
-                                </a>
+                                    </a>
+                                @endauth
                             </li>
 
                             <li>

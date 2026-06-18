@@ -137,7 +137,7 @@ Route::prefix('tienda')->name('tienda.')->middleware(['cliente'])->group(functio
 | RUTAS PÚBLICAS - TIENDA
 |--------------------------------------------------------------------------
 | Aquí va toda la navegación del cliente:
-| home, catálogo, categorías, marcas, carrito, checkout y pedidos.
+| home, catálogo, categorías, marcas, carrito, checkout, pedidos y seguimiento.
 |--------------------------------------------------------------------------
 */
 Route::name('tienda.')->group(function () {
@@ -308,6 +308,12 @@ Route::get(
         // Route::get('/mis-pedidos', [PedidoController::class, 'misPedidos'])->name('mis');
         Route::get('{codigo}', [PedidoController::class, 'show'])->name('show');
         Route::get('{codigo}/seguimiento', [PedidoController::class, 'seguimiento'])->name('seguimiento');
+
+        Route::get('/tienda/rastrear-pedido', [PedidoController::class, 'rastrear'])
+            ->name('rastrear');
+
+        Route::post('/tienda/rastrear-pedido', [PedidoController::class, 'buscarSeguimiento'])
+            ->name('buscarSeguimiento');
     });
 
     /*

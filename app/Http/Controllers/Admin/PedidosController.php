@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PagoRechazadoMail;
 use App\Mail\PedidoAprobadoMail;
 use App\Models\MovimientoInventario;
 use App\Models\Producto;
@@ -241,6 +242,19 @@ public function verificar(string $id)
                     'estado' => 'rechazado',
                 ]);
             });
+
+            /*
+            |--------------------------------------------------------------------------
+            | ENVIAR CORREO
+            |--------------------------------------------------------------------------
+            */
+
+            $item->refresh();
+
+            if ($item->correo_cliente) {
+                Mail::to($item->correo_cliente)
+                    ->send(new PagoRechazadoMail($item));
+            }
 
             return redirect()
                 ->route('admin.pedidos.verificar', $item->id_pedido)

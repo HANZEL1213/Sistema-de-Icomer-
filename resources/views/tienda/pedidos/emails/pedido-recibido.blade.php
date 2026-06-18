@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
@@ -6,30 +7,38 @@
     <title>Pedido recibido</title>
 </head>
 
-<body style="
-    margin:0;
-    padding:0;
-    background:#f5f5f5;
-    font-family:Arial, Helvetica, sans-serif;
-">
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial, Helvetica, sans-serif;">
 
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:30px 0;">
+    @php
+        $direccionEntrega =
+            $pedido->tipo_entrega === 'envio'
+                ? collect([
+                    $pedido->provincia_envio,
+                    $pedido->canton_envio,
+                    $pedido->distrito_envio,
+                    $pedido->direccion_envio,
+                ])
+                    ->filter()
+                    ->implode(', ')
+                : 'Retiro en tienda';
+    @endphp
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;">
         <tr>
             <td align="center">
 
                 <table width="650" cellpadding="0" cellspacing="0"
-                    style="background:#ffffff;border-radius:12px;overflow:hidden;">
+                    style="max-width:650px;background:#ffffff;border-radius:16px;overflow:hidden;">
 
                     {{-- HEADER --}}
                     <tr>
-                        <td align="center"
-                            style="background:#111827;padding:30px;color:#ffffff;">
+                        <td align="center" style="background:#111827;padding:28px 24px;color:#ffffff;">
 
-                            <h1 style="margin:0;font-size:28px;">
+                            <h1 style="margin:0;font-size:28px;letter-spacing:1px;">
                                 CORA CR
                             </h1>
 
-                            <p style="margin-top:10px;">
+                            <p style="margin:8px 0 0;font-size:14px;color:#e5e7eb;">
                                 Pedido recibido correctamente
                             </p>
 
@@ -38,69 +47,215 @@
 
                     {{-- CONTENIDO --}}
                     <tr>
-                        <td style="padding:35px;">
+                        <td style="padding:32px;">
 
-                            <h2 style="margin-top:0;">
+                            <div
+                                style="
+                                        width:54px;
+                                        height:54px;
+                                        line-height:54px;
+                                        border-radius:50%;
+                                        background:#fef3c7;
+                                        color:#d97706;
+                                        font-size:28px;
+                                        text-align:center;
+                                        margin:0 auto 18px;
+                                    ">
+                                ⏳
+                            </div>
+
+                            <h2
+                                style="
+                                        margin:0 0 10px;
+                                        text-align:center;
+                                        color:#111827;
+                                        font-size:24px;
+                                    ">
                                 ¡Gracias por tu compra!
                             </h2>
 
-                            <p>
+                            <p
+                                style="
+                                        margin:0 0 10px;
+                                        text-align:center;
+                                        color:#374151;
+                                        line-height:1.6;
+                                    ">
                                 Hola <strong>{{ $pedido->nombre_cliente }}</strong>,
                             </p>
 
-                            <p>
-                                Hemos recibido tu pedido correctamente y ya se encuentra en proceso de revisión.
+                            <p
+                                style="
+                                        margin:0 0 28px;
+                                        text-align:center;
+                                        color:#374151;
+                                        line-height:1.6;
+                                    ">
+                                Hemos recibido tu pedido correctamente y estamos verificando
+                                tu comprobante de pago. Te notificaremos cuando sea validado.
                             </p>
 
-                            <div style="
-                                background:#f8fafc;
-                                border:1px solid #e5e7eb;
-                                border-radius:10px;
-                                padding:20px;
-                                margin:25px 0;
-                            ">
+                            {{-- RESUMEN DEL PEDIDO --}}
+                            <div
+                                style="
+                                        background:#f8fafc;
+                                        border:1px solid #e5e7eb;
+                                        border-radius:12px;
+                                        padding:20px;
+                                        margin-bottom:24px;
+                                    ">
 
-                                <p style="margin:0 0 10px;">
-                                    <strong>Número de pedido:</strong>
-                                    {{ $pedido->numero_pedido }}
-                                </p>
+                                <table width="100%" cellpadding="0" cellspacing="0">
 
-                                <p style="margin:0 0 10px;">
-                                    <strong>Estado:</strong>
-                                    En revisión
-                                </p>
+                                    <tr>
+                                        <td
+                                            style="
+                                                    padding:8px 0;
+                                                    color:#6b7280;
+                                                    width:140px;
+                                                ">
+                                            Pedido #
+                                        </td>
 
-                                <p style="margin:0;">
-                                    <strong>Total:</strong>
-                                    ₡{{ number_format($pedido->total, 2) }}
-                                </p>
+                                        <td
+                                            style="
+                                                    padding:8px 0;
+                                                    color:#111827;
+                                                    font-weight:bold;
+                                                ">
+                                            {{ $pedido->numero_pedido }}
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0;color:#6b7280;">
+                                            Estado
+                                        </td>
+
+                                        <td
+                                            style="
+                                                    padding:8px 0;
+                                                    color:#d97706;
+                                                    font-weight:bold;
+                                                ">
+                                            En revisión
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="padding:8px 0;color:#6b7280;">
+                                            Total
+                                        </td>
+
+                                        <td
+                                            style="
+                                                    padding:8px 0;
+                                                    color:#111827;
+                                                    font-weight:bold;
+                                                ">
+                                            ₡{{ number_format($pedido->total, 2) }}
+                                        </td>
+                                    </tr>
+
+                                    @if ($pedido->telefono_cliente)
+                                        <tr>
+                                            <td style="padding:8px 0;color:#6b7280;">
+                                                Teléfono
+                                            </td>
+
+                                            <td style="padding:8px 0;color:#111827;">
+                                                {{ $pedido->telefono_cliente }}
+                                            </td>
+                                        </tr>
+                                    @endif
+
+                                    <tr>
+                                        <td style="padding:8px 0;color:#6b7280;">
+                                            Entrega
+                                        </td>
+
+                                        <td style="padding:8px 0;color:#111827;">
+                                            {{ $pedido->tipo_entrega === 'retiro' ? 'Retiro en tienda' : 'Envío a domicilio' }}
+                                        </td>
+                                    </tr>
+
+                                    @if ($pedido->tipo_entrega === 'envio')
+                                        <tr>
+                                            <td style="padding:8px 0;color:#6b7280;vertical-align:top;">
+                                                Dirección
+                                            </td>
+
+                                            <td style="padding:8px 0;color:#111827;line-height:1.5;">
+                                                {{ $direccionEntrega }}
+                                            </td>
+                                        </tr>
+                                    @endif
+
+                                </table>
 
                             </div>
 
-                            <p>
-                                Estamos verificando tu comprobante de pago.
-                            </p>
+                            {{-- NOTAS --}}
+                            @if (!empty($pedido->notas))
+                                <div
+                                    style="
+                            background:#fff7ed;
+                            border:1px solid #fed7aa;
+                            border-radius:12px;
+                            padding:16px;
+                            margin-bottom:24px;
+                        ">
 
-                            <p>
-                                Una vez validado, te notificaremos nuevamente.
-                            </p>
-
-                            <p>
-                                Puedes guardar este número de pedido para futuras consultas:
-                            </p>
-
-                            <div style="
-                                background:#111827;
-                                color:white;
-                                text-align:center;
-                                padding:15px;
-                                border-radius:8px;
-                                font-size:18px;
+                                    <p
+                                        style="
+                                margin:0 0 8px;
+                                color:#9a3412;
                                 font-weight:bold;
-                                letter-spacing:1px;
                             ">
-                                {{ $pedido->numero_pedido }}
+                                        Nota del pedido
+                                    </p>
+
+                                    <p
+                                        style="
+                                margin:0;
+                                color:#7c2d12;
+                                line-height:1.6;
+                            ">
+                                        {{ $pedido->notas }}
+                                    </p>
+
+                                </div>
+                            @endif
+
+                            {{-- BOTÓN --}}
+                            <div style="text-align:center;margin-bottom:22px;">
+
+                                <a href="{{ route('tienda.pedidos.seguimiento', $pedido->codigo_seguimiento_publico) }}"
+                                    style="
+                                    display:inline-block;
+                                    background:#111827;
+                                    color:#ffffff;
+                                    text-decoration:none;
+                                    padding:14px 28px;
+                                    border-radius:999px;
+                                    font-size:14px;
+                                    font-weight:700;
+                                ">
+                                    Dar seguimiento al pedido
+                                </a>
+
                             </div>
+
+                            <p
+                                style="
+                            margin:0;
+                            text-align:center;
+                            color:#6b7280;
+                            font-size:13px;
+                            line-height:1.6;
+                        ">
+                                Guarda tu número de pedido para futuras consultas.
+                            </p>
 
                         </td>
                     </tr>
@@ -109,15 +264,16 @@
                     <tr>
                         <td align="center"
                             style="
-                                padding:25px;
-                                background:#f8fafc;
-                                color:#6b7280;
-                                font-size:13px;
-                            ">
+                            padding:22px;
+                            background:#f8fafc;
+                            color:#6b7280;
+                            font-size:12px;
+                            line-height:1.6;
+                        ">
 
                             Gracias por confiar en Cora CR.
 
-                            <br><br>
+                            <br>
 
                             Este correo fue generado automáticamente.
 

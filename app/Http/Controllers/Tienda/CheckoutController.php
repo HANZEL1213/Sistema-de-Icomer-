@@ -185,7 +185,7 @@ public function confirmar(Request $request)
             'required_without:comprobante_pago',
         ],
         'comprobante_pago' => [
-            'required',
+            'nullable',
             'image',
             'mimes:jpg,jpeg,png,webp',
             'max:4096',

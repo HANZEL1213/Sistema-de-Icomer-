@@ -656,11 +656,15 @@
 
                             </a>
 
-                            <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-outline">
-
-                                Volver a mis pedidos
-
-                            </a>
+                            @auth
+                                <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-outline">
+                                    Volver a mis pedidos
+                                </a>
+                            @else
+                                <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
+                                    Volver a la tienda
+                                </a>
+                            @endauth
 
                         </div>
 

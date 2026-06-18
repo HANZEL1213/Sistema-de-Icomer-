@@ -572,6 +572,39 @@
         border-top: 1px solid var(--store-border);
     }
 
+    .store-offcanvas-dropdown-toggle {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        text-align: left;
+    }
+
+    .store-offcanvas-submenu {
+        padding: 6px 0 8px 14px;
+    }
+
+    .store-offcanvas-sublink {
+        display: block;
+        padding: 9px 14px;
+        border-radius: 12px;
+        color: #555;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+    .store-offcanvas-sublink:hover {
+        background: #f7f1e6;
+        color: #dca117;
+    }
+
+    .store-offcanvas-dropdown-toggle .bi-chevron-down {
+        transition: transform .25s ease;
+    }
+
+    .store-offcanvas-dropdown-toggle[aria-expanded="true"] .bi-chevron-down {
+        transform: rotate(180deg);
+    }
+
     .store-mobile-bottom-nav {
         position: fixed;
         left: 0;
