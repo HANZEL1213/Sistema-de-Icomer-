@@ -1060,15 +1060,33 @@
                     document.querySelector('input[name="tipo_entrega"]:checked')
                     ?.value || 'envio';
 
+                const camposDireccion = [
+                    provinciaSelect,
+                    cantonSelect,
+                    distritoSelect,
+                    document.querySelector('textarea[name="direccion_envio"]')
+                ];
+
                 if (tipo === 'retiro') {
 
                     addressBox.style.display = 'none';
+
+                    camposDireccion.forEach(campo => {
+                        if (!campo) return;
+                        campo.removeAttribute('required');
+                        campo.value = '';
+                    });
 
                     actualizarResumenEnvio(0);
 
                 } else {
 
                     addressBox.style.display = '';
+
+                    camposDireccion.forEach(campo => {
+                        if (!campo) return;
+                        campo.setAttribute('required', 'required');
+                    });
 
                     if (distritoSelect.value) {
 

@@ -2079,3 +2079,13 @@
 .account-form-group input.is-invalid {
     border-color: #dc3545;
 }
+
+/* IMAGEN SINPE */
+
+ .comprobante-preview {
+    max-width: 300px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}

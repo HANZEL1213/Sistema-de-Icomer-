@@ -262,7 +262,7 @@
 
                                         <div class="bg-light rounded p-3">
                                             <img src="{{ asset('storage/' . $pago->ruta_comprobante) }}"
-                                                alt="Comprobante de pago" class="img-fluid rounded-4 border">
+                                                alt="Comprobante de pago" class="rounded-4 border comprobante-preview">
                                         </div>
                                     </div>
                                 @endif

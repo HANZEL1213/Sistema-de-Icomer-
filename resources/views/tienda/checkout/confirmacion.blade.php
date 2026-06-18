@@ -122,6 +122,50 @@
 
                     </div>
 
+                      <div class="store-confirmation-card">
+
+                        <div class="store-confirmation-card-header">
+                            <h2>
+                                <i class="bi bi-person-lines-fill"></i>
+                                Información del cliente
+                            </h2>
+                        </div>
+
+                        <div class="store-confirmation-card-body">
+
+                            <ul class="store-confirmation-list">
+                                <li>
+                                    <span>Cliente</span>
+                                    <strong>{{ $pedido->nombre_cliente }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Teléfono</span>
+                                    <strong>{{ $pedido->telefono_cliente }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Correo</span>
+                                    <strong>{{ $pedido->correo_cliente ?: 'No indicado' }}</strong>
+                                </li>
+
+                                <li>
+                                    <span>Entrega</span>
+                                    <strong>
+                                        {{ $pedido->tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda' }}
+                                    </strong>
+                                </li>
+
+                                <li>
+                                    <span>Dirección</span>
+                                    <strong>{{ $direccion }}</strong>
+                                </li>
+                            </ul>
+
+                        </div>
+
+                    </div>
+
                     <div class="store-confirmation-card mb-4">
 
                         <div class="store-confirmation-card-header">
@@ -173,54 +217,10 @@
 
                                     <div class="bg-light rounded p-3">
                                         <img src="{{ asset('storage/' . $pago->ruta_comprobante) }}"
-                                            alt="Comprobante de pago" class="img-fluid rounded-4 border">
+                                            alt="Comprobante de pago" class="rounded-4 border comprobante-preview">
                                     </div>
                                 </div>
                             @endif
-
-                        </div>
-
-                    </div>
-
-                    <div class="store-confirmation-card">
-
-                        <div class="store-confirmation-card-header">
-                            <h2>
-                                <i class="bi bi-person-lines-fill"></i>
-                                Información del cliente
-                            </h2>
-                        </div>
-
-                        <div class="store-confirmation-card-body">
-
-                            <ul class="store-confirmation-list">
-                                <li>
-                                    <span>Cliente</span>
-                                    <strong>{{ $pedido->nombre_cliente }}</strong>
-                                </li>
-
-                                <li>
-                                    <span>Teléfono</span>
-                                    <strong>{{ $pedido->telefono_cliente }}</strong>
-                                </li>
-
-                                <li>
-                                    <span>Correo</span>
-                                    <strong>{{ $pedido->correo_cliente ?: 'No indicado' }}</strong>
-                                </li>
-
-                                <li>
-                                    <span>Entrega</span>
-                                    <strong>
-                                        {{ $pedido->tipo_entrega === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda' }}
-                                    </strong>
-                                </li>
-
-                                <li>
-                                    <span>Dirección</span>
-                                    <strong>{{ $direccion }}</strong>
-                                </li>
-                            </ul>
 
                         </div>
 
