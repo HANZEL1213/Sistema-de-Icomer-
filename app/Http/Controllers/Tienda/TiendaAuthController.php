@@ -195,8 +195,14 @@ class TiendaAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
+        if (! $request->has('code')) {
+        return redirect()
+            ->route('tienda.auth.login')
+            ->with('swal_error', 'No se pudo iniciar sesión con Google. Inténtalo nuevamente.');
+        }
+
         $googleUser = Socialite::driver('google')->user();
 
         $esNuevo = false;

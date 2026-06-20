@@ -84,12 +84,22 @@ Route::prefix('auth')->name('tienda.auth.')->group(function () {
     Route::get('/email/verificar/{token}', [TiendaAuthController::class, 'verifyEmail'])
         ->name('email.verify');
 
+    Route::get('/email/reenviar', function () {
+        return redirect()->route('tienda.auth.login')
+        ->with('swal_error', 'Debes usar el formulario para reenviar el correo de verificación.');
+    });
     Route::post('/email/reenviar', [TiendaAuthController::class, 'resendVerification'])
         ->middleware('throttle:2,1')
         ->name('email.resend');
 
-    Route::post('/logout', [TiendaAuthController::class, 'logout'])
-        ->name('logout');
+    // Route::get('/logout', function () {
+    // return redirect()
+    //     ->route('tienda.auth.login')
+    //     ->with('swal_error', 'Usa el botón de cerrar sesión.');
+    // })->name('logout.redirect');
+
+    // Route::post('/logout', [TiendaAuthController::class, 'logout'])
+    //     ->name('logout');
 
      Route::get('/password/forgot', [PasswordResetController::class, 'showForgot'])
         ->name('password.forgot');
@@ -127,6 +137,12 @@ Route::prefix('tienda')->name('tienda.')->middleware(['cliente'])->group(functio
         return redirect()->route('tienda.cuenta');
     });
 
+    Route::get('/logout', function () {
+        return redirect()
+            ->route('tienda.auth.login')
+            ->with('swal_error', 'Usa el botón de cerrar sesión.');
+    })->name('logout.redirect');
+    
     Route::post('/logout', [TiendaAuthController::class, 'logout'])
         ->name('logout');
 });
@@ -385,6 +401,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     | LOGOUT
     |--------------------------------------------------------------------------
     */
+    
+    Route::get('/logout', function () {
+        return redirect()
+            ->route('admin.login')
+            ->with('error', 'Usa el botón de cerrar sesión.');
+    })->name('logout.redirect');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     /*
@@ -398,6 +421,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');
 
+    Route::get('/perfil/password', function () {
+        return redirect()->route('admin.perfil')>with('error', 'Para actualizar tu contraseña, usa el formulario del perfil.');
+    })->name('perfil.password.redirect');
     /*
     |--------------------------------------------------------------------------
     | Dashboard
