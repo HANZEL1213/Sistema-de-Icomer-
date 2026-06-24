@@ -447,7 +447,7 @@
                 </a>
                 <a href="{{ route('tienda.checkout.index') }}" class="store-offcanvas-link"
                     data-store-close-offcanvas="true">
-                    <span>Checkout</span>
+                    <span>Finalizar compra</span>
                     <i class="bi bi-credit-card"></i>
                 </a>
             </div>

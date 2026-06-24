@@ -422,7 +422,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');
 
     Route::get('/perfil/password', function () {
-        return redirect()->route('admin.perfil')>with('error', 'Para actualizar tu contraseña, usa el formulario del perfil.');
+        return redirect()
+            ->route('admin.perfil')
+            ->with('error', 'Para actualizar tu contraseña, usa el formulario del perfil.');
     })->name('perfil.password.redirect');
     /*
     |--------------------------------------------------------------------------

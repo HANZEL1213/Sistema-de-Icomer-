@@ -16,9 +16,26 @@
                 <tr>
                     <td style="padding:34px 30px 24px; text-align:center;">
 
-                        <div style="width:58px; height:58px; border-radius:18px; background:#111827; color:#ffffff; display:inline-flex; align-items:center; justify-content:center; font-size:24px; font-weight:800;">
-                            C
-                        </div>
+                            <table align="center" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td width="58" height="58" align="center" valign="middle"
+                                        style="
+                                            width:58px;
+                                            height:58px;
+                                            background:#111827;
+                                            color:#ffffff;
+                                            border-radius:18px;
+                                            text-align:center;
+                                            vertical-align:middle;
+                                            font-size:24px;
+                                            font-weight:800;
+                                            font-family:Arial, Helvetica, sans-serif;
+                                            line-height:58px;
+                                        ">
+                                        C
+                                    </td>
+                                </tr>
+                            </table>
 
                         <h1 style="margin:20px 0 8px; font-size:24px; font-weight:800; color:#111827;">
                             Verifica tu correo

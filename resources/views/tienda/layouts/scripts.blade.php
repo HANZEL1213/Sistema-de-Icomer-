@@ -28,9 +28,7 @@
         ============================================ */
         document.querySelectorAll('.store-card, .btn-store-primary, .btn-store-outline, .store-icon-btn').forEach((el) => {
             el.addEventListener('touchstart', () => {
-                if (window.navigator && window.navigator.vibrate) {
-                    window.navigator.vibrate(15);
-                }
+                //Sin vibración
             }, { passive: true });
         });
 

@@ -434,7 +434,7 @@
                                             </h4>
 
                                             <p class="text-muted mb-3">
-                                                Puedes ingresar un nuevo código SINPE, subir una imagen del voucher o enviar
+                                                Puedes ingresar un nuevo número de comprobante o referencia, subir una imagen del comprobante o enviar
                                                 ambos.
                                             </p>
 
@@ -444,7 +444,7 @@
 
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        Código SINPE
+                                                        Número de comprobante o referencia <span class="text-danger">*</span>
                                                     </label>
 
                                                     <input type="text" name="numero_comprobante" class="form-control"
@@ -454,7 +454,7 @@
 
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        Imagen del voucher
+                                                        Imagen del comprobante (Opcional)
                                                     </label>
 
                                                     <input type="file" name="comprobante" class="form-control"
