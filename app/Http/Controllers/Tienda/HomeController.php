@@ -179,35 +179,34 @@ class HomeController extends Controller
             ->toArray();
     }
 
-    private function resolverDestinoCarrusel(CarruselItem $item): string
-    {
-        if (
-            $item->tipo_destino === 'url' &&
-            $item->url_destino
-        ) {
-            return $item->url_destino;
-        }
-
-        if (
-            $item->tipo_destino === 'producto' &&
-            $item->producto?->slug
-        ) {
-            return route(
-                'tienda.productos.show',
-                $item->producto->slug
-            );
-        }
-
-        if (
-            $item->tipo_destino === 'categoria' &&
-            $item->categoria?->slug
-        ) {
-            return route(
-                'tienda.categorias.show',
-                $item->categoria->slug
-            );
-        }
-
-        return route('tienda.productos.index');
+private function resolverDestinoCarrusel(CarruselItem $item): string
+{
+    if (
+        $item->tipo_destino === 'url' &&
+        $item->url_destino
+    ) {
+        return $item->url_destino;
     }
+
+    if (
+        $item->tipo_destino === 'producto' &&
+        $item->producto?->slug
+    ) {
+        return route(
+            'tienda.productos.show',
+            $item->producto->slug
+        );
+    }
+
+    if (
+        $item->tipo_destino === 'categoria' &&
+        $item->id_categoria
+    ) {
+        return route('tienda.productos.index', [
+            'categoria' => $item->id_categoria
+        ]);
+    }
+
+    return route('tienda.productos.index');
+}
 }
