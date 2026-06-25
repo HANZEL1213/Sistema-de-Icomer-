@@ -15,10 +15,12 @@ use App\Models\Cupon;
 use App\Models\UsoCupon;
 use App\Models\Venta;
 use App\Models\ProductoVariante;
+use App\Traits\PreventsDoubleSubmission;
 use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
+    use PreventsDoubleSubmission;
 
 
 public function index()
@@ -151,6 +153,8 @@ public function distritosDisponibles($id_canton)
 
 public function confirmar(Request $request)
 {
+    return $this->conLockDeSesion($request, 'checkout_en_proceso', function () use ($request) {
+
     $carrito = collect(session('carrito', []));
 
     if ($carrito->isEmpty()) {
@@ -482,6 +486,8 @@ DetallePedido::create([
             ->withInput()
             ->with('error', 'Ocurrió un error al procesar el pedido.');
     }
+
+    });
 }
     
 public function confirmacion(Pedido $pedido)

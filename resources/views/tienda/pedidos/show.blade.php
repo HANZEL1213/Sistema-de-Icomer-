@@ -449,7 +449,7 @@
 
                                                     <input type="text" name="numero_comprobante" class="form-control"
                                                         value="{{ old('numero_comprobante') }}"
-                                                        placeholder="Ej: 123456789">
+                                                        placeholder="Ej: 123456789" required>
                                                 </div>
 
                                                 <div class="mb-3">

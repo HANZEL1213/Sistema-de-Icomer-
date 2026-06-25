@@ -304,3 +304,36 @@ window.addEventListener('pageshow', function (event) {
         window.location.reload();
     }
 });
+
+/* ==========================================================
+   EVITAR DOBLE ENVÍO DE FORMULARIOS
+========================================================== */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('form:not([data-skip-double-submit])').forEach(function (form) {
+
+        form.addEventListener('submit', function (e) {
+
+            if (!form.checkValidity()) {
+                return;
+            }
+
+            const submitBtn = form.querySelector('[type="submit"]');
+
+            if (!submitBtn) return;
+
+            if (submitBtn.disabled) {
+                e.preventDefault();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.dataset.textoOriginal = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'Procesando...';
+
+        });
+
+    });
+
+});

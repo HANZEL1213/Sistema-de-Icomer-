@@ -9,8 +9,10 @@ use App\Models\Rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Usuario;
+use App\Traits\PreventsDoubleSubmission;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
@@ -19,6 +21,8 @@ use Illuminate\Support\Facades\Http;
 
 class TiendaAuthController extends Controller
 {
+
+    use PreventsDoubleSubmission;
 
     public function showLogin()
     {
@@ -32,6 +36,8 @@ class TiendaAuthController extends Controller
 
     public function register(Request $request)
     {
+        return $this->conLockDeSesion($request, 'registro_en_proceso', function () use ($request) 
+        {
         $datos = $request->validate([
             'nombre' => ['required', 'string', 'max:120'],
             'correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
@@ -92,6 +98,8 @@ class TiendaAuthController extends Controller
         return redirect()
             ->route('tienda.auth.login')
             ->with('correo_verificacion',  $usuario->correo);
+        });
+
     }
 
     private function enviarCorreoVerificacion(Usuario $usuario)
@@ -111,17 +119,26 @@ class TiendaAuthController extends Controller
             'correo' => $usuario->correo,
         ]);
 
-        Mail::send(
-            'tienda.login.emails.email-verification',
-            [
-                'url' => $url,
-                'usuario' => $usuario,
-            ],
-            function ($message) use ($usuario) {
-                $message->to($usuario->correo)
-                    ->subject('Verifica tu correo - Cora CR');
-            }
-        );
+        try {
+
+            Mail::send(
+                'tienda.login.emails.email-verification',
+                [
+                    'url' => $url,
+                    'usuario' => $usuario,
+                ],
+                function ($message) use ($usuario) {
+                    $message->to($usuario->correo)
+                        ->subject('Verifica tu correo - Cora CR');
+                }
+            );
+        } catch (\Exception $e) {
+            Log::error('Error enviando correo de verificación', [
+            'correo' => $usuario->correo,
+            'error' => $e->getMessage(),
+            ]);
+
+        }
     }
 
     public function verifyEmail(Request $request, $token)

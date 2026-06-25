@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
+use App\Traits\PreventsDoubleSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Http;
 
 class PasswordResetController extends Controller
 {
+    use PreventsDoubleSubmission;
+
     public function showForgot()
     {
         return view('tienda.login.passwords.email');
@@ -21,6 +24,8 @@ class PasswordResetController extends Controller
 
     public function sendLink(Request $request)
     {
+        return $this->conLockDeSesion($request, 'reset_password_en_proceso', function () use ($request) {
+
         $request->validate([
             'correo' => ['required', 'email'],
             'g-recaptcha-response' => ['required'],
@@ -74,6 +79,8 @@ class PasswordResetController extends Controller
             'swal_success',
             'Si el correo existe, recibirás un enlace para restablecer tu contraseña.'
         );
+
+        });
     }
 
     public function showReset(Request $request, $token)
@@ -86,6 +93,8 @@ class PasswordResetController extends Controller
 
     public function reset(Request $request)
     {
+        return $this->conLockDeSesion($request, 'reset_password_confirmar_en_proceso', function () use ($request) {
+
         $request->validate([
             'token' => ['required'],
             'correo' => ['required', 'email'],
@@ -126,5 +135,8 @@ class PasswordResetController extends Controller
         return redirect()
             ->route('tienda.auth.login')
             ->with('swal_success', 'Tu contraseña fue restablecida correctamente.');
+        });
+
     }
+
 }

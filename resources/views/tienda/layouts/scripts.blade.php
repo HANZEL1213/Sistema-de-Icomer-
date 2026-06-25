@@ -5,6 +5,8 @@
 
 <script src="{{ asset('assets/js/tienda.js') }}"></script>
 
+<script src="{{ asset('assets/js/login.js') }}"></script>
+
 {{-- google maps --}}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -84,16 +86,3 @@
         });
     </script>
 @endif
-
-{{-- @if (session('swal_error'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: @json(session('swal_error')),
-                confirmButtonColor: '#dc3545'
-            });
-        });
-    </script>
-@endif --}}

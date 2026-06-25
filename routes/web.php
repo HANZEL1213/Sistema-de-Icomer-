@@ -375,14 +375,16 @@ Route::get(
 |--------------------------------------------------------------------------
 */
 
-Route::get('/login', function () {
-    return redirect()->route('admin.login');
-})->name('login');
+// Route::get('/login', function () {
+//     return redirect()->route('admin.login');
+// })->name('login');
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('panel-adminjh')->name('admin.')->group(function () {
 
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::get('/acceso', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/acceso', [AuthController::class, 'login'])
+        ->middleware('throttle:5,1')
+        ->name('login.post');
 });
 
 /*

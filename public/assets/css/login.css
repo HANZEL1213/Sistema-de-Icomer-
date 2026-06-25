@@ -29,6 +29,15 @@ body {
     color: var(--auth-dark);
 }
 
+/* PARA QUE NO APAREZCAN LOS ICONOS DE REVELAR CONTRASEÑA EN EDGE */
+input[type="password"]::-ms-reveal {
+    display: none;
+}
+
+input[type="text"]::-ms-reveal {
+    display: none;
+}
+
 /* ==========================================================
    LOGIN TIENDA
 ========================================================== */

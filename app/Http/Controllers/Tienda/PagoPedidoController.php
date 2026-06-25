@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Tienda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pedido;
+use App\Traits\PreventsDoubleSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PagoPedidoController extends Controller
 {
+
+    use PreventsDoubleSubmission;
+
     public function index($codigo)
     {
         $pedido = Pedido::with([
@@ -24,8 +28,10 @@ class PagoPedidoController extends Controller
 
    public function store(Request $request, $codigo)
 {
+    return $this->conLockDeSesion($request, 'pago_pedido_en_proceso', function () use ($request, $codigo) {
+
     $request->validate([
-        'numero_comprobante' => 'nullable|string|max:100',
+        'numero_comprobante' => 'required|string|max:100',
         'comprobante' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
     ]);
 
@@ -35,7 +41,7 @@ class PagoPedidoController extends Controller
     ) {
         return back()
             ->withInput()
-            ->with('error', 'Debes ingresar un código SINPE o subir un comprobante.');
+            ->with('error', 'Debes ingresar un número de comprobante o subir un comprobante.');
     }
 
     $pedido = Pedido::with([
@@ -146,5 +152,7 @@ class PagoPedidoController extends Controller
             'success',
             'Pago enviado correctamente. Ahora está en revisión.'
         );
+    
+    });
 }
 }

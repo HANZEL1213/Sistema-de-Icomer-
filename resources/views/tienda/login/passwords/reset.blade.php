@@ -57,6 +57,10 @@
                            name="password"
                            placeholder="Mínimo 8 caracteres"
                            required>
+
+                    <button type="button" class="store-auth-password-toggle">
+                            <i class='bx bx-show'></i>
+                    </button>
                 </div>
 
                 @error('password')
@@ -77,6 +81,10 @@
                            name="password_confirmation"
                            placeholder="Repite tu contraseña"
                            required>
+
+                    <button type="button" class="store-auth-password-toggle">
+                            <i class='bx bx-show'></i>
+                    </button>
                 </div>
             </div>
 
