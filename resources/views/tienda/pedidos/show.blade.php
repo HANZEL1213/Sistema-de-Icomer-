@@ -361,11 +361,11 @@
                                         {{ $estadoPagoLabel }}
                                     </span>
 
-                                    <h3>
+                                    {{-- <h3>
                                         {{ strtoupper($pago?->metodo ?? 'Pendiente') }}
-                                    </h3>
+                                    </h3> --}}
 
-                                    <div class="store-order-payment-data">
+                                    <div class="store-order-payment-data mt-3">
 
                                         <div>
                                             <span>Comprobante</span>

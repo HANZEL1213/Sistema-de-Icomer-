@@ -12,6 +12,9 @@
 <title>@yield('title', 'Tienda')</title>
 <meta name="description" content="@yield('meta_description', 'Tienda en línea')">
 
+{{-- LOGO --}}
+<link rel="icon" type="image/x-icon" href="{{ asset('assets/images/Logo_C.png') }}">
+
 {{-- Bootstrap / Icons --}}
 <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}?v=5.3.8">
 

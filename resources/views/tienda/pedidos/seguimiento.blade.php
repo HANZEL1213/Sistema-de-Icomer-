@@ -242,9 +242,9 @@
                                     {{ $pagoLabel }}
                                 </span>
 
-                                <h3>{{ strtoupper($pago?->metodo ?? 'SINPE') }}</h3>
+                                {{-- <h3>{{ strtoupper($pago?->metodo ?? 'SINPE') }}</h3> --}}
 
-                                <p>
+                                <p class="mt-3">
                                     Comprobante:
                                     <strong>{{ $pago?->numero_comprobante ?: 'No indicado' }}</strong>
                                 </p>
