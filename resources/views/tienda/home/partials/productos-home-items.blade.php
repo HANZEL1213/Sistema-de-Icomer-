@@ -10,7 +10,7 @@
             : $placeholder;
 
         $varianteBase = $producto->usa_variantes
-            ? ($producto->variantePrincipal ?? $producto->variantesActivas->first())
+            ? $producto->variantePrincipal ?? $producto->variantesActivas->first()
             : null;
 
         if ($producto->usa_variantes && $varianteBase) {
@@ -18,10 +18,16 @@
 
             $productoEnCarrito = in_array($cartKeyVariante, $carritoIds);
 
+            // Precio de la variante principal
             $precioNormal = (float) $varianteBase->precio;
             $precioVenta = (float) $varianteBase->precioVenta();
-            $stockBase = (int) $varianteBase->stock_actual;
             $tienePromo = $varianteBase->promocionVigente();
+
+            // Stock total de todas las variantes activas
+            $stockBase = (int) $producto->variantesActivas->sum('stock_actual');
+
+            // Agotado únicamente si todas las variantes están en 0
+            $agotado = $stockBase <= 0;
         } else {
             $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
 
@@ -29,17 +35,13 @@
             $precioVenta = (float) $producto->precioVenta();
             $stockBase = (int) $producto->stock_actual;
             $tienePromo = $producto->tienePromocionActiva();
+
+            $agotado = $stockBase <= 0;
         }
 
-        $agotado = $stockBase <= 0;
+        $ahorro = $tienePromo ? max(0, $precioNormal - $precioVenta) : 0;
 
-        $ahorro = $tienePromo
-            ? max(0, $precioNormal - $precioVenta)
-            : 0;
-
-        $porcentaje = ($tienePromo && $precioNormal > 0)
-            ? round(($ahorro / $precioNormal) * 100)
-            : 0;
+        $porcentaje = $tienePromo && $precioNormal > 0 ? round(($ahorro / $precioNormal) * 100) : 0;
     @endphp
 
     <div class="store-home-slide">
@@ -51,7 +53,8 @@
                 <button type="button"
                     class="store-product-heart js-favorite-btn {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'is-active' : '' }}"
                     data-url="{{ route('tienda.favoritos.toggle', $producto->id_producto) }}">
-                    <i class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                    <i
+                        class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
                 </button>
 
                 @if ($agotado)
@@ -128,8 +131,7 @@
                         @endif
 
                         <a href="{{ route('tienda.productos.show', $producto->slug) }}"
-                            class="store-product-action store-product-action-catalog"
-                            title="Ver producto">
+                            class="store-product-action store-product-action-catalog" title="Ver producto">
                             <i class="bi bi-eye"></i>
                         </a>
                     </div>

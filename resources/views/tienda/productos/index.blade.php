@@ -273,8 +273,12 @@
 
                                     $precioNormal = (float) $varianteBase->precio;
                                     $precioVenta = (float) $varianteBase->precioVenta();
-                                    $stockBase = (int) $varianteBase->stock_actual;
                                     $tienePromo = $varianteBase->promocionVigente();
+
+                                    // Stock real del producto = suma de todas las variantes activas
+                                    $stockBase = (int) $producto->variantesActivas->sum('stock_actual');
+
+                                    $agotado = $stockBase <= 0;
                                 } else {
                                     $productoEnCarrito = in_array($producto->id_producto, $carritoIds);
 
@@ -282,9 +286,9 @@
                                     $precioVenta = (float) $producto->precioVenta();
                                     $stockBase = (int) $producto->stock_actual;
                                     $tienePromo = $producto->tienePromocionActiva();
-                                }
 
-                                $agotado = $stockBase <= 0;
+                                    $agotado = $stockBase <= 0;
+                                }
 
                                 $imagen = $producto->imagenPrincipal
                                     ? asset('storage/' . $producto->imagenPrincipal->ruta)
