@@ -592,17 +592,16 @@
                                         </p>
 
                                         <p class="mb-1">
+                                            <strong>Cuenta bancaria:</strong>
+
+                                            {{ $configTienda['checkout_cuenta'] ?? 'Mi Tienda Online' }}
+                                        </p>
+
+                                        <p class="mb-1">
                                             <strong>Nombre:</strong>
 
                                             {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
                                         </p>
-
-                                        <p class="mb-1">
-                                            <strong>Cuenta bancaria:</strong>
-
-                                            {{ $configTienda['checkout_nombre_pago'] ?? 'Mi Tienda Online' }}
-                                        </p>
-
 
 
                                     </div>
