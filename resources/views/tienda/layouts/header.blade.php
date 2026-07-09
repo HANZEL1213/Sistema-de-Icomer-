@@ -22,27 +22,27 @@
         <div class="container">
             <div class="store-topbar-wrap d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 <div class="store-topbar-left">
-             <span class="store-topbar-item">
-    <i class="bi bi-truck me-1"></i>
-    {{ $configTienda['topbar_envios_texto'] ?? 'Envíos disponibles' }}
-</span>
+                    <span class="store-topbar-item">
+                        <i class="bi bi-truck me-1"></i>
+                        {{ $configTienda['topbar_envios_texto'] ?? 'Envíos disponibles' }}
+                    </span>
 
-<span class="store-topbar-item">
-    <i class="bi bi-shield-check me-1"></i>
-    {{ $configTienda['topbar_seguridad_texto'] ?? 'Compra segura' }}
-</span>
+                    <span class="store-topbar-item">
+                        <i class="bi bi-shield-check me-1"></i>
+                        {{ $configTienda['topbar_seguridad_texto'] ?? 'Compra segura' }}
+                    </span>
 
-<span class="store-topbar-item">
-    <i class="bi bi-patch-check me-1"></i>
-    {{ $configTienda['topbar_confianza_texto'] ?? 'Experiencia confiable' }}
-</span>
+                    <span class="store-topbar-item">
+                        <i class="bi bi-patch-check me-1"></i>
+                        {{ $configTienda['topbar_confianza_texto'] ?? 'Experiencia confiable' }}
+                    </span>
                 </div>
 
                 <div class="store-topbar-right">
                     @auth
-                    <a href="{{ route('tienda.pedidos.mis') }}" class="store-topbar-link">
-                        Mis pedidos
-                    </a>
+                        <a href="{{ route('tienda.pedidos.mis') }}" class="store-topbar-link">
+                            Mis pedidos
+                        </a>
                     @else
                         <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-topbar-link">
                             Dar seguimiento
@@ -50,14 +50,12 @@
                     @endauth
 
                     @auth
-                        <a href="{{ route('tienda.cuenta') }}"
-                        class="store-topbar-link">
+                        <a href="{{ route('tienda.cuenta') }}" class="store-topbar-link">
 
-                           Hola, {{ Str::limit(Auth::user()->nombre, 10) }}
+                            Hola, {{ Str::limit(Auth::user()->nombre, 10) }}
                         </a>
                     @else
-                        <a href="{{ route('tienda.auth.login') }}"
-                        class="store-topbar-link">
+                        <a href="{{ route('tienda.auth.login') }}" class="store-topbar-link">
 
                             Mi cuenta
                         </a>
@@ -81,19 +79,19 @@
                     </button>
 
                     <a href="{{ route('tienda.home') }}" class="store-logo-link">
-                       <div class="store-logo-box">
-    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
-</div>
+                        <div class="store-logo-box">
+                            {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
+                        </div>
 
-<div class="store-logo-text d-none d-sm-flex">
-    <span class="store-logo-title">
-        {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
-    </span>
+                        <div class="store-logo-text d-none d-sm-flex">
+                            <span class="store-logo-title">
+                                {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
+                            </span>
 
-    {{-- <span class="store-logo-subtitle">
+                            {{-- <span class="store-logo-subtitle">
         {{ $configTienda['tienda_subtitulo'] ?? 'E-commerce' }}
     </span> --}}
-</div>
+                        </div>
                     </a>
                 </div>
 
@@ -129,16 +127,14 @@
 
 
                     @auth
-                        <a href="{{ route('tienda.pedidos.mis') }}"
-                            class="store-icon-btn d-none d-md-inline-flex"
+                        <a href="{{ route('tienda.pedidos.mis') }}" class="store-icon-btn d-none d-md-inline-flex"
                             aria-label="Mis pedidos">
 
                             <i class="bi bi-box-seam fs-5"></i>
 
                         </a>
                     @else
-                        <a href="{{ route('tienda.pedidos.rastrear') }}"
-                            class="store-icon-btn d-none d-md-inline-flex"
+                        <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-icon-btn d-none d-md-inline-flex"
                             aria-label="Dar seguimiento">
 
                             <i class="bi bi-search fs-5"></i>
@@ -146,17 +142,15 @@
                         </a>
                     @endauth
 
-                   @auth
-                        <a href="{{ route('tienda.cuenta') }}"
-                        class="store-icon-btn d-none d-md-inline-flex"
-                        aria-label="Mi cuenta">
+                    @auth
+                        <a href="{{ route('tienda.cuenta') }}" class="store-icon-btn d-none d-md-inline-flex"
+                            aria-label="Mi cuenta">
 
                             <i class="bi bi-person-check fs-5"></i>
                         </a>
                     @else
-                        <a href="{{ route('tienda.auth.login') }}"
-                        class="store-icon-btn d-none d-md-inline-flex"
-                        aria-label="Mi cuenta">
+                        <a href="{{ route('tienda.auth.login') }}" class="store-icon-btn d-none d-md-inline-flex"
+                            aria-label="Mi cuenta">
 
                             <i class="bi bi-person fs-5"></i>
                         </a>
@@ -178,11 +172,10 @@
 
                         <i class="bi bi-cart3 fs-5"></i>
 
- <span
-    class="store-cart-badge js-cart-count"
-    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
-    {{ $cantidadCarrito }}
-</span>             </a>
+                        <span class="store-cart-badge js-cart-count"
+                            style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+                            {{ $cantidadCarrito }}
+                        </span> </a>
 
                     {{-- FAVORITOS MOBILE --}}
                     <a href="{{ route('tienda.favoritos.index') }}"
@@ -296,19 +289,19 @@
 
         <div class="offcanvas-header border-bottom">
             <div class="store-offcanvas-brand">
-               <div class="store-logo-box">
-    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
-</div>
+                <div class="store-logo-box">
+                    {{ strtoupper(substr($configTienda['tienda_nombre'] ?? 'C', 0, 1)) }}
+                </div>
 
-<div class="store-logo-text d-flex">
-    <span class="store-logo-title" id="mobileStoreMenuLabel">
-        {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
-    </span>
+                <div class="store-logo-text d-flex">
+                    <span class="store-logo-title" id="mobileStoreMenuLabel">
+                        {{ $configTienda['tienda_nombre'] ?? 'CORA CR' }}
+                    </span>
 
-    <span class="store-logo-subtitle">
-        Menú principal
-    </span>
-</div>
+                    <span class="store-logo-subtitle">
+                        Menú principal
+                    </span>
+                </div>
             </div>
 
             <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Cerrar">
@@ -328,13 +321,10 @@
                     <i class="bi bi-grid"></i>
                 </a>
 
-               <div class="store-offcanvas-dropdown">
+                <div class="store-offcanvas-dropdown">
 
-                    <button type="button"
-                        class="store-offcanvas-link store-offcanvas-dropdown-toggle"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mobileCategoriasCollapse"
-                        aria-expanded="false">
+                    <button type="button" class="store-offcanvas-link store-offcanvas-dropdown-toggle"
+                        data-bs-toggle="collapse" data-bs-target="#mobileCategoriasCollapse" aria-expanded="false">
 
                         <span>Categorías</span>
 
@@ -347,8 +337,7 @@
 
                     <div class="collapse store-offcanvas-submenu" id="mobileCategoriasCollapse">
 
-                        <a href="{{ route('tienda.categorias.index') }}"
-                            class="store-offcanvas-sublink"
+                        <a href="{{ route('tienda.categorias.index') }}" class="store-offcanvas-sublink"
                             data-store-close-offcanvas="true">
 
                             Todas las categorías
@@ -356,10 +345,8 @@
                         </a>
 
                         @forelse ($categoriasMenu as $categoria)
-
                             <a href="{{ route('tienda.productos.index', ['categoria' => $categoria->id_categoria]) }}"
-                                class="store-offcanvas-sublink"
-                                data-store-close-offcanvas="true">
+                                class="store-offcanvas-sublink" data-store-close-offcanvas="true">
 
                                 {{ $categoria->nombre }}
 
@@ -370,20 +357,16 @@
                             <span class="store-offcanvas-sublink text-muted">
                                 No hay categorías disponibles
                             </span>
-
                         @endforelse
 
                     </div>
 
                 </div>
 
-               <div class="store-offcanvas-dropdown">
+                <div class="store-offcanvas-dropdown">
 
-                    <button type="button"
-                        class="store-offcanvas-link store-offcanvas-dropdown-toggle"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#mobileMarcasCollapse"
-                        aria-expanded="false">
+                    <button type="button" class="store-offcanvas-link store-offcanvas-dropdown-toggle"
+                        data-bs-toggle="collapse" data-bs-target="#mobileMarcasCollapse" aria-expanded="false">
 
                         <span>Marcas</span>
 
@@ -396,17 +379,14 @@
 
                     <div class="collapse store-offcanvas-submenu" id="mobileMarcasCollapse">
 
-                        <a href="{{ route('tienda.marcas.index') }}"
-                            class="store-offcanvas-sublink"
+                        <a href="{{ route('tienda.marcas.index') }}" class="store-offcanvas-sublink"
                             data-store-close-offcanvas="true">
                             Todas las marcas
                         </a>
 
                         @forelse (($marcasMenu ?? collect()) as $marca)
-
                             <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}"
-                                class="store-offcanvas-sublink"
-                                data-store-close-offcanvas="true">
+                                class="store-offcanvas-sublink" data-store-close-offcanvas="true">
 
                                 {{ $marca->nombre }}
 
@@ -417,7 +397,6 @@
                             <span class="store-offcanvas-sublink text-muted">
                                 No hay marcas disponibles
                             </span>
-
                         @endforelse
 
                     </div>
@@ -460,18 +439,16 @@
                     <span>Carrito</span>
 
                     <span class="d-inline-flex align-items-center gap-2">
-               <span
-    class="store-offcanvas-count js-cart-count"
-    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
-    {{ $cantidadCarrito }}
-</span>
+                        <span class="store-offcanvas-count js-cart-count"
+                            style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+                            {{ $cantidadCarrito }}
+                        </span>
                         <i class="bi bi-cart3"></i>
                     </span>
                 </a>
 
                 @auth
-                    <a href="{{ route('tienda.pedidos.mis') }}"
-                        class="store-offcanvas-link"
+                    <a href="{{ route('tienda.pedidos.mis') }}" class="store-offcanvas-link"
                         data-store-close-offcanvas="true">
 
                         <span>Mis pedidos</span>
@@ -479,8 +456,7 @@
 
                     </a>
                 @else
-                    <a href="{{ route('tienda.pedidos.rastrear') }}"
-                        class="store-offcanvas-link"
+                    <a href="{{ route('tienda.pedidos.rastrear') }}" class="store-offcanvas-link"
                         data-store-close-offcanvas="true">
 
                         <span>Dar seguimiento</span>
@@ -489,11 +465,10 @@
                     </a>
                 @endauth
 
-                    @auth
+                @auth
 
-                    <a href="{{ route('tienda.cuenta') }}"
-                    class="store-offcanvas-link"
-                    data-store-close-offcanvas="true">
+                    <a href="{{ route('tienda.cuenta') }}" class="store-offcanvas-link"
+                        data-store-close-offcanvas="true">
 
                         <span>
                             {{ Str::limit(Auth::user()->nombre, 18) }}
@@ -501,9 +476,8 @@
                         <i class="bi bi-person-check"></i>
                     </a>
                 @else
-                    <a href="{{ route('tienda.auth.login') }}"
-                    class="store-offcanvas-link"
-                    data-store-close-offcanvas="true">
+                    <a href="{{ route('tienda.auth.login') }}" class="store-offcanvas-link"
+                        data-store-close-offcanvas="true">
 
                         <span>Mi cuenta</span>
                         <i class="bi bi-person"></i>
@@ -552,11 +526,10 @@
 
                     </span>
 
-              <span
-    class="store-mobile-bottom-badge js-cart-count"
-    style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
-    {{ $cantidadCarrito }}
-</span>
+                    <span class="store-mobile-bottom-badge js-cart-count"
+                        style="{{ $cantidadCarrito > 0 ? '' : 'display:none;' }}">
+                        {{ $cantidadCarrito }}
+                    </span>
 
                 </a>
 

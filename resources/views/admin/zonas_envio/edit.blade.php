@@ -23,7 +23,7 @@
             </nav>
         </div>
     </div>
-  <div class="card card-form">
+    <div class="card card-form">
         <div class="card-body">
 
             {{-- HEADER --}}
@@ -40,7 +40,7 @@
             </div>
 
             <hr>
-     <form action="{{ route('admin.zonas-envio.update', $item->id_zona_envio) }}" method="POST">
+            <form action="{{ route('admin.zonas-envio.update', $item->id_zona_envio) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -50,7 +50,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_provincia" class="fw-semibold mb-2">Provincia <span class="text-danger">*</span></label>
+                                <label for="id_provincia" class="fw-semibold mb-2">Provincia <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_provincia" id="id_provincia" class="form-select" required>
                                     <option value="">Seleccione una provincia</option>
                                     @foreach ($provincias as $provincia)
@@ -71,7 +72,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_canton" class="fw-semibold mb-2">Cantón <span class="text-danger">*</span></label>
+                                <label for="id_canton" class="fw-semibold mb-2">Cantón <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_canton" id="id_canton" class="form-select" required
                                     data-selected="{{ old('id_canton', $item->id_canton) }}">
                                     <option value="">Seleccione un cantón</option>
@@ -93,7 +95,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_distrito" class="fw-semibold mb-2">Distrito <span class="text-danger">*</span></label>
+                                <label for="id_distrito" class="fw-semibold mb-2">Distrito <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_distrito" id="id_distrito" class="form-select" required
                                     data-selected="{{ old('id_distrito', $item->id_distrito) }}">
                                     <option value="">Seleccione un distrito</option>
@@ -115,7 +118,8 @@
                     <div class="col-md-6">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label class="fw-semibold mb-2">Costo de envío (₡) <span class="text-danger">*</span></label>
+                                <label class="fw-semibold mb-2">Costo de envío (₡) <span
+                                        class="text-danger">*</span></label>
                                 <input type="number" step="0.01" name="costo" class="form-control"
                                     value="{{ old('costo', $item->costo) }}" required>
                                 @error('costo')

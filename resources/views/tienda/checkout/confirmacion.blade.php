@@ -122,7 +122,7 @@
 
                     </div>
 
-                      <div class="store-confirmation-card">
+                    <div class="store-confirmation-card">
 
                         <div class="store-confirmation-card-header">
                             <h2>
@@ -230,196 +230,196 @@
 
                 <div class="col-12 col-lg-5">
 
-                   
 
-                        <div class="store-confirmation-summary-card">
 
-                            <div class="store-confirmation-summary-header">
-                                <h2>Resumen</h2>
+                    <div class="store-confirmation-summary-card">
 
-                                <span class="store-confirmation-status">
-                                    {{ $estadoTexto }}
-                                </span>
-                            </div>
+                        <div class="store-confirmation-summary-header">
+                            <h2>Resumen</h2>
 
-                            <div class="store-checkout-products">
+                            <span class="store-confirmation-status">
+                                {{ $estadoTexto }}
+                            </span>
+                        </div>
 
-                                @foreach ($pedido->detalle as $item)
-                                    @php
-                                        $imagenProducto = $item->producto?->imagenPrincipal?->ruta
-                                            ? asset('storage/' . $item->producto->imagenPrincipal->ruta)
-                                            : asset('assets/img/no-image.png');
+                        <div class="store-checkout-products">
 
-                                        $variante = $item->variante;
-                                        $opcion = $variante?->opcion;
+                            @foreach ($pedido->detalle as $item)
+                                @php
+                                    $imagenProducto = $item->producto?->imagenPrincipal?->ruta
+                                        ? asset('storage/' . $item->producto->imagenPrincipal->ruta)
+                                        : asset('assets/img/no-image.png');
 
-                                        $precioUnitario = (float) $item->precio_unitario;
-                                        $cantidad = (int) $item->cantidad;
+                                    $variante = $item->variante;
+                                    $opcion = $variante?->opcion;
 
-                                        $precioOriginal = (float) ($item->precio_original ?? $precioUnitario);
+                                    $precioUnitario = (float) $item->precio_unitario;
+                                    $cantidad = (int) $item->cantidad;
 
-                                        $tienePromo = $item->promocion_aplicada && $precioOriginal > $precioUnitario;
+                                    $precioOriginal = (float) ($item->precio_original ?? $precioUnitario);
 
-                                        $porcentaje =
-                                            $tienePromo && $precioOriginal > 0
-                                                ? round((($precioOriginal - $precioUnitario) / $precioOriginal) * 100)
-                                                : 0;
-                                    @endphp
+                                    $tienePromo = $item->promocion_aplicada && $precioOriginal > $precioUnitario;
 
-                                    <div class="store-checkout-product">
+                                    $porcentaje =
+                                        $tienePromo && $precioOriginal > 0
+                                            ? round((($precioOriginal - $precioUnitario) / $precioOriginal) * 100)
+                                            : 0;
+                                @endphp
 
-                                        <div class="store-checkout-product-image">
-                                            <img src="{{ $imagenProducto }}" alt="{{ $item->nombre_producto }}">
-                                        </div>
+                                <div class="store-checkout-product">
 
-                                        <div class="store-checkout-product-info">
+                                    <div class="store-checkout-product-image">
+                                        <img src="{{ $imagenProducto }}" alt="{{ $item->nombre_producto }}">
+                                    </div>
 
-                                            <h5>{{ $item->nombre_producto }}</h5>
+                                    <div class="store-checkout-product-info">
 
-                                            @if ($variante)
-                                                <small class="d-block text-muted mb-1">
-                                                    Variante:
-                                                    {{ $opcion?->etiqueta ?? ($opcion?->valor ?? $variante->nombre) }}
-                                                </small>
-                                            @endif
+                                        <h5>{{ $item->nombre_producto }}</h5>
 
-                                            @if ($tienePromo)
-                                                <span class="badge bg-danger text-white mb-1">
-                                                    -{{ $porcentaje }}% OFF
-                                                </span>
-                                            @endif
+                                        @if ($variante)
+                                            <small class="d-block text-muted mb-1">
+                                                Variante:
+                                                {{ $opcion?->etiqueta ?? ($opcion?->valor ?? $variante->nombre) }}
+                                            </small>
+                                        @endif
 
-                                            <span>
-                                                Cantidad: {{ $cantidad }}
+                                        @if ($tienePromo)
+                                            <span class="badge bg-danger text-white mb-1">
+                                                -{{ $porcentaje }}% OFF
+                                            </span>
+                                        @endif
+
+                                        <span>
+                                            Cantidad: {{ $cantidad }}
+                                        </span>
+
+                                    </div>
+
+                                    <div class="store-checkout-product-price">
+
+                                        @if ($tienePromo)
+                                            <div class="text-muted text-decoration-line-through small">
+                                                ₡{{ number_format($precioOriginal * $cantidad, 2) }}
+                                            </div>
+
+                                            <strong class="text-danger">
+                                                ₡{{ number_format($item->total_linea, 2) }}
+                                            </strong>
+                                        @else
+                                            ₡{{ number_format($item->total_linea, 2) }}
+                                        @endif
+
+                                    </div>
+
+                                </div>
+                            @endforeach
+
+                        </div>
+
+                        {{-- CUPÓN APLICADO --}}
+                        @if ($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
+                            <div class="store-cart-coupon-box mt-3 mb-3">
+
+                                <label class="store-form-label">
+                                    Cupón de descuento
+                                </label>
+
+                                <div class="bg-light rounded-4 p-3 border">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div>
+                                            <span class="badge bg-success mb-2">
+                                                Cupón aplicado
                                             </span>
 
-                                        </div>
+                                            <h6 class="fw-bold mb-1">
+                                                {{ $pedido->codigo_cupon ?? ($pedido->cupon?->codigo ?? 'Cupón aplicado') }}
+                                            </h6>
 
-                                        <div class="store-checkout-product-price">
+                                            <small class="text-muted d-block">
+                                                Descuento aplicado:
+                                                ₡{{ number_format($pedido->descuento, 2) }}
+                                            </small>
 
-                                            @if ($tienePromo)
-                                                <div class="text-muted text-decoration-line-through small">
-                                                    ₡{{ number_format($precioOriginal * $cantidad, 2) }}
-                                                </div>
-
-                                                <strong class="text-danger">
-                                                    ₡{{ number_format($item->total_linea, 2) }}
-                                                </strong>
-                                            @else
-                                                ₡{{ number_format($item->total_linea, 2) }}
-                                            @endif
-
-                                        </div>
-
-                                    </div>
-                                @endforeach
-
-                            </div>
-
-                            {{-- CUPÓN APLICADO --}}
-                            @if ($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
-                                <div class="store-cart-coupon-box mt-3 mb-3">
-
-                                    <label class="store-form-label">
-                                        Cupón de descuento
-                                    </label>
-
-                                    <div class="bg-light rounded-4 p-3 border">
-
-                                        <div class="d-flex justify-content-between align-items-start gap-3">
-
-                                            <div>
-                                                <span class="badge bg-success mb-2">
-                                                    Cupón aplicado
-                                                </span>
-
-                                                <h6 class="fw-bold mb-1">
-                                                    {{ $pedido->codigo_cupon ?? ($pedido->cupon?->codigo ?? 'Cupón aplicado') }}
-                                                </h6>
-
-                                                <small class="text-muted d-block">
-                                                    Descuento aplicado:
-                                                    ₡{{ number_format($pedido->descuento, 2) }}
+                                            @if ($pedido->cupon?->tipo === 'porcentaje')
+                                                <small class="text-success">
+                                                    {{ number_format($pedido->cupon->valor, 0) }}% OFF
                                                 </small>
+                                            @elseif($pedido->cupon?->tipo === 'monto_fijo')
+                                                <small class="text-success">
+                                                    ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
+                                                </small>
+                                            @endif
+                                        </div>
 
-                                                @if ($pedido->cupon?->tipo === 'porcentaje')
-                                                    <small class="text-success">
-                                                        {{ number_format($pedido->cupon->valor, 0) }}% OFF
-                                                    </small>
-                                                @elseif($pedido->cupon?->tipo === 'monto_fijo')
-                                                    <small class="text-success">
-                                                        ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
-                                                    </small>
-                                                @endif
-                                            </div>
-
-                                            <div class="text-success fs-5">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                            </div>
-
+                                        <div class="text-success fs-5">
+                                            <i class="bi bi-check-circle-fill"></i>
                                         </div>
 
                                     </div>
 
                                 </div>
-                            @endif
-
-                            <div class="store-checkout-totals mt-4">
-
-                                <div class="store-checkout-total-row">
-                                    <span>Subtotal</span>
-                                    <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
-                                </div>
-
-                                <div class="store-checkout-total-row">
-                                    <span>Envío</span>
-                                    <strong>₡{{ number_format($pedido->costo_envio, 2) }}</strong>
-                                </div>
-
-                                <div class="store-checkout-total-row text-success">
-                                    <span>Cupon de Descuento</span>
-                                    <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
-                                </div>
-
-                                <div class="store-checkout-total-row total">
-                                    <span>Total</span>
-                                    <strong>₡{{ number_format($pedido->total, 2) }}</strong>
-                                </div>
 
                             </div>
+                        @endif
 
-                            <div class="store-confirmation-payment-box mt-4">
+                        <div class="store-checkout-totals mt-4">
 
-                                <div class="store-confirmation-payment-icon">
-                                    <i class="bi bi-clock-history"></i>
-                                </div>
-
-                                <div>
-                                    <h5>Pago en revisión</h5>
-
-                                    <p>
-                                        La tienda revisará tu comprobante. Cuando sea aprobado,
-                                        el pedido continuará con el proceso de preparación.
-                                    </p>
-                                </div>
-
+                            <div class="store-checkout-total-row">
+                                <span>Subtotal</span>
+                                <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
                             </div>
 
-                            <div class="d-grid gap-2 mt-4">
-
-                                <a href="{{ route('tienda.pedidos.seguimiento', $pedido->numero_pedido) }}"
-                                    class="btn btn-store-primary">
-                                    <i class="bi bi-search me-1"></i>
-                                    Dar seguimiento
-                                </a>
-
-                                <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
-                                    Volver al inicio
-                                </a>
-
+                            <div class="store-checkout-total-row">
+                                <span>Envío</span>
+                                <strong>₡{{ number_format($pedido->costo_envio, 2) }}</strong>
                             </div>
 
-                  
+                            <div class="store-checkout-total-row text-success">
+                                <span>Cupon de Descuento</span>
+                                <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
+                            </div>
+
+                            <div class="store-checkout-total-row total">
+                                <span>Total</span>
+                                <strong>₡{{ number_format($pedido->total, 2) }}</strong>
+                            </div>
+
+                        </div>
+
+                        <div class="store-confirmation-payment-box mt-4">
+
+                            <div class="store-confirmation-payment-icon">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+
+                            <div>
+                                <h5>Pago en revisión</h5>
+
+                                <p>
+                                    La tienda revisará tu comprobante. Cuando sea aprobado,
+                                    el pedido continuará con el proceso de preparación.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+
+                            <a href="{{ route('tienda.pedidos.seguimiento', $pedido->numero_pedido) }}"
+                                class="btn btn-store-primary">
+                                <i class="bi bi-search me-1"></i>
+                                Dar seguimiento
+                            </a>
+
+                            <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
+                                Volver al inicio
+                            </a>
+
+                        </div>
+
+
 
                     </div>
 

@@ -3,10 +3,12 @@
 
 @section('title', 'Nuevo Movimiento')
 
-@section('content')
-    {{-- CSS dashboard.bladee --}}
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/inventario.css') }}">
+@endpush
 
+
+@section('content')
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -169,7 +171,8 @@
 
                                 <small class="text-muted mt-2 d-block">
                                     <strong>Nota:</strong>
-                                En <b>ajuste</b>, la cantidad representa el <b>nuevo stock final</b> del producto o variante.
+                                    En <b>ajuste</b>, la cantidad representa el <b>nuevo stock final</b> del producto o
+                                    variante.
                                 </small>
                             </div>
                         </div>

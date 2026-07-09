@@ -5,11 +5,14 @@
 @section('title', $producto->nombre . ' | Tienda')
 @section('meta_description', $producto->descripcion ?? 'Detalle del producto')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tiendaProductoShow.css') }}">
+@endpush
 
 @section('content')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tiendaProductoShow.css') }}">
+
 
     @php
         $imagenes = $producto->imagenes->count() ? $producto->imagenes : collect();

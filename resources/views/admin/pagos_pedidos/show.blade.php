@@ -3,9 +3,11 @@
 
 @section('title', 'Detalle Pago Pedido')
 
-@section('content')
-
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/pagos_pedidos.css') }}">
+@endpush
+
+@section('content')
 
     @php
         $estadoConfig = [
@@ -37,7 +39,7 @@
         ];
     @endphp
 
-    
+
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
             <nav>

@@ -3,9 +3,13 @@
 
 @section('title', 'Crear Banner')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrusel.css') }}">
+@endpush
+
 @section('content')
 
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrusel.css') }}">
+
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">

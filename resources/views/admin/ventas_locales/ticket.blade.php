@@ -6,11 +6,7 @@
     $clienteTelefono = $item->telefono_cliente ?: 'Sin teléfono';
     $cajero = $item->cajero?->nombre ?: 'Sin cajero';
 
-    $metodosUsados = $pagos->pluck('metodo')
-        ->filter()
-        ->map(fn($m) => strtoupper($m))
-        ->unique()
-        ->implode(' + ');
+    $metodosUsados = $pagos->pluck('metodo')->filter()->map(fn($m) => strtoupper($m))->unique()->implode(' + ');
 
     $metodosUsados = $metodosUsados ?: 'SIN PAGO';
 @endphp
@@ -108,7 +104,7 @@
 
         <div class="text-center">
             <div class="empresa">
-                CORA  
+                CORA
             </div>
 
             <div>
@@ -160,51 +156,48 @@
         <div class="line"></div>
 
         @forelse ($detalle as $d)
-
             <div class="item">
 
                 <div class="item-name">
                     {{ $d->nombre_producto }}
                 </div>
 
-        @php
-    $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
-    $precioVenta = (float) $d->precio_unitario;
-    $tienePromo = (bool) ($d->promocion_aplicada ?? false);
+                @php
+                    $precioOriginal = (float) ($d->precio_original ?? $d->precio_unitario);
+                    $precioVenta = (float) $d->precio_unitario;
+                    $tienePromo = (bool) ($d->promocion_aplicada ?? false);
 
-    $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
-    $porcentaje = $tienePromo && $precioOriginal > 0
-        ? round(($ahorro / $precioOriginal) * 100)
-        : 0;
-@endphp
+                    $ahorro = $tienePromo ? max(0, $precioOriginal - $precioVenta) : 0;
+                    $porcentaje = $tienePromo && $precioOriginal > 0 ? round(($ahorro / $precioOriginal) * 100) : 0;
+                @endphp
 
-@if ($tienePromo)
-    <div class="small">
-        PROMO -{{ $porcentaje }}% OFF
-    </div>
+                @if ($tienePromo)
+                    <div class="small">
+                        PROMO -{{ $porcentaje }}% OFF
+                    </div>
 
-    <div class="row small">
-        <span>
-            Antes: ₡{{ number_format($precioOriginal, 2, '.', ',') }}
-        </span>
-    </div>
-@endif
+                    <div class="row small">
+                        <span>
+                            Antes: ₡{{ number_format($precioOriginal, 2, '.', ',') }}
+                        </span>
+                    </div>
+                @endif
 
-<div class="row small">
-    <span>
-        {{ $d->cantidad }} x ₡{{ number_format($precioVenta, 2, '.', ',') }}
-    </span>
+                <div class="row small">
+                    <span>
+                        {{ $d->cantidad }} x ₡{{ number_format($precioVenta, 2, '.', ',') }}
+                    </span>
 
-    <span>
-        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
-    </span>
-</div>
+                    <span>
+                        ₡{{ number_format((float) $d->total_linea, 2, '.', ',') }}
+                    </span>
+                </div>
 
-@if ($tienePromo)
-    <div class="small">
-        Ahorro unitario: ₡{{ number_format($ahorro, 2, '.', ',') }}
-    </div>
-@endif
+                @if ($tienePromo)
+                    <div class="small">
+                        Ahorro unitario: ₡{{ number_format($ahorro, 2, '.', ',') }}
+                    </div>
+                @endif
 
                 @if ($d->sku_snapshot)
                     <div class="small">
@@ -219,7 +212,6 @@
             <div class="text-center small">
                 No hay productos registrados.
             </div>
-
         @endforelse
 
         <div class="line"></div>
@@ -262,7 +254,6 @@
             <br>
 
             @foreach ($pagos as $pago)
-
                 <div class="row">
                     <span>{{ strtoupper($pago->metodo) }}</span>
 
@@ -276,20 +267,17 @@
                         Ref: {{ $pago->referencia }}
                     </div>
                 @endif
-
             @endforeach
 
         </div>
 
         @if ($item->notas)
-
             <div class="line"></div>
 
             <div class="small">
                 <span class="bold">NOTA:</span>
                 {{ $item->notas }}
             </div>
-
         @endif
 
         <div class="line"></div>
@@ -304,7 +292,7 @@
             </div>
 
             <div>
-                CORA  
+                CORA
             </div>
         </div>
 

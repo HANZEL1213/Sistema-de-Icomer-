@@ -2,9 +2,11 @@
 
 @section('title', 'Detalle Pago Venta Local')
 
-@section('content')
-
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/pagos_ventas_locales.css') }}">
+@endpush
+
+@section('content')
 
     @php
         $metodoConfig = [

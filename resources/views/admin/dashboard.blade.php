@@ -304,17 +304,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         {{-- ACCIONES --}}
-
-
-
-
-
-
-
         <div class="dash-card mb-4">
             <div class="dash-card-header">
                 <div>
@@ -360,27 +352,6 @@
 
             </div>
         </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         {{-- GRÁFICO --}}
         <div class="row g-4 mb-4">
@@ -431,23 +402,13 @@
                                     <span class="dash-chart-label">
                                         {{ $dia['dia'] }}
                                     </span>
-
                                 </div>
                             @endforeach
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
-
-
-
 
         {{-- FLUJO + INVENTARIO --}}
         <div class="row g-4 mb-4">
@@ -562,10 +523,6 @@
                 </div>
 
             </div>
-
-
-
-
 
             {{-- INVENTARIO --}}
             <div class="col-xl-8">
@@ -795,36 +752,7 @@
 
         </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         <br>
-
-
 
         {{-- PEDIDOS RECIENTES --}}
         <div class="col-12">
@@ -986,12 +914,7 @@
             </div>
 
         </div>
-
-
-
         <br>
-
-
         {{-- VENTAS RECIENTES --}}
         <div class="col-12">
 
@@ -1134,10 +1057,6 @@
             </div>
 
         </div>
-
-
-
-
     </div>
     </div>
 

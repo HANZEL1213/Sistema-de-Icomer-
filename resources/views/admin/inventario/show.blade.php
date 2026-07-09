@@ -38,10 +38,9 @@
         $nombreVariante = null;
 
         if ($item->variante) {
-            $nombreVariante = $item->variante->nombre
-                ?: ($item->variante->opcion?->valor
-                    ?? $item->variante->opcion?->etiqueta
-                    ?? null);
+            $nombreVariante =
+                $item->variante->nombre ?:
+                $item->variante->opcion?->valor ?? ($item->variante->opcion?->etiqueta ?? null);
         }
     @endphp
 

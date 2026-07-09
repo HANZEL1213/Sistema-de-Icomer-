@@ -1,0 +1,65 @@
+
+    .terminos-link {
+        color: var(--bs-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .terminos-link:hover {
+        text-decoration: underline;
+    }
+
+    .checkout-progress {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+
+    .checkout-progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .checkout-progress-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        transition: .3s;
+    }
+
+    .checkout-progress-line {
+        width: 120px;
+        height: 3px;
+        background: #dee2e6;
+        margin: 0 10px;
+    }
+
+    .checkout-progress-step.active .checkout-progress-circle {
+        background: #111827;
+        color: #fff;
+    }
+
+    .checkout-progress-step.completed .checkout-progress-circle {
+        background: #198754;
+        color: #fff;
+    }
+
+    .checkout-progress-step span {
+        font-size: .85rem;
+        font-weight: 600;
+    }
+
+    #checkoutProofPreview {
+        max-width: 220px;
+        max-height: 220px;
+        object-fit: contain;
+    }

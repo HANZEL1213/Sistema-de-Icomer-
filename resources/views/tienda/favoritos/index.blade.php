@@ -4,9 +4,12 @@
 
 @section('title', 'Mis Favoritos')
 
-@section('content')
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/favoritos.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/favoritos.css') }}">
+@endpush
+
+@section('content')
 
     @php
         $placeholder = asset('assets/img/no-image.png');
@@ -124,7 +127,7 @@
                             $porcentaje = $tienePromo && $precioNormal > 0 ? round(($ahorro / $precioNormal) * 100) : 0;
                         @endphp
 
-                      <div class="col-6 col-md-4 col-xl-3">
+                        <div class="col-6 col-md-4 col-xl-3">
 
                             <div class="store-product-card">
 

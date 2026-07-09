@@ -2,9 +2,12 @@
 
 @section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+@endpush
+
 @section('content')
 
- <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
 
     @php
         $placeholder = asset('assets/img/no-image.png');
@@ -239,170 +242,56 @@
         </section>
 
     @endif
-{{-- =========================================================
+    {{-- =========================================================
     PRODUCTOS DESTACADOS
 ========================================================== --}}
-@if ($productosDestacados->isNotEmpty())
+    @if ($productosDestacados->isNotEmpty())
+        <section class="store-section store-featured-products-section">
+            <div class="container">
 
-    <section class="store-section store-featured-products-section">
-        <div class="container">
+                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
 
-            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+                    <div>
+                        <div class="store-mini-label">
+                            Destacados
+                        </div>
 
-                <div>
-                    <div class="store-mini-label">
-                        Destacados
+                        <h2 class="store-section-title mb-2">
+                            Productos destacados
+                        </h2>
+
+                        <p class="store-section-subtitle">
+                            Una selección especial de productos recomendados.
+                        </p>
                     </div>
 
-                    <h2 class="store-section-title mb-2">
-                        Productos destacados
-                    </h2>
-
-                    <p class="store-section-subtitle">
-                        Una selección especial de productos recomendados.
-                    </p>
-                </div>
-
-                <a href="{{ route('tienda.productos.index') }}"
-                   class="btn btn-store-outline px-4">
-                    Ver catálogo
-                </a>
-
-            </div>
-
-            <div class="store-home-carousel">
-
-                <div class="store-home-carousel-head">
-
-                    <button type="button"
-                            class="store-home-carousel-btn js-home-carousel-prev"
-                            data-target="#homeFeaturedProductsCarousel">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-
-                    <button type="button"
-                            class="store-home-carousel-btn js-home-carousel-next"
-                            data-target="#homeFeaturedProductsCarousel">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
+                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+                        Ver catálogo
+                    </a>
 
                 </div>
-
-                <div id="homeFeaturedProductsCarousel"
-                     class="store-home-scroll store-home-products-row store-featured-products-row">
-
-                    @include('tienda.home.partials.productos-home-items', [
-                        'productos' => $productosDestacados,
-                        'favoritosIds' => $favoritosIds,
-                    ])
-
-                </div>
-
-            </div>
-
-        </div>
-    </section>
-
-@endif
-{{-- =========================================================
-    PRODUCTOS  DINÁMICOS
-========================================================== --}}
-@if ($productosHome->isNotEmpty())
-
-    <section class="store-section store-products-minimal-section">
-        <div class="container">
-
-            <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
-
-                <div>
-                    <div class="store-mini-label">
-                        Selección
-                    </div>
-
-                    <h2 class="store-section-title mb-2">
-                        Productos 
-                    </h2>
-
-                    <p class="store-section-subtitle">
-                        Productos disponibles en el catálogo principal.
-                    </p>
-                </div>
-
-                <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
-                    Ver catálogo
-                </a>
-
-            </div>
-
-            {{-- FILA 1 --}}
-            <div class="store-home-carousel mb-4">
-
-                <div class="store-home-carousel-head">
-
-                    <button type="button"
-                        class="store-home-carousel-btn js-home-carousel-prev"
-                        data-target="#homeProductsCarouselOne">
-
-                        <i class="bi bi-chevron-left"></i>
-
-                    </button>
-
-                    <button type="button"
-                        class="store-home-carousel-btn js-home-carousel-next"
-                        data-target="#homeProductsCarouselOne">
-
-                        <i class="bi bi-chevron-right"></i>
-
-                    </button>
-
-                </div>
-
-                <div id="homeProductsCarouselOne"
-                    class="store-home-scroll store-home-products-row"
-                    data-load-url="{{ route('tienda.home.productos.ajax') }}"
-                    data-next-page="2"
-                    data-has-more="1"
-                    data-loading="0">
-
-                    @include('tienda.home.partials.productos-home-items', [
-                        'productos' => $productosFila1,
-                        'favoritosIds' => $favoritosIds,
-                    ])
-
-                </div>
-
-            </div>
-
-            {{-- FILA 2 --}}
-            @if ($productosFila2->isNotEmpty())
 
                 <div class="store-home-carousel">
 
                     <div class="store-home-carousel-head">
 
-                        <button type="button"
-                            class="store-home-carousel-btn js-home-carousel-prev"
-                            data-target="#homeProductsCarouselTwo">
-
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeFeaturedProductsCarousel">
                             <i class="bi bi-chevron-left"></i>
-
                         </button>
 
-                        <button type="button"
-                            class="store-home-carousel-btn js-home-carousel-next"
-                            data-target="#homeProductsCarouselTwo">
-
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeFeaturedProductsCarousel">
                             <i class="bi bi-chevron-right"></i>
-
                         </button>
 
                     </div>
 
-                    <div id="homeProductsCarouselTwo"
-                        class="store-home-scroll store-home-products-row">
+                    <div id="homeFeaturedProductsCarousel"
+                        class="store-home-scroll store-home-products-row store-featured-products-row">
 
                         @include('tienda.home.partials.productos-home-items', [
-                            'productos' => $productosFila2,
+                            'productos' => $productosDestacados,
                             'favoritosIds' => $favoritosIds,
                         ])
 
@@ -410,12 +299,111 @@
 
                 </div>
 
-            @endif
+            </div>
+        </section>
+    @endif
+    {{-- =========================================================
+    PRODUCTOS  DINÁMICOS
+========================================================== --}}
+    @if ($productosHome->isNotEmpty())
 
-        </div>
-    </section>
+        <section class="store-section store-products-minimal-section">
+            <div class="container">
 
-@endif
+                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
+
+                    <div>
+                        <div class="store-mini-label">
+                            Selección
+                        </div>
+
+                        <h2 class="store-section-title mb-2">
+                            Productos
+                        </h2>
+
+                        <p class="store-section-subtitle">
+                            Productos disponibles en el catálogo principal.
+                        </p>
+                    </div>
+
+                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
+                        Ver catálogo
+                    </a>
+
+                </div>
+
+                {{-- FILA 1 --}}
+                <div class="store-home-carousel mb-4">
+
+                    <div class="store-home-carousel-head">
+
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                            data-target="#homeProductsCarouselOne">
+
+                            <i class="bi bi-chevron-left"></i>
+
+                        </button>
+
+                        <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                            data-target="#homeProductsCarouselOne">
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </button>
+
+                    </div>
+
+                    <div id="homeProductsCarouselOne" class="store-home-scroll store-home-products-row"
+                        data-load-url="{{ route('tienda.home.productos.ajax') }}" data-next-page="2" data-has-more="1"
+                        data-loading="0">
+
+                        @include('tienda.home.partials.productos-home-items', [
+                            'productos' => $productosFila1,
+                            'favoritosIds' => $favoritosIds,
+                        ])
+
+                    </div>
+
+                </div>
+
+                {{-- FILA 2 --}}
+                @if ($productosFila2->isNotEmpty())
+                    <div class="store-home-carousel">
+
+                        <div class="store-home-carousel-head">
+
+                            <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
+                                data-target="#homeProductsCarouselTwo">
+
+                                <i class="bi bi-chevron-left"></i>
+
+                            </button>
+
+                            <button type="button" class="store-home-carousel-btn js-home-carousel-next"
+                                data-target="#homeProductsCarouselTwo">
+
+                                <i class="bi bi-chevron-right"></i>
+
+                            </button>
+
+                        </div>
+
+                        <div id="homeProductsCarouselTwo" class="store-home-scroll store-home-products-row">
+
+                            @include('tienda.home.partials.productos-home-items', [
+                                'productos' => $productosFila2,
+                                'favoritosIds' => $favoritosIds,
+                            ])
+
+                        </div>
+
+                    </div>
+                @endif
+
+            </div>
+        </section>
+
+    @endif
     {{-- =========================================================
         BANNER INTERMEDIO PREMIUM
     ========================================================== --}}
@@ -557,7 +545,8 @@
 
                             <div class="store-home-slide">
 
-                                <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}" class="store-brand-card">
+                                <a href="{{ route('tienda.productos.index', ['marca' => $marca->id_marca]) }}"
+                                    class="store-brand-card">
 
                                     <div class="store-brand-image-wrap">
 

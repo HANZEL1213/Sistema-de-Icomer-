@@ -13,7 +13,7 @@
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
         /* ============================================
            EVITAR ZOOM EXTRA EN INPUTS MOBILE
@@ -28,11 +28,14 @@
         /* ============================================
            MICRO FEEDBACK TÁCTIL MOBILE
         ============================================ */
-        document.querySelectorAll('.store-card, .btn-store-primary, .btn-store-outline, .store-icon-btn').forEach((el) => {
-            el.addEventListener('touchstart', () => {
-                //Sin vibración
-            }, { passive: true });
-        });
+        document.querySelectorAll('.store-card, .btn-store-primary, .btn-store-outline, .store-icon-btn')
+            .forEach((el) => {
+                el.addEventListener('touchstart', () => {
+                    //Sin vibración
+                }, {
+                    passive: true
+                });
+            });
 
 
         /* ============================================
@@ -72,9 +75,9 @@
 </script>
 
 
-    @if (session('swal_success'))
+@if (session('swal_success'))
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             Swal.fire({
                 icon: 'success',
                 title: '¡Listo!',

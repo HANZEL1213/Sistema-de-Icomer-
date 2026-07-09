@@ -2,9 +2,11 @@
 
 @section('title', 'Detalle de Venta Local')
 
-@section('content')
-
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/ventas_ficicas_show.css') }}">
+@endpush
+
+@section('content')
 
     @php
         $pagos = $item->pagos ?? collect();

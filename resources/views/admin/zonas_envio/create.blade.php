@@ -49,7 +49,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_provincia" class="fw-semibold mb-2">Provincia <span class="text-danger">*</span></label>
+                                <label for="id_provincia" class="fw-semibold mb-2">Provincia <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_provincia" id="id_provincia" class="form-select" required>
                                     <option value="">Seleccione una provincia</option>
                                     @foreach ($provincias as $provincia)
@@ -70,7 +71,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_canton" class="fw-semibold mb-2">Cantón <span class="text-danger">*</span></label>
+                                <label for="id_canton" class="fw-semibold mb-2">Cantón <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_canton" id="id_canton" class="form-select" required disabled
                                     data-selected="{{ old('id_canton') }}">
                                     <option value="">Seleccione primero una provincia</option>
@@ -86,7 +88,8 @@
                     <div class="col-md-4">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label for="id_distrito" class="fw-semibold mb-2">Distrito <span class="text-danger">*</span></label>
+                                <label for="id_distrito" class="fw-semibold mb-2">Distrito <span
+                                        class="text-danger">*</span></label>
                                 <select name="id_distrito" id="id_distrito" class="form-select" required disabled
                                     data-selected="{{ old('id_distrito') }}">
                                     <option value="">Seleccione primero un cantón</option>
@@ -102,7 +105,8 @@
                     <div class="col-md-6">
                         <div class="card border-0 bg-light mb-3">
                             <div class="card-body">
-                                <label class="fw-semibold mb-2">Costo de envío (₡) <span class="text-danger">*</span></label>
+                                <label class="fw-semibold mb-2">Costo de envío (₡) <span
+                                        class="text-danger">*</span></label>
                                 <input type="number" step="0.01" name="costo" class="form-control"
                                     value="{{ old('costo') }}" required>
                                 @error('costo')

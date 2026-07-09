@@ -3,9 +3,11 @@
 
 @section('title', 'Crear Producto')
 
-@section('content')
-
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
+@endpush
+
+@section('content')
 
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">

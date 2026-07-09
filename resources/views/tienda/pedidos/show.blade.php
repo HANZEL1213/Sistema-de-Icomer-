@@ -140,130 +140,128 @@
                     </div>
 
 
-                 
-{{-- PRODUCTOS --}}
-<div class="store-order-show-card mb-4">
 
-    <div class="store-order-show-card-header">
+                    {{-- PRODUCTOS --}}
+                    <div class="store-order-show-card mb-4">
 
-        <h2>
-            <i class="bi bi-bag-check"></i>
-            Productos del pedido
-        </h2>
+                        <div class="store-order-show-card-header">
 
-    </div>
+                            <h2>
+                                <i class="bi bi-bag-check"></i>
+                                Productos del pedido
+                            </h2>
 
-    <div class="store-order-show-products">
-
-        @foreach ($pedido->detalle as $detalle)
-            @php
-                $producto = $detalle->producto;
-                $variante = $detalle->variante;
-                $opcion = $variante?->opcion;
-
-                $imagen = $producto?->imagenPrincipal?->ruta
-                    ? asset('storage/' . $producto->imagenPrincipal->ruta)
-                    : asset('assets/img/no-image.png');
-
-                $precioVenta = (float) $detalle->precio_unitario;
-                $precioNormal = (float) ($detalle->precio_original ?? $precioVenta);
-
-                $tienePromo = (bool) $detalle->promocion_aplicada
-                    && $precioNormal > $precioVenta;
-
-                $porcentaje = $tienePromo && $precioNormal > 0
-                    ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
-                    : 0;
-
-                $totalLinea = (float) $detalle->total_linea;
-
-                $skuMostrar = $detalle->sku_snapshot
-                    ?? $variante?->sku
-                    ?? $producto?->sku;
-            @endphp
-
-            <article class="store-order-show-product">
-
-                <div class="store-order-show-product-image">
-                    <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
-                </div>
-
-                <div class="store-order-show-product-info">
-
-                    @if ($skuMostrar)
-                        <span>
-                            SKU: {{ $skuMostrar }}
-                        </span>
-                    @endif
-
-                    <h3>
-                        {{ $detalle->nombre_producto }}
-                    </h3>
-
-                    @if ($detalle->tieneVariante() && $variante)
-                        <div class="mb-2">
-                            <span class="badge bg-light text-dark border">
-                                Variante:
-                                {{ $opcion?->etiqueta ?? ($opcion?->valor ?? $variante->nombre) }}
-                            </span>
-                        </div>
-                    @endif
-
-                    @if ($tienePromo)
-                        <span class="badge bg-danger text-white mb-2">
-                            -{{ $porcentaje }}% OFF
-                        </span>
-                    @endif
-
-                    <p>
-                        Cantidad:
-                        {{ $detalle->cantidad }}
-
-                        <br>
-
-                        Precio unitario:
-
-                        @if ($tienePromo)
-                            <span class="text-muted text-decoration-line-through">
-                                ₡{{ number_format($precioNormal, 2) }}
-                            </span>
-
-                            <strong class="text-danger">
-                                ₡{{ number_format($precioVenta, 2) }}
-                            </strong>
-                        @else
-                            ₡{{ number_format($precioVenta, 2) }}
-                        @endif
-                    </p>
-
-                </div>
-
-                <div class="store-order-show-product-total">
-
-                    <span>Total línea</span>
-
-                    @if ($tienePromo)
-                        <div class="text-muted text-decoration-line-through small">
-                            ₡{{ number_format($precioNormal * $detalle->cantidad, 2) }}
                         </div>
 
-                        <strong class="text-danger">
-                            ₡{{ number_format($totalLinea, 2) }}
-                        </strong>
-                    @else
-                        <strong>
-                            ₡{{ number_format($totalLinea, 2) }}
-                        </strong>
-                    @endif
+                        <div class="store-order-show-products">
 
-                </div>
+                            @foreach ($pedido->detalle as $detalle)
+                                @php
+                                    $producto = $detalle->producto;
+                                    $variante = $detalle->variante;
+                                    $opcion = $variante?->opcion;
 
-            </article>
-        @endforeach
+                                    $imagen = $producto?->imagenPrincipal?->ruta
+                                        ? asset('storage/' . $producto->imagenPrincipal->ruta)
+                                        : asset('assets/img/no-image.png');
 
-    </div>
+                                    $precioVenta = (float) $detalle->precio_unitario;
+                                    $precioNormal = (float) ($detalle->precio_original ?? $precioVenta);
 
-</div>
+                                    $tienePromo = (bool) $detalle->promocion_aplicada && $precioNormal > $precioVenta;
+
+                                    $porcentaje =
+                                        $tienePromo && $precioNormal > 0
+                                            ? round((($precioNormal - $precioVenta) / $precioNormal) * 100)
+                                            : 0;
+
+                                    $totalLinea = (float) $detalle->total_linea;
+
+                                    $skuMostrar = $detalle->sku_snapshot ?? ($variante?->sku ?? $producto?->sku);
+                                @endphp
+
+                                <article class="store-order-show-product">
+
+                                    <div class="store-order-show-product-image">
+                                        <img src="{{ $imagen }}" alt="{{ $detalle->nombre_producto }}">
+                                    </div>
+
+                                    <div class="store-order-show-product-info">
+
+                                        @if ($skuMostrar)
+                                            <span>
+                                                SKU: {{ $skuMostrar }}
+                                            </span>
+                                        @endif
+
+                                        <h3>
+                                            {{ $detalle->nombre_producto }}
+                                        </h3>
+
+                                        @if ($detalle->tieneVariante() && $variante)
+                                            <div class="mb-2">
+                                                <span class="badge bg-light text-dark border">
+                                                    Variante:
+                                                    {{ $opcion?->etiqueta ?? ($opcion?->valor ?? $variante->nombre) }}
+                                                </span>
+                                            </div>
+                                        @endif
+
+                                        @if ($tienePromo)
+                                            <span class="badge bg-danger text-white mb-2">
+                                                -{{ $porcentaje }}% OFF
+                                            </span>
+                                        @endif
+
+                                        <p>
+                                            Cantidad:
+                                            {{ $detalle->cantidad }}
+
+                                            <br>
+
+                                            Precio unitario:
+
+                                            @if ($tienePromo)
+                                                <span class="text-muted text-decoration-line-through">
+                                                    ₡{{ number_format($precioNormal, 2) }}
+                                                </span>
+
+                                                <strong class="text-danger">
+                                                    ₡{{ number_format($precioVenta, 2) }}
+                                                </strong>
+                                            @else
+                                                ₡{{ number_format($precioVenta, 2) }}
+                                            @endif
+                                        </p>
+
+                                    </div>
+
+                                    <div class="store-order-show-product-total">
+
+                                        <span>Total línea</span>
+
+                                        @if ($tienePromo)
+                                            <div class="text-muted text-decoration-line-through small">
+                                                ₡{{ number_format($precioNormal * $detalle->cantidad, 2) }}
+                                            </div>
+
+                                            <strong class="text-danger">
+                                                ₡{{ number_format($totalLinea, 2) }}
+                                            </strong>
+                                        @else
+                                            <strong>
+                                                ₡{{ number_format($totalLinea, 2) }}
+                                            </strong>
+                                        @endif
+
+                                    </div>
+
+                                </article>
+                            @endforeach
+
+                        </div>
+
+                    </div>
 
                     {{-- ENTREGA --}}
                     <div class="store-order-show-card mb-4">
@@ -434,7 +432,8 @@
                                             </h4>
 
                                             <p class="text-muted mb-3">
-                                                Puedes ingresar un nuevo número de comprobante o referencia, subir una imagen del comprobante o enviar
+                                                Puedes ingresar un nuevo número de comprobante o referencia, subir una
+                                                imagen del comprobante o enviar
                                                 ambos.
                                             </p>
 
@@ -444,12 +443,13 @@
 
                                                 <div class="mb-3">
                                                     <label class="form-label">
-                                                        Número de comprobante o referencia <span class="text-danger">*</span>
+                                                        Número de comprobante o referencia <span
+                                                            class="text-danger">*</span>
                                                     </label>
 
                                                     <input type="text" name="numero_comprobante" class="form-control"
-                                                        value="{{ old('numero_comprobante') }}"
-                                                        placeholder="Ej: 123456789" required>
+                                                        value="{{ old('numero_comprobante') }}" placeholder="Ej: 123456789"
+                                                        required>
                                                 </div>
 
                                                 <div class="mb-3">

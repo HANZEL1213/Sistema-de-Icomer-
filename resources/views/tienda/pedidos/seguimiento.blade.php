@@ -267,48 +267,48 @@
                                     </div>
                                 @endif
 
-                             @if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
+                                @if ($pedido->estado !== 'cancelado' && $pago?->estado === 'rechazado')
 
-    <div class="alert alert-danger rounded-4 mt-4">
+                                    <div class="alert alert-danger rounded-4 mt-4">
 
-        <div class="d-flex align-items-start gap-3">
+                                        <div class="d-flex align-items-start gap-3">
 
-            <div class="fs-4">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
+                                            <div class="fs-4">
+                                                <i class="bi bi-exclamation-triangle-fill"></i>
+                                            </div>
 
-            <div>
+                                            <div>
 
-                <h5 class="fw-bold mb-1">
-                    Comprobante rechazado
-                </h5>
+                                                <h5 class="fw-bold mb-1">
+                                                    Comprobante rechazado
+                                                </h5>
 
-                @if ($pago->motivo_rechazo)
-                    <p class="mb-3">
-                        {{ $pago->motivo_rechazo }}
-                    </p>
-                @else
-                    <p class="mb-3">
-                        El comprobante enviado no pudo ser validado.
-                    </p>
-                @endif
+                                                @if ($pago->motivo_rechazo)
+                                                    <p class="mb-3">
+                                                        {{ $pago->motivo_rechazo }}
+                                                    </p>
+                                                @else
+                                                    <p class="mb-3">
+                                                        El comprobante enviado no pudo ser validado.
+                                                    </p>
+                                                @endif
 
-                <a href="{{ route('tienda.pedidos.show', $pedido->numero_pedido) }}"
-                    class="btn btn-store-primary">
+                                                <a href="{{ route('tienda.pedidos.show', $pedido->numero_pedido) }}"
+                                                    class="btn btn-store-primary">
 
-                    <i class="bi bi-arrow-repeat me-1"></i>
+                                                    <i class="bi bi-arrow-repeat me-1"></i>
 
-                    Corregir pago
+                                                    Corregir pago
 
-                </a>
+                                                </a>
 
-            </div>
+                                            </div>
 
-        </div>
+                                        </div>
 
-    </div>
+                                    </div>
 
-@endif
+                                @endif
                             </div>
 
                         </div>
@@ -317,152 +317,148 @@
 
                 </div>
 
-             <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-4">
 
-    <aside class="store-tracking-summary-card">
+                    <aside class="store-tracking-summary-card">
 
-        <div class="store-tracking-summary-header">
-            <h2>Resumen</h2>
+                        <div class="store-tracking-summary-header">
+                            <h2>Resumen</h2>
 
-            <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
-                {{ $estadoLabel }}
-            </span>
-        </div>
-
-        <ul class="store-confirmation-list">
-            <li>
-                <span>Pedido</span>
-                <strong>{{ $pedido->numero_pedido }}</strong>
-            </li>
-
-            <li>
-                <span>Cliente</span>
-                <strong>{{ $pedido->nombre_cliente }}</strong>
-            </li>
-
-            <li>
-                <span>Teléfono</span>
-                <strong>{{ $pedido->telefono_cliente }}</strong>
-            </li>
-
-            <li>
-                <span>Entrega</span>
-                <strong>{{ $tipoEntregaLabel }}</strong>
-            </li>
-
-            <li>
-                <span>Dirección</span>
-                <strong>{{ $direccion }}</strong>
-            </li>
-
-            <li>
-                <span>Fecha</span>
-                <strong>{{ $pedido->created_at?->format('d/m/Y H:i') }}</strong>
-            </li>
-        </ul>
-
-        {{-- CUPÓN APLICADO --}}
-        @if($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
-
-            <div class="store-cart-coupon-box mt-3 mb-3">
-
-                <label class="store-form-label">
-                    Cupón de descuento
-                </label>
-
-                <div class="bg-light rounded-4 p-3 border">
-
-                    <div class="d-flex justify-content-between align-items-start gap-3">
-
-                        <div>
-
-                            <span class="badge bg-success mb-2">
-                                Cupón aplicado
+                            <span class="store-order-status {{ $estadoClass[$pedido->estado] ?? 'is-muted' }}">
+                                {{ $estadoLabel }}
                             </span>
+                        </div>
 
-                            <h6 class="fw-bold mb-1">
-                                {{ $pedido->codigo_cupon ?? $pedido->cupon?->codigo ?? 'Cupón aplicado' }}
-                            </h6>
+                        <ul class="store-confirmation-list">
+                            <li>
+                                <span>Pedido</span>
+                                <strong>{{ $pedido->numero_pedido }}</strong>
+                            </li>
 
-                            <small class="text-muted d-block">
-                                Descuento aplicado:
-                                ₡{{ number_format($pedido->descuento, 2) }}
-                            </small>
+                            <li>
+                                <span>Cliente</span>
+                                <strong>{{ $pedido->nombre_cliente }}</strong>
+                            </li>
 
-                            @if($pedido->cupon?->tipo === 'porcentaje')
+                            <li>
+                                <span>Teléfono</span>
+                                <strong>{{ $pedido->telefono_cliente }}</strong>
+                            </li>
 
-                                <small class="text-success">
-                                    {{ number_format($pedido->cupon->valor, 0) }}% OFF
-                                </small>
+                            <li>
+                                <span>Entrega</span>
+                                <strong>{{ $tipoEntregaLabel }}</strong>
+                            </li>
 
-                            @elseif($pedido->cupon?->tipo === 'monto_fijo')
+                            <li>
+                                <span>Dirección</span>
+                                <strong>{{ $direccion }}</strong>
+                            </li>
 
-                                <small class="text-success">
-                                    ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
-                                </small>
+                            <li>
+                                <span>Fecha</span>
+                                <strong>{{ $pedido->created_at?->format('d/m/Y H:i') }}</strong>
+                            </li>
+                        </ul>
 
-                            @endif
+                        {{-- CUPÓN APLICADO --}}
+                        @if ($pedido->id_cupon || $pedido->codigo_cupon || $pedido->descuento > 0)
+
+                            <div class="store-cart-coupon-box mt-3 mb-3">
+
+                                <label class="store-form-label">
+                                    Cupón de descuento
+                                </label>
+
+                                <div class="bg-light rounded-4 p-3 border">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-3">
+
+                                        <div>
+
+                                            <span class="badge bg-success mb-2">
+                                                Cupón aplicado
+                                            </span>
+
+                                            <h6 class="fw-bold mb-1">
+                                                {{ $pedido->codigo_cupon ?? ($pedido->cupon?->codigo ?? 'Cupón aplicado') }}
+                                            </h6>
+
+                                            <small class="text-muted d-block">
+                                                Descuento aplicado:
+                                                ₡{{ number_format($pedido->descuento, 2) }}
+                                            </small>
+
+                                            @if ($pedido->cupon?->tipo === 'porcentaje')
+                                                <small class="text-success">
+                                                    {{ number_format($pedido->cupon->valor, 0) }}% OFF
+                                                </small>
+                                            @elseif($pedido->cupon?->tipo === 'monto_fijo')
+                                                <small class="text-success">
+                                                    ₡{{ number_format($pedido->cupon->valor, 2) }} OFF
+                                                </small>
+                                            @endif
+
+                                        </div>
+
+                                        <div class="text-success fs-5">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+                        <div class="store-tracking-total-box">
+
+                            <div>
+                                <span>Subtotal</span>
+                                <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Envío</span>
+                                <strong>₡{{ number_format($pedido->costo_envio, 2) }}</strong>
+                            </div>
+
+                            <div>
+                                <span>Cupon de Descuento</span>
+                                <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
+                            </div>
+
+                            <div class="total">
+                                <span>Total</span>
+                                <strong>₡{{ number_format($pedido->total, 2) }}</strong>
+                            </div>
 
                         </div>
 
-                        <div class="text-success fs-5">
-                            <i class="bi bi-check-circle-fill"></i>
+                        <div class="d-grid gap-2">
+
+                            <a href="{{ route('tienda.pedidos.show', $pedido->numero_pedido) }}"
+                                class="btn btn-store-primary">
+                                Ver detalle completo
+                            </a>
+
+                            @auth
+                                <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-outline">
+                                    Volver a mis pedidos
+                                </a>
+                            @else
+                                <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
+                                    Volver a la tienda
+                                </a>
+                            @endauth
+
                         </div>
 
-                    </div>
+                    </aside>
 
                 </div>
-
-            </div>
-
-        @endif
-
-        <div class="store-tracking-total-box">
-
-            <div>
-                <span>Subtotal</span>
-                <strong>₡{{ number_format($pedido->subtotal, 2) }}</strong>
-            </div>
-
-            <div>
-                <span>Envío</span>
-                <strong>₡{{ number_format($pedido->costo_envio, 2) }}</strong>
-            </div>
-
-            <div>
-                <span>Cupon de Descuento</span>
-                <strong>-₡{{ number_format($pedido->descuento, 2) }}</strong>
-            </div>
-
-            <div class="total">
-                <span>Total</span>
-                <strong>₡{{ number_format($pedido->total, 2) }}</strong>
-            </div>
-
-        </div>
-
-        <div class="d-grid gap-2">
-
-            <a href="{{ route('tienda.pedidos.show', $pedido->numero_pedido) }}"
-                class="btn btn-store-primary">
-                Ver detalle completo
-            </a>
-
-            @auth
-                <a href="{{ route('tienda.pedidos.mis') }}" class="btn btn-store-outline">
-                    Volver a mis pedidos
-                </a>
-            @else
-                <a href="{{ route('tienda.home') }}" class="btn btn-store-outline">
-                    Volver a la tienda
-                </a>
-            @endauth
-
-        </div>
-
-    </aside>
-
-</div>
 
             </div>
 

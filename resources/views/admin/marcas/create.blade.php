@@ -5,8 +5,6 @@
 
 @section('content')
 
-
-
     {{-- Breadcrumb --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -205,7 +203,7 @@
 
 @endsection
 
-{{-- JS --}}
+
 @push('scripts')
     <script src="{{ asset('assets/js/modules/marcas.js') }}"></script>
 @endpush

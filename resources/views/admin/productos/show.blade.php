@@ -3,9 +3,11 @@
 
 @section('title', 'Detalle del Producto')
 
-@section('content')
-
+@push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
+@endpush
+
+@section('content')
 
     {{-- BREADCRUMB --}}
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
@@ -173,218 +175,213 @@
 
 
 
-              
-{{-- RESUMEN PRINCIPAL --}}
-<div class="card border-0 bg-light product-section-card mb-4">
-    <div class="card-body p-4">
-        <label class="section-title mb-4 d-flex align-items-center gap-2">
-            <i class="bx bx-package fs-5 text-primary"></i>
-            <span>Resumen del Producto</span>
-        </label>
 
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="info-stack">
+                    {{-- RESUMEN PRINCIPAL --}}
+                    <div class="card border-0 bg-light product-section-card mb-4">
+                        <div class="card-body p-4">
+                            <label class="section-title mb-4 d-flex align-items-center gap-2">
+                                <i class="bx bx-package fs-5 text-primary"></i>
+                                <span>Resumen del Producto</span>
+                            </label>
 
-                    <div class="info-row">
-                        <span class="info-label">Nombre del producto</span>
-                        <span class="info-main-value">{{ $item->nombre }}</span>
-                    </div>
+                            <div class="row g-4">
+                                <div class="col-lg-8">
+                                    <div class="info-stack">
 
-                    <div class="info-row">
-                        <span class="info-label">Estado general</span>
-
-                        <div class="d-flex flex-wrap align-items-center gap-2">
-
-                            <span class="estado-badge bg-{{ $badgeColor }} text-white">
-                                <i class="bx {{ $item->activo ? 'bx-check-circle' : 'bx-x-circle' }} me-1"></i>
-                                {{ $badgeLabel }}
-                            </span>
-
-                            @if ($item->destacado)
-                                <span class="estado-badge bg-success text-white">
-                                    <i class="bx bx-star me-1"></i>
-                                    Destacado
-                                </span>
-                            @else
-                                <span class="estado-badge bg-secondary text-white">
-                                    <i class="bx bx-package me-1"></i>
-                                    Normal
-                                </span>
-                            @endif
-
-                            @if ($item->usa_variantes)
-
-                                <span class="soft-status-text text-primary">
-                                    <i class="bx bx-git-branch me-1"></i>
-                                    Producto contenedor con variantes
-                                </span>
-
-                            @else
-
-                                @if ($item->stock_actual <= 5 && $item->stock_actual > 0)
-                                    <span class="soft-status-text text-warning">
-                                        <i class="bx bx-error-circle me-1"></i>
-                                        Stock bajo
-                                    </span>
-                                @elseif ($item->stock_actual == 0)
-                                    <span class="soft-status-text text-danger">
-                                        <i class="bx bx-x-circle me-1"></i>
-                                        Agotado
-                                    </span>
-                                @else
-                                    <span class="soft-status-text text-success">
-                                        <i class="bx bx-check-circle me-1"></i>
-                                        Disponible
-                                    </span>
-                                @endif
-
-                            @endif
-
-                        </div>
-                    </div>
-
-                    <div class="info-row">
-                        <div class="row g-3">
-
-                            <div class="col-md-4">
-                                <span class="info-label">ID Producto</span>
-
-                                <div class="summary-data-box">
-                                    {{ $item->id_producto }}
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <span class="info-label">
-                                    {{ $item->usa_variantes ? 'Tipo variante' : 'SKU' }}
-                                </span>
-
-                                <div class="summary-data-box">
-                                    @if ($item->usa_variantes)
-                                        {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
-                                    @else
-                                        {{ $item->sku ?: '—' }}
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <span class="info-label">
-                                    {{ $item->usa_variantes ? 'Variantes activas' : 'Stock' }}
-                                </span>
-
-                                <div class="summary-data-box">
-                                    @if ($item->usa_variantes)
-                                        {{ $item->variantes->where('activo', true)->count() }}
-                                    @else
-                                        {{ number_format((int) $item->stockDisponible()) }} unidades
-                                    @endif
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-
-                @if ($item->usa_variantes)
-
-                    <span class="info-label">Precio</span>
-
-                    <div class="summary-price-box">
-                        Según variante
-                    </div>
-
-                    <small class="text-muted d-block mt-2">
-                        Este producto funciona como contenedor.
-                        El precio real y el inventario se gestionan desde las variantes.
-                    </small>
-
-                @else
-
-                    <span class="info-label">Precio del producto</span>
-
-                    @if ($item->descuento_activo && $item->precio_descuento)
-
-                        @php
-                            $ahorro = $item->precio - $item->precio_descuento;
-                            $porcentaje = $item->precio > 0
-                                ? round(($ahorro / $item->precio) * 100)
-                                : 0;
-                        @endphp
-
-                        <div class="discount-price-card">
-
-                            <div class="discount-badge">
-                                <i class="bx bx-purchase-tag-alt"></i>
-                                -{{ $porcentaje }}% OFF
-                            </div>
-
-                            <div class="discount-old-price">
-                                ₡{{ number_format((float) $item->precio, 0) }}
-                            </div>
-
-                            <div class="summary-price-box discount-current-price">
-                                ₡{{ number_format((float) $item->precio_descuento, 0) }}
-                            </div>
-
-                            <div class="discount-saving">
-                                Ahorro de ₡{{ number_format($ahorro, 0) }}
-                            </div>
-
-                            @if ($item->descuento_inicio || $item->descuento_fin)
-
-                                <div class="discount-dates">
-
-                                    @if ($item->descuento_inicio)
-                                        <div>
-                                            <i class="bx bx-calendar-event"></i>
-                                            Inicio:
-                                            {{ $item->descuento_inicio->format('d/m/Y H:i') }}
+                                        <div class="info-row">
+                                            <span class="info-label">Nombre del producto</span>
+                                            <span class="info-main-value">{{ $item->nombre }}</span>
                                         </div>
-                                    @endif
 
-                                    @if ($item->descuento_fin)
-                                        <div>
-                                            <i class="bx bx-calendar-x"></i>
-                                            Finaliza:
-                                            {{ $item->descuento_fin->format('d/m/Y H:i') }}
+                                        <div class="info-row">
+                                            <span class="info-label">Estado general</span>
+
+                                            <div class="d-flex flex-wrap align-items-center gap-2">
+
+                                                <span class="estado-badge bg-{{ $badgeColor }} text-white">
+                                                    <i
+                                                        class="bx {{ $item->activo ? 'bx-check-circle' : 'bx-x-circle' }} me-1"></i>
+                                                    {{ $badgeLabel }}
+                                                </span>
+
+                                                @if ($item->destacado)
+                                                    <span class="estado-badge bg-success text-white">
+                                                        <i class="bx bx-star me-1"></i>
+                                                        Destacado
+                                                    </span>
+                                                @else
+                                                    <span class="estado-badge bg-secondary text-white">
+                                                        <i class="bx bx-package me-1"></i>
+                                                        Normal
+                                                    </span>
+                                                @endif
+
+                                                @if ($item->usa_variantes)
+
+                                                    <span class="soft-status-text text-primary">
+                                                        <i class="bx bx-git-branch me-1"></i>
+                                                        Producto contenedor con variantes
+                                                    </span>
+                                                @else
+                                                    @if ($item->stock_actual <= 5 && $item->stock_actual > 0)
+                                                        <span class="soft-status-text text-warning">
+                                                            <i class="bx bx-error-circle me-1"></i>
+                                                            Stock bajo
+                                                        </span>
+                                                    @elseif ($item->stock_actual == 0)
+                                                        <span class="soft-status-text text-danger">
+                                                            <i class="bx bx-x-circle me-1"></i>
+                                                            Agotado
+                                                        </span>
+                                                    @else
+                                                        <span class="soft-status-text text-success">
+                                                            <i class="bx bx-check-circle me-1"></i>
+                                                            Disponible
+                                                        </span>
+                                                    @endif
+
+                                                @endif
+
+                                            </div>
                                         </div>
+
+                                        <div class="info-row">
+                                            <div class="row g-3">
+
+                                                <div class="col-md-4">
+                                                    <span class="info-label">ID Producto</span>
+
+                                                    <div class="summary-data-box">
+                                                        {{ $item->id_producto }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <span class="info-label">
+                                                        {{ $item->usa_variantes ? 'Tipo variante' : 'SKU' }}
+                                                    </span>
+
+                                                    <div class="summary-data-box">
+                                                        @if ($item->usa_variantes)
+                                                            {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
+                                                        @else
+                                                            {{ $item->sku ?: '—' }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <span class="info-label">
+                                                        {{ $item->usa_variantes ? 'Variantes activas' : 'Stock' }}
+                                                    </span>
+
+                                                    <div class="summary-data-box">
+                                                        @if ($item->usa_variantes)
+                                                            {{ $item->variantes->where('activo', true)->count() }}
+                                                        @else
+                                                            {{ number_format((int) $item->stockDisponible()) }} unidades
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4">
+
+                                    @if ($item->usa_variantes)
+
+                                        <span class="info-label">Precio</span>
+
+                                        <div class="summary-price-box">
+                                            Según variante
+                                        </div>
+
+                                        <small class="text-muted d-block mt-2">
+                                            Este producto funciona como contenedor.
+                                            El precio real y el inventario se gestionan desde las variantes.
+                                        </small>
+                                    @else
+                                        <span class="info-label">Precio del producto</span>
+
+                                        @if ($item->descuento_activo && $item->precio_descuento)
+
+                                            @php
+                                                $ahorro = $item->precio - $item->precio_descuento;
+                                                $porcentaje =
+                                                    $item->precio > 0 ? round(($ahorro / $item->precio) * 100) : 0;
+                                            @endphp
+
+                                            <div class="discount-price-card">
+
+                                                <div class="discount-badge">
+                                                    <i class="bx bx-purchase-tag-alt"></i>
+                                                    -{{ $porcentaje }}% OFF
+                                                </div>
+
+                                                <div class="discount-old-price">
+                                                    ₡{{ number_format((float) $item->precio, 0) }}
+                                                </div>
+
+                                                <div class="summary-price-box discount-current-price">
+                                                    ₡{{ number_format((float) $item->precio_descuento, 0) }}
+                                                </div>
+
+                                                <div class="discount-saving">
+                                                    Ahorro de ₡{{ number_format($ahorro, 0) }}
+                                                </div>
+
+                                                @if ($item->descuento_inicio || $item->descuento_fin)
+
+                                                    <div class="discount-dates">
+
+                                                        @if ($item->descuento_inicio)
+                                                            <div>
+                                                                <i class="bx bx-calendar-event"></i>
+                                                                Inicio:
+                                                                {{ $item->descuento_inicio->format('d/m/Y H:i') }}
+                                                            </div>
+                                                        @endif
+
+                                                        @if ($item->descuento_fin)
+                                                            <div>
+                                                                <i class="bx bx-calendar-x"></i>
+                                                                Finaliza:
+                                                                {{ $item->descuento_fin->format('d/m/Y H:i') }}
+                                                            </div>
+                                                        @endif
+
+                                                    </div>
+
+                                                @endif
+
+                                            </div>
+                                        @else
+                                            <div class="summary-price-box">
+                                                ₡{{ number_format((float) $item->precio, 0) }}
+                                            </div>
+
+                                        @endif
+
+                                        @if ($item->precio > 500000)
+                                            <div class="mt-2">
+                                                <small
+                                                    class="text-success fw-semibold d-inline-flex align-items-center gap-1">
+                                                    <i class="bx bx-trending-up"></i>
+                                                    Producto de alta gama
+                                                </small>
+                                            </div>
+                                        @endif
+
                                     @endif
 
                                 </div>
-
-                            @endif
-
+                            </div>
                         </div>
-
-                    @else
-
-                        <div class="summary-price-box">
-                            ₡{{ number_format((float) $item->precio, 0) }}
-                        </div>
-
-                    @endif
-
-                    @if ($item->precio > 500000)
-                        <div class="mt-2">
-                            <small class="text-success fw-semibold d-inline-flex align-items-center gap-1">
-                                <i class="bx bx-trending-up"></i>
-                                Producto de alta gama
-                            </small>
-                        </div>
-                    @endif
-
-                @endif
-
-            </div>
-        </div>
-    </div>
-</div>
+                    </div>
 
 
 
@@ -463,299 +460,297 @@
                 </div>
 
 
-{{-- COLUMNA DERECHA --}}
-<div class="col-lg-5">
+                {{-- COLUMNA DERECHA --}}
+                <div class="col-lg-5">
 
-    {{-- INVENTARIO --}}
-    <div class="card border-0 bg-light product-section-card mb-4">
-        <div class="card-body p-4">
-            <label class="section-title mb-4 d-flex align-items-center gap-2">
-                <i class="bx bx-box fs-5 text-primary"></i>
-                <span>Inventario</span>
-            </label>
+                    {{-- INVENTARIO --}}
+                    <div class="card border-0 bg-light product-section-card mb-4">
+                        <div class="card-body p-4">
+                            <label class="section-title mb-4 d-flex align-items-center gap-2">
+                                <i class="bx bx-box fs-5 text-primary"></i>
+                                <span>Inventario</span>
+                            </label>
 
-            <div class="info-stack">
+                            <div class="info-stack">
 
-                <div class="info-row">
-                    <span class="info-label">
-                        {{ $item->usa_variantes ? 'Stock total en variantes' : 'Stock Actual' }}
-                    </span>
+                                <div class="info-row">
+                                    <span class="info-label">
+                                        {{ $item->usa_variantes ? 'Stock total en variantes' : 'Stock Actual' }}
+                                    </span>
 
-                    <span class="info-main-value">
-                        {{ number_format($item->stockDisponible()) }}
-                        unidades
-                    </span>
-                </div>
-
-                @if ($item->usa_variantes)
-
-                    <div class="info-row">
-                        <span class="info-label">Tipo de variante</span>
-
-                        <span class="fw-semibold">
-                            {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
-                        </span>
-                    </div>
-
-                    <div class="info-row">
-                        <span class="info-label">Variantes activas</span>
-
-                        <span class="fw-semibold">
-                            {{ $item->variantes->where('activo', true)->count() }}
-                        </span>
-                    </div>
-
-                    <div class="info-row">
-                        <span class="info-label">Modelo de inventario</span>
-
-                        <span class="fw-semibold text-primary">
-                            Inventario gestionado por variantes
-                        </span>
-                    </div>
-
-                @else
-
-                    <div class="info-row">
-                        <span class="info-label">SKU</span>
-
-                        <span class="fw-semibold">
-                            {{ $item->sku ?: '—' }}
-                        </span>
-                    </div>
-
-                @endif
-
-            </div>
-        </div>
-    </div>
-
-    {{-- VARIANTES --}}
-    @if ($item->usa_variantes)
-        <div class="card border-0 bg-light product-section-card mb-4">
-            <div class="card-body p-4">
-
-                <label class="section-title mb-4 d-flex align-items-center gap-2">
-                    <i class="bx bx-git-branch fs-5 text-primary"></i>
-                    <span>Variantes del Producto</span>
-                </label>
-
-                <div class="alert alert-primary border-0 mb-4">
-                    <i class="bx bx-info-circle me-2"></i>
-                    Este producto funciona como contenedor. El precio y el stock se administran desde cada variante.
-                </div>
-
-                <div class="info-stack mb-3">
-
-                    <div class="info-row">
-                        <span class="info-label">Tipo de variante</span>
-
-                        <span class="fw-semibold">
-                            {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
-                        </span>
-                    </div>
-
-                    <div class="info-row">
-                        <span class="info-label">Stock total en variantes</span>
-
-                        <span class="info-main-value">
-                            {{ number_format((int) $item->variantes->where('activo', true)->sum('stock_actual')) }}
-                            unidades
-                        </span>
-                    </div>
-
-                </div>
-
-                @if ($item->variantes->count() > 0)
-
-                <div class="table-responsive">
-    <table class="table table-bordered align-middle mb-0">
-
-        <thead class="table-light">
-            <tr>
-                <th>Variante</th>
-                <th>SKU</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Descuento</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach ($item->variantes as $variante)
-                @php
-                    $tieneDescuento = $variante->descuento_activo && $variante->precio_descuento;
-                    $ahorroVariante = $tieneDescuento ? $variante->precio - $variante->precio_descuento : 0;
-                    $porcentajeVariante =
-                        $tieneDescuento && $variante->precio > 0
-                            ? round(($ahorroVariante / $variante->precio) * 100)
-                            : 0;
-                @endphp
-
-                <tr>
-                    <td class="fw-semibold">
-                        @if ($variante->es_principal)
-                            <span class="badge bg-primary me-1">
-                                Principal
-                            </span>
-                        @endif
-
-                        {{ $variante->nombre ?: ($variante->opcion?->etiqueta ?? ($variante->opcion?->valor ?? 'Variante')) }}
-                    </td>
-
-                    <td>
-                        {{ $variante->sku ?: '—' }}
-                    </td>
-
-                    <td>
-                        @if ($tieneDescuento)
-                            <div class="fw-bold text-danger">
-                                ₡{{ number_format((float) $variante->precio_descuento, 0, ',', '.') }}
-                            </div>
-
-                            <div class="small text-muted text-decoration-line-through">
-                                ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
-                            </div>
-                        @else
-                            ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
-                        @endif
-                    </td>
-
-                    <td>
-                        {{ number_format((int) $variante->stock_actual) }}
-                    </td>
-
-                    <td>
-                        @if ($tieneDescuento)
-                            <div class="discount-badge d-inline-flex mb-1">
-                                <i class="bx bx-purchase-tag-alt"></i>
-                                -{{ $porcentajeVariante }}% OFF
-                            </div>
-
-                            <div class="small text-muted">
-                                Ahorro:
-                                ₡{{ number_format((float) $ahorroVariante, 0, ',', '.') }}
-                            </div>
-
-                            @if ($variante->descuento_inicio || $variante->descuento_fin)
-                                <div class="small text-muted mt-1">
-                                    @if ($variante->descuento_inicio)
-                                        <div>
-                                            Inicio:
-                                            {{ $variante->descuento_inicio->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
-
-                                    @if ($variante->descuento_fin)
-                                        <div>
-                                            Fin:
-                                            {{ $variante->descuento_fin->format('d/m/Y H:i') }}
-                                        </div>
-                                    @endif
+                                    <span class="info-main-value">
+                                        {{ number_format($item->stockDisponible()) }}
+                                        unidades
+                                    </span>
                                 </div>
-                            @endif
-                        @else
-                            <span class="estado-badge bg-secondary text-white">
-                                Sin descuento
-                            </span>
-                        @endif
-                    </td>
 
-                    <td>
-                        @if ($variante->activo)
-                            <span class="estado-badge bg-success text-white">
-                                <i class="bx bx-check-circle me-1"></i>
-                                Activa
-                            </span>
-                        @else
-                            <span class="estado-badge bg-secondary text-white">
-                                <i class="bx bx-x-circle me-1"></i>
-                                Inactiva
-                            </span>
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-        </tbody>
+                                @if ($item->usa_variantes)
+                                    <div class="info-row">
+                                        <span class="info-label">Tipo de variante</span>
 
-    </table>
-</div> 
+                                        <span class="fw-semibold">
+                                            {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
+                                        </span>
+                                    </div>
 
-                @else
+                                    <div class="info-row">
+                                        <span class="info-label">Variantes activas</span>
 
-                    <div class="empty-soft-box">
-                        Este producto está marcado con variantes, pero no tiene variantes registradas.
+                                        <span class="fw-semibold">
+                                            {{ $item->variantes->where('activo', true)->count() }}
+                                        </span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <span class="info-label">Modelo de inventario</span>
+
+                                        <span class="fw-semibold text-primary">
+                                            Inventario gestionado por variantes
+                                        </span>
+                                    </div>
+                                @else
+                                    <div class="info-row">
+                                        <span class="info-label">SKU</span>
+
+                                        <span class="fw-semibold">
+                                            {{ $item->sku ?: '—' }}
+                                        </span>
+                                    </div>
+                                @endif
+
+                            </div>
+                        </div>
                     </div>
 
-                @endif
+                    {{-- VARIANTES --}}
+                    @if ($item->usa_variantes)
+                        <div class="card border-0 bg-light product-section-card mb-4">
+                            <div class="card-body p-4">
 
-            </div>
-        </div>
-    @endif
+                                <label class="section-title mb-4 d-flex align-items-center gap-2">
+                                    <i class="bx bx-git-branch fs-5 text-primary"></i>
+                                    <span>Variantes del Producto</span>
+                                </label>
 
-    {{-- IDENTIFICADORES --}}
-    <div class="card border-0 bg-light product-section-card mb-4">
-        <div class="card-body p-4">
-            <label class="section-title mb-4 d-flex align-items-center gap-2">
-                <i class="bx bx-barcode fs-5 text-primary"></i>
-                <span>Identificadores</span>
-            </label>
+                                <div class="alert alert-primary border-0 mb-4">
+                                    <i class="bx bx-info-circle me-2"></i>
+                                    Este producto funciona como contenedor. El precio y el stock se administran desde cada
+                                    variante.
+                                </div>
 
-            <div class="info-stack">
+                                <div class="info-stack mb-3">
 
-                <div class="info-row">
-                    <span class="info-label">Código de Barras</span>
-                    <span class="fw-semibold font-monospace">
-                        {{ $item->codigo ?: '—' }}
-                    </span>
+                                    <div class="info-row">
+                                        <span class="info-label">Tipo de variante</span>
+
+                                        <span class="fw-semibold">
+                                            {{ $item->tipoVariante?->etiqueta ?? ($item->tipoVariante?->nombre ?? '—') }}
+                                        </span>
+                                    </div>
+
+                                    <div class="info-row">
+                                        <span class="info-label">Stock total en variantes</span>
+
+                                        <span class="info-main-value">
+                                            {{ number_format((int) $item->variantes->where('activo', true)->sum('stock_actual')) }}
+                                            unidades
+                                        </span>
+                                    </div>
+
+                                </div>
+
+                                @if ($item->variantes->count() > 0)
+
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered align-middle mb-0">
+
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Variante</th>
+                                                    <th>SKU</th>
+                                                    <th>Precio</th>
+                                                    <th>Stock</th>
+                                                    <th>Descuento</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                @foreach ($item->variantes as $variante)
+                                                    @php
+                                                        $tieneDescuento =
+                                                            $variante->descuento_activo && $variante->precio_descuento;
+                                                        $ahorroVariante = $tieneDescuento
+                                                            ? $variante->precio - $variante->precio_descuento
+                                                            : 0;
+                                                        $porcentajeVariante =
+                                                            $tieneDescuento && $variante->precio > 0
+                                                                ? round(($ahorroVariante / $variante->precio) * 100)
+                                                                : 0;
+                                                    @endphp
+
+                                                    <tr>
+                                                        <td class="fw-semibold">
+                                                            @if ($variante->es_principal)
+                                                                <span class="badge bg-primary me-1">
+                                                                    Principal
+                                                                </span>
+                                                            @endif
+
+                                                            {{ $variante->nombre ?: $variante->opcion?->etiqueta ?? ($variante->opcion?->valor ?? 'Variante') }}
+                                                        </td>
+
+                                                        <td>
+                                                            {{ $variante->sku ?: '—' }}
+                                                        </td>
+
+                                                        <td>
+                                                            @if ($tieneDescuento)
+                                                                <div class="fw-bold text-danger">
+                                                                    ₡{{ number_format((float) $variante->precio_descuento, 0, ',', '.') }}
+                                                                </div>
+
+                                                                <div class="small text-muted text-decoration-line-through">
+                                                                    ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
+                                                                </div>
+                                                            @else
+                                                                ₡{{ number_format((float) $variante->precio, 0, ',', '.') }}
+                                                            @endif
+                                                        </td>
+
+                                                        <td>
+                                                            {{ number_format((int) $variante->stock_actual) }}
+                                                        </td>
+
+                                                        <td>
+                                                            @if ($tieneDescuento)
+                                                                <div class="discount-badge d-inline-flex mb-1">
+                                                                    <i class="bx bx-purchase-tag-alt"></i>
+                                                                    -{{ $porcentajeVariante }}% OFF
+                                                                </div>
+
+                                                                <div class="small text-muted">
+                                                                    Ahorro:
+                                                                    ₡{{ number_format((float) $ahorroVariante, 0, ',', '.') }}
+                                                                </div>
+
+                                                                @if ($variante->descuento_inicio || $variante->descuento_fin)
+                                                                    <div class="small text-muted mt-1">
+                                                                        @if ($variante->descuento_inicio)
+                                                                            <div>
+                                                                                Inicio:
+                                                                                {{ $variante->descuento_inicio->format('d/m/Y H:i') }}
+                                                                            </div>
+                                                                        @endif
+
+                                                                        @if ($variante->descuento_fin)
+                                                                            <div>
+                                                                                Fin:
+                                                                                {{ $variante->descuento_fin->format('d/m/Y H:i') }}
+                                                                            </div>
+                                                                        @endif
+                                                                    </div>
+                                                                @endif
+                                                            @else
+                                                                <span class="estado-badge bg-secondary text-white">
+                                                                    Sin descuento
+                                                                </span>
+                                                            @endif
+                                                        </td>
+
+                                                        <td>
+                                                            @if ($variante->activo)
+                                                                <span class="estado-badge bg-success text-white">
+                                                                    <i class="bx bx-check-circle me-1"></i>
+                                                                    Activa
+                                                                </span>
+                                                            @else
+                                                                <span class="estado-badge bg-secondary text-white">
+                                                                    <i class="bx bx-x-circle me-1"></i>
+                                                                    Inactiva
+                                                                </span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="empty-soft-box">
+                                        Este producto está marcado con variantes, pero no tiene variantes registradas.
+                                    </div>
+
+                                @endif
+
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- IDENTIFICADORES --}}
+                    <div class="card border-0 bg-light product-section-card mb-4">
+                        <div class="card-body p-4">
+                            <label class="section-title mb-4 d-flex align-items-center gap-2">
+                                <i class="bx bx-barcode fs-5 text-primary"></i>
+                                <span>Identificadores</span>
+                            </label>
+
+                            <div class="info-stack">
+
+                                <div class="info-row">
+                                    <span class="info-label">Código de Barras</span>
+                                    <span class="fw-semibold font-monospace">
+                                        {{ $item->codigo ?: '—' }}
+                                    </span>
+                                </div>
+
+                                <div class="info-row">
+                                    <span class="info-label">Slug (URL)</span>
+                                    <span class="text-muted small text-break">
+                                        {{ $item->slug }}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- FECHAS --}}
+                    <div class="card border-0 bg-light product-section-card">
+                        <div class="card-body p-4">
+                            <label class="section-title mb-4 d-flex align-items-center gap-2">
+                                <i class="bx bx-time-five fs-5 text-primary"></i>
+                                <span>Trazabilidad</span>
+                            </label>
+
+                            <div class="info-stack">
+
+                                <div class="info-row">
+                                    <span class="info-label">Fecha de creación</span>
+
+                                    <span class="fw-semibold">
+                                        {{ optional($item->created_at)->format('d/m/Y H:i:s') }}
+                                    </span>
+                                </div>
+
+                                <div class="info-row">
+                                    <span class="info-label">Última actualización</span>
+
+                                    <span class="fw-semibold">
+                                        {{ optional($item->updated_at)->format('d/m/Y H:i:s') }}
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="info-row">
-                    <span class="info-label">Slug (URL)</span>
-                    <span class="text-muted small text-break">
-                        {{ $item->slug }}
-                    </span>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    {{-- FECHAS --}}
-    <div class="card border-0 bg-light product-section-card">
-        <div class="card-body p-4">
-            <label class="section-title mb-4 d-flex align-items-center gap-2">
-                <i class="bx bx-time-five fs-5 text-primary"></i>
-                <span>Trazabilidad</span>
-            </label>
-
-            <div class="info-stack">
-
-                <div class="info-row">
-                    <span class="info-label">Fecha de creación</span>
-
-                    <span class="fw-semibold">
-                        {{ optional($item->created_at)->format('d/m/Y H:i:s') }}
-                    </span>
-                </div>
-
-                <div class="info-row">
-                    <span class="info-label">Última actualización</span>
-
-                    <span class="fw-semibold">
-                        {{ optional($item->updated_at)->format('d/m/Y H:i:s') }}
-                    </span>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-</div>
 
 
 
-             
             </div>
 
 
@@ -763,7 +758,7 @@
 
 
 
-            
+
 
             {{-- PRODUCTOS RELACIONADOS --}}
             @if ($item->relacionados->count() > 0)
@@ -864,109 +859,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const thumbs = Array.from(document.querySelectorAll('.product-thumb'));
-            const mainImage = document.getElementById('galleryMainImage');
-            const counter = document.getElementById('galleryCounter');
-            const prevBtn = document.getElementById('galleryPrev');
-            const nextBtn = document.getElementById('galleryNext');
-            const modalElement = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-
-            if (!mainImage || thumbs.length === 0) {
-                if (prevBtn) prevBtn.disabled = true;
-                if (nextBtn) nextBtn.disabled = true;
-                return;
-            }
-
-            const modalInstance = modalElement ? new bootstrap.Modal(modalElement) : null;
-
-            const images = thumbs.map((thumb, index) => ({
-                index,
-                url: thumb.dataset.image,
-                principal: thumb.dataset.principal === '1',
-                thumb
-            }));
-
-            let currentIndex = images.findIndex(img => img.thumb.classList.contains('active'));
-            if (currentIndex < 0) currentIndex = 0;
-
-            function updateButtons() {
-                const multiple = images.length > 1;
-                if (prevBtn) prevBtn.disabled = !multiple;
-                if (nextBtn) nextBtn.disabled = !multiple;
-            }
-
-            function updateCounter() {
-                if (counter) {
-                    counter.textContent = `${currentIndex + 1}/${images.length}`;
-                }
-            }
-
-            function updateActiveThumb() {
-                images.forEach(img => img.thumb.classList.remove('active'));
-                images[currentIndex].thumb.classList.add('active');
-            }
-
-            function swapMainImage(newUrl) {
-                mainImage.classList.add('is-changing');
-                setTimeout(() => {
-                    mainImage.src = newUrl;
-                    setTimeout(() => {
-                        mainImage.classList.remove('is-changing');
-                    }, 60);
-                }, 140);
-            }
-
-            function goToImage(index) {
-                if (index < 0) index = images.length - 1;
-                if (index >= images.length) index = 0;
-                currentIndex = index;
-                swapMainImage(images[currentIndex].url);
-                updateActiveThumb();
-                updateCounter();
-            }
-
-            thumbs.forEach((thumb, index) => {
-                thumb.addEventListener('click', function() {
-                    goToImage(index);
-                });
-            });
-
-            if (prevBtn) {
-                prevBtn.addEventListener('click', function() {
-                    goToImage(currentIndex - 1);
-                });
-            }
-
-            if (nextBtn) {
-                nextBtn.addEventListener('click', function() {
-                    goToImage(currentIndex + 1);
-                });
-            }
-
-            mainImage.addEventListener('click', function() {
-                if (!modalInstance || !modalImage) return;
-                modalImage.src = images[currentIndex].url;
-                modalInstance.show();
-            });
-
-            document.addEventListener('keydown', function(event) {
-                const modalOpen = modalElement && modalElement.classList.contains('show');
-                if (modalOpen) return;
-                if (event.key === 'ArrowLeft') goToImage(currentIndex - 1);
-                if (event.key === 'ArrowRight') goToImage(currentIndex + 1);
-                if (event.key === 'Enter' && document.activeElement === mainImage) {
-                    if (!modalInstance || !modalImage) return;
-                    modalImage.src = images[currentIndex].url;
-                    modalInstance.show();
-                }
-            });
-
-            updateButtons();
-            updateCounter();
-            updateActiveThumb();
-        });
-    </script>
+    <script src="{{ asset('assets/js/modules/productosshow_admin.js') }}"></script>
 @endpush

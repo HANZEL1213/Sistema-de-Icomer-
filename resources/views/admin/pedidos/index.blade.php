@@ -3,9 +3,12 @@
 
 @section('title', 'Pedidos (Online)')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_index.css') }}">
+@endpush
+
+
 @section('content')
-
-
 
     <div class="page-breadcrumb d-sm-flex align-items-center mb-3">
         <div class="ps-3">
@@ -503,7 +506,4 @@
 
 @push('scripts')
     <script src="{{ asset('assets/js/modules/pedidos.js') }}"></script>
-@endpush
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/pedidos_index.css') }}">
 @endpush
