@@ -196,8 +196,8 @@
                                                 </div>
 
                                                 <div>
-                                                    <h5>Retiro en tienda</h5>
-                                                    <p>No se cobra envío.</p>
+                                                    <h5>📍 Retiro</h5>
+                                                    <p>Se coordina por WhatsApp.</p>
                                                 </div>
                                             </label>
                                         </div>
