@@ -236,7 +236,7 @@ class TiendaAuthController extends Controller
                 'nombre' => $googleUser->name,
                 'correo' => $googleUser->email,
 
-                'password' => bcrypt(Str::random(32)),
+                'password' => Hash::make(Str::random(32)),
 
                 'id_rol' => $rolCliente->id_rol,
 
