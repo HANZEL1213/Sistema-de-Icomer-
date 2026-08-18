@@ -1,21 +1,142 @@
 document.addEventListener('DOMContentLoaded', function () {
 
+    /* =========================================================
+       GALERÍA DE IMÁGENES (swipe + flechas + animación + contador)
+    ========================================================== */
     const mainImage = document.getElementById('storeProductMainImage');
     const thumbs = document.querySelectorAll('.store-product-thumb');
+    const prevBtn = document.getElementById('storeGalleryPrev');
+    const nextBtn = document.getElementById('storeGalleryNext');
+    const counterEl = document.getElementById('storeGalleryCounter');
 
-    thumbs.forEach((thumb) => {
-        thumb.addEventListener('click', function () {
-            const image = this.dataset.productImage;
+    let currentImageIndex = 0;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let isAnimating = false;
 
-            if (mainImage && image) {
-                mainImage.src = image;
+    // --- Detectar el índice correcto según la imagen que ya está cargada ---
+    if (mainImage && thumbs.length) {
+        const srcActual = mainImage.getAttribute('src') || '';
+
+        thumbs.forEach((thumb, index) => {
+            if (thumb.dataset.productImage === srcActual) {
+                currentImageIndex = index;
+            }
+        });
+
+        // Asegurar que solo la miniatura correcta tenga la clase active
+        thumbs.forEach((thumb, index) => {
+            thumb.classList.toggle('active', index === currentImageIndex);
+        });
+    }
+
+    function actualizarContador() {
+        if (!counterEl || !thumbs.length) return;
+        counterEl.textContent = (currentImageIndex + 1) + ' / ' + thumbs.length;
+    }
+
+function mostrarImagen(index, direction = null) {
+    if (!mainImage || !thumbs.length || isAnimating) return;
+
+    if (index < 0) index = thumbs.length - 1;
+    if (index >= thumbs.length) index = 0;
+
+    if (index === currentImageIndex && direction === null) return;
+
+    currentImageIndex = index;
+
+    const thumb = thumbs[currentImageIndex];
+    const image = thumb.dataset.productImage;
+
+    if (!image) return;
+
+    isAnimating = true;
+
+    if (direction) {
+        mainImage.classList.add(direction === 'next' ? 'slide-out-left' : 'slide-out-right');
+    }
+
+    setTimeout(() => {
+        let handled = false;
+
+        const finishAnimation = () => {
+            if (handled) return;
+            handled = true;
+
+            mainImage.classList.remove('slide-out-left', 'slide-out-right');
+
+            if (direction) {
+                mainImage.classList.add(direction === 'next' ? 'slide-in-right' : 'slide-in-left');
             }
 
-            thumbs.forEach((item) => item.classList.remove('active'));
-            this.classList.add('active');
+            setTimeout(() => {
+                mainImage.classList.remove('slide-in-right', 'slide-in-left');
+                isAnimating = false;
+            }, 250);
+        };
+
+        mainImage.addEventListener('load', finishAnimation, { once: true });
+        mainImage.src = image;
+
+        // Fallback para imágenes ya en caché
+        if (mainImage.complete) {
+            finishAnimation();
+        }
+    }, direction ? 150 : 0);
+
+    // Actualizar miniatura activa
+    thumbs.forEach((item) => item.classList.remove('active'));
+    thumb.classList.add('active');
+
+    actualizarContador();
+}
+
+    // Click en miniaturas
+    thumbs.forEach((thumb, index) => {
+        thumb.addEventListener('click', function () {
+            if (index === currentImageIndex) return;
+            mostrarImagen(index, index > currentImageIndex ? 'next' : 'prev');
         });
     });
 
+    // Flechas (desktop)
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            mostrarImagen(currentImageIndex - 1, 'prev');
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            mostrarImagen(currentImageIndex + 1, 'next');
+        });
+    }
+
+    // Swipe (mobile)
+    if (mainImage) {
+        mainImage.addEventListener('touchstart', function (event) {
+            touchStartX = event.changedTouches[0].screenX;
+        }, { passive: true });
+
+        mainImage.addEventListener('touchend', function (event) {
+            touchEndX = event.changedTouches[0].screenX;
+            const diferencia = touchStartX - touchEndX;
+
+            if (Math.abs(diferencia) < 50) return;
+
+            if (diferencia > 0) {
+                mostrarImagen(currentImageIndex + 1, 'next');
+            } else {
+                mostrarImagen(currentImageIndex - 1, 'prev');
+            }
+        }, { passive: true });
+    }
+
+    actualizarContador();
+
+    /* =========================================================
+       CANTIDAD, VARIANTES, PRECIOS, CARRITO (sin cambios)
+    ========================================================== */
     const qtyInput = document.getElementById('storeProductQty');
     const qtyHidden = document.getElementById('storeProductQtyHidden');
     const qtyButtons = document.querySelectorAll('[data-qty-action]');

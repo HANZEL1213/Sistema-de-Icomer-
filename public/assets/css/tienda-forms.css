@@ -339,12 +339,20 @@
         color: var(--store-primary);
     }
 
-    .store-header-main {
+    /* .store-header-main {
         position: sticky;
         top: 0;
         z-index: 1030;
         border-bottom: 1px solid rgba(229, 231, 235, 0.85);
-    }
+    } */
+
+    .store-header-main {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.85);
+    padding-top: env(safe-area-inset-top, 0px);
+}
 
     .store-header-main-inner {
         min-height: var(--store-header-height);

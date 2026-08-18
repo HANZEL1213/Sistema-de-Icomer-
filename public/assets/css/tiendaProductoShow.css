@@ -217,3 +217,188 @@
     }
 
 }
+
+
+/* =========================================================
+   GALERÍA DE PRODUCTO - SWIPE, ANIMACIÓN, FLECHAS Y CONTADOR
+   ========================================================== */
+
+/* Aseguramos que el wrapper de la imagen principal sea el contenedor
+   de referencia para las flechas y el contador */
+.store-product-main-image-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Imagen principal: base para la animación de deslizamiento */
+.store-product-main-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    touch-action: pan-y;
+}
+
+/* --- Animaciones de deslizamiento --- */
+
+/* Sale hacia la izquierda (avanzando a la siguiente imagen) */
+.store-product-main-image.slide-out-left {
+    transform: translateX(-30px);
+    opacity: 0;
+}
+
+/* Sale hacia la derecha (retrocediendo a la imagen anterior) */
+.store-product-main-image.slide-out-right {
+    transform: translateX(30px);
+    opacity: 0;
+}
+
+/* Entra desde la derecha (nueva imagen siguiente) */
+.store-product-main-image.slide-in-right {
+    animation: storeGallerySlideInRight 0.25s ease forwards;
+}
+
+/* Entra desde la izquierda (nueva imagen anterior) */
+.store-product-main-image.slide-in-left {
+    animation: storeGallerySlideInLeft 0.25s ease forwards;
+}
+
+@keyframes storeGallerySlideInRight {
+    from {
+        transform: translateX(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes storeGallerySlideInLeft {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* --- Flechas de navegación --- */
+
+.store-gallery-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) scale(0.85);
+
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.75);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+
+    color: var(--store-primary, #1a1a1a);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.15rem;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.12),
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease,
+        transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+
+    z-index: 3;
+}
+
+.store-gallery-arrow i {
+    position: relative;
+    /* pequeño ajuste óptico: el chevron no queda 100% centrado visualmente */
+    left: -1px;
+}
+
+.store-gallery-arrow-next i {
+    left: 1px;
+}
+
+.store-gallery-arrow-prev {
+    left: 14px;
+}
+
+.store-gallery-arrow-next {
+    right: 14px;
+}
+
+/* Solo se muestran al pasar el mouse (computadora), con un pequeño "pop" */
+.store-product-main-image-wrap:hover .store-gallery-arrow {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
+}
+
+.store-gallery-arrow:hover {
+    background: #ffffff;
+    color: var(--store-accent, #dca117);
+    transform: translateY(-50%) scale(1.12);
+
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.18),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(220, 161, 23, 0.25);
+}
+
+.store-gallery-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.15),
+        inset 0 0 0 1px rgba(220, 161, 23, 0.35);
+}
+
+/* En pantallas táctiles no mostramos las flechas: el usuario desliza */
+@media (max-width: 991.98px) {
+    .store-gallery-arrow {
+        display: none;
+    }
+}
+
+/* --- Contador de imágenes (1 / 4) --- */
+
+.store-gallery-counter {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+
+    padding: 0.25rem 0.65rem;
+
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    border-radius: 999px;
+
+    z-index: 3;
+    pointer-events: none;
+}

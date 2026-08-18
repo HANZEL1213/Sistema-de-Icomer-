@@ -19,6 +19,7 @@ use App\Http\Controllers\Tienda\{
     PedidoController,
     PagoPedidoController,
     PasswordResetController,
+    SitemapController,
     TiendaAuthController,
 };
 
@@ -163,8 +164,10 @@ Route::name('tienda.')->group(function () {
 | Home
 |--------------------------------------------------------------------------
 */
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 /*
 |--------------------------------------------------------------------------
 | AJAX PRODUCTOS HOME

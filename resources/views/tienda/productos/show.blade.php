@@ -65,7 +65,10 @@
 
                     <div class="store-product-gallery-card">
 
-                        <div class="store-product-main-image-wrap">
+
+
+
+                        <div class="store-product-main-image-wrap" id="storeProductGallery">
 
                             <img src="{{ $imagenPrincipal }}" alt="{{ $producto->nombre }}" class="store-product-main-image"
                                 id="storeProductMainImage">
@@ -85,7 +88,26 @@
                                     class="bi {{ in_array($producto->id_producto, $favoritosIds ?? []) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
 
                             </button>
+
+                            @if ($imagenes->count() > 1)
+                                <button type="button" class="store-gallery-arrow store-gallery-arrow-prev"
+                                    id="storeGalleryPrev" aria-label="Imagen anterior">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+
+                                <button type="button" class="store-gallery-arrow store-gallery-arrow-next"
+                                    id="storeGalleryNext" aria-label="Imagen siguiente">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+
+                                <span class="store-gallery-counter" id="storeGalleryCounter">1 /
+                                    {{ $imagenes->count() }}</span>
+                            @endif
                         </div>
+
+
+
+
 
                         @if ($imagenes->count())
                             <div class="store-product-thumbs">
