@@ -1040,13 +1040,32 @@ function actualizarRequeridosVariantes() {
 
         const precio = fila.querySelector('.variante-precio-input');
         const stock = fila.querySelector('.variante-stock-input');
+        const principal = fila.querySelector('.variante-principal-radio');
 
         if (check.checked) {
             if (precio) precio.required = true;
             if (stock) stock.required = true;
+            
+            if (principal) principal.disabled = false;
         } else {
             if (precio) precio.required = false;
             if (stock) stock.required = false;
+
+            if (principal) {
+                principal.disabled = true;
+
+                // Si estaba seleccionada como principal,
+                // deja de serlo al desactivar la variante.
+                if (principal.checked) {
+                    principal.checked = false;
+
+                    const hiddenPrincipal = fila.querySelector('.variante-principal-hidden');
+
+                    if (hiddenPrincipal) {
+                        hiddenPrincipal.value = '0';
+                    }
+                }
+            }
         }
     });
 }
@@ -1256,7 +1275,8 @@ function renderizarTablaVariantes(variantes) {
                         class="form-check-input variante-principal-radio"
                         name="variante_principal_temp"
                         value="${index}"
-                        ${esPrincipal ? 'checked' : ''}>
+                        ${esPrincipal && estaActiva ? 'checked' : ''}
+                        ${!estaActiva ? 'disabled' : ''}>
 
                     <input type="hidden"
                         class="variante-principal-hidden"
@@ -1416,8 +1436,8 @@ function generarVariantes() {
             descuento_inicio: '',
             descuento_fin: '',
             stock_actual: '',
-            activo: 1,
-            es_principal: index === 0 ? 1 : 0
+            activo: 0,
+            es_principal: 0
         };
     });
 
