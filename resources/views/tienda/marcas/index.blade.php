@@ -2,8 +2,8 @@
 
 @extends('tienda.layouts.app')
 
-@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
-@section('meta_description', 'Explora las marcas disponibles en nuestra tienda en línea.')
+@section('title', 'Marcas disponibles en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', 'Explora todas las marcas disponibles en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '. Encuentra productos originales con envíos rápidos en Costa Rica.')
 
 @section('content')
 

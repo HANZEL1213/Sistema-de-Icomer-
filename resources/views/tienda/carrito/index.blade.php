@@ -1,8 +1,8 @@
 {{-- resources/views/tienda/carrito/index.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Carrito | Tienda')
-@section('meta_description', 'Revisa los productos agregados al carrito antes de finalizar tu compra.')
+@section('title', 'Carrito de compras | Revisa tus productos antes de pagar | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
+@section('meta_description', 'Revisa los productos de tu carrito en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' antes de finalizar tu compra. Confirma cantidades, aplica cupones y continúa al pago de forma segura.')
 
 @section('content')
 

@@ -1,10 +1,17 @@
 @extends('tienda.layouts.app')
 
-@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-@endpush
+@section('title', 'Inicio en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description',
+    'Bienvenido a ' .
+    ($configTienda['tienda_nombre'] ?? 'Mi Tienda') .
+    ': descubre productos,
+    categorías y marcas destacadas con envíos disponibles en Costa Rica.')
+
+
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+    @endpush
 
 @section('content')
 
@@ -12,6 +19,10 @@
     @php
         $placeholder = asset('assets/img/no-image.png');
     @endphp
+
+    <h1 class="visually-hidden">
+        {{ $configTienda['tienda_nombre'] ?? 'Tienda' }} - Productos, categorías y marcas en Costa Rica
+    </h1>
 
     {{-- =========================================================
         HERO PRINCIPAL DINÁMICO
@@ -57,9 +68,9 @@
                                                 </span>
                                             @endif
 
-                                            <h1 class="store-hero-title text-white">
+                                            <h2 class="store-hero-title text-white">
                                                 {{ $item->titulo ?: 'Descubrí nuestras novedades' }}
-                                            </h1>
+                                            </h2>
 
                                             <p class="store-hero-text text-white-50">
                                                 {{ $item->subtitulo ?: 'Explorá productos, categorías y marcas disponibles en nuestra tienda.' }}
@@ -112,9 +123,9 @@
                                 Tienda
                             </span>
 
-                            <h1 class="store-hero-title text-white">
+                            <h2 class="store-hero-title text-white">
                                 Bienvenido a nuestra tienda
-                            </h1>
+                            </h2>
 
                             <p class="store-hero-text text-white-50">
                                 Explorá productos, categorías y marcas disponibles.

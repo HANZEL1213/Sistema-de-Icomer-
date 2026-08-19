@@ -2,7 +2,9 @@
 
 @extends('tienda.layouts.app')
 
-@section('title', 'Mis Favoritos')
+
+@section('title', 'Mis favoritos | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Productos guardados')
+@section('meta_description', 'Consulta y gestiona los productos que guardaste como favoritos en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '.')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">

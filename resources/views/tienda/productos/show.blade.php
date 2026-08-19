@@ -2,8 +2,8 @@
 
 @extends('tienda.layouts.app')
 
-@section('title', $producto->nombre . ' | Tienda')
-@section('meta_description', $producto->descripcion ?? 'Detalle del producto')
+@section('title', $producto->nombre . ' | Comprar en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', $producto->descripcion ?: 'Compra ' . $producto->nombre . ' en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '. Envíos disponibles y compra segura en Costa Rica.')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">

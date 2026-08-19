@@ -1,8 +1,8 @@
 {{-- resources/views/tienda/pedidos/show.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Detalle del pedido | Tienda')
-@section('meta_description', 'Consulta el detalle completo de tu pedido.')
+@section('title', 'Detalle del pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', 'Revisa el detalle completo de tu pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ': productos, entrega y estado del pago.')
 
 @section('content')
 

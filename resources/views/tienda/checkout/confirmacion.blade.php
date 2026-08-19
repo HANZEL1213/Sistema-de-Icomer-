@@ -1,8 +1,8 @@
 {{-- resources/views/tienda/checkout/confirmacion.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Pedido confirmado | Tienda')
-@section('meta_description', 'Tu pedido fue creado correctamente.')
+@section('title', 'Pedido confirmado | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Seguimiento de tu compra')
+@section('meta_description', 'Confirmación de tu pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '. Consulta el estado, los datos de entrega y el seguimiento de tu compra.')
 
 @section('content')
 

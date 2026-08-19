@@ -1,5 +1,7 @@
 {{-- resources/views/tienda/pedidos/rastrear.blade.php --}}
 @extends('tienda.layouts.app')
+@section('title', 'Rastrear pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', 'Ingresa tu número de pedido para dar seguimiento al estado de tu compra en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '.')
 
 @section('content')
     <section class="store-section">

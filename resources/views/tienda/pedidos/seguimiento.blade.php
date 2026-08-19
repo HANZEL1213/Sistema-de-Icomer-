@@ -1,8 +1,8 @@
 {{-- resources/views/tienda/pedidos/seguimiento.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Seguimiento del pedido | Tienda')
-@section('meta_description', 'Consulta el estado y avance de tu pedido.')
+@section('title', 'Seguimiento del pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', 'Consulta el estado, el proceso de entrega y el comprobante de pago de tu pedido en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '.')
 
 @section('content')
 

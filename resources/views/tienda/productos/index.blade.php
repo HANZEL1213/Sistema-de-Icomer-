@@ -1,7 +1,8 @@
 {{-- resources/views/tienda/productos/index.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Inicio | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda'))
+@section('title', 'Catálogo de productos en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('meta_description', 'Explora todo nuestro catálogo de productos en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '. Filtra por categoría, marca y precio, con envíos rápidos en Costa Rica.')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">

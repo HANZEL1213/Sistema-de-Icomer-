@@ -1,8 +1,8 @@
 {{-- resources/views/tienda/pedidos/mis_pedidos.blade.php --}}
 @extends('tienda.layouts.app')
 
-@section('title', 'Mis pedidos | Tienda')
-@section('meta_description', 'Consulta el historial y seguimiento de tus pedidos.')
+@section('title', 'Mis pedidos | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Historial y seguimiento')
+@section('meta_description', 'Consulta el historial y el estado de todos tus pedidos realizados en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '.')
 
 @section('content')
 

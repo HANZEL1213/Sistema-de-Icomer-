@@ -1,7 +1,7 @@
 @extends('tienda.layouts.app')
 
-@section('title', 'Mi cuenta')
-
+@section('title', 'Mi cuenta | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Gestiona tu perfil y pedidos')
+@section('meta_description', 'Gestiona tu información personal, seguridad y pedidos en tu cuenta de ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . '.')
 @section('content')
 
     <main class="store-account-page">

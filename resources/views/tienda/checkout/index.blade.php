@@ -2,8 +2,8 @@
 @extends('tienda.layouts.app')
 
 
-@section('title', 'Finalizar compra | Tienda')
-@section('meta_description', 'Finaliza tu compra de forma rápida y segura.')
+@section('title', 'Finalizar compra | ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Pago seguro')
+@section('meta_description', 'Completa los datos de entrega y pago para finalizar tu compra en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' de forma rápida y segura.')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/checkout.css') }}">
