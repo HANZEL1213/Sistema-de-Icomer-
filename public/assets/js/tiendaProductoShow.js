@@ -14,6 +14,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let touchEndX = 0;
     let isAnimating = false;
 
+    // --- Precargar todas las imágenes de la galería (evita el lag en móvil) ---
+    thumbs.forEach((thumb) => {
+        const src = thumb.dataset.productImage;
+        if (src) {
+            const preloader = new Image();
+            preloader.src = src;
+        }
+    });
+
     // --- Detectar el índice correcto según la imagen que ya está cargada ---
     if (mainImage && thumbs.length) {
         const srcActual = mainImage.getAttribute('src') || '';
@@ -35,35 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
         counterEl.textContent = (currentImageIndex + 1) + ' / ' + thumbs.length;
     }
 
-function mostrarImagen(index, direction = null) {
-    if (!mainImage || !thumbs.length || isAnimating) return;
+    function mostrarImagen(index, direction = null) {
+        if (!mainImage || !thumbs.length || isAnimating) return;
 
-    if (index < 0) index = thumbs.length - 1;
-    if (index >= thumbs.length) index = 0;
+        if (index < 0) index = thumbs.length - 1;
+        if (index >= thumbs.length) index = 0;
 
-    if (index === currentImageIndex && direction === null) return;
+        if (index === currentImageIndex && direction === null) return;
 
-    currentImageIndex = index;
+        currentImageIndex = index;
 
-    const thumb = thumbs[currentImageIndex];
-    const image = thumb.dataset.productImage;
+        const thumb = thumbs[currentImageIndex];
+        const image = thumb.dataset.productImage;
 
-    if (!image) return;
+        if (!image) return;
 
-    isAnimating = true;
+        isAnimating = true;
 
-    if (direction) {
-        mainImage.classList.add(direction === 'next' ? 'slide-out-left' : 'slide-out-right');
-    }
-
-    setTimeout(() => {
-        let handled = false;
-
-        const finishAnimation = () => {
-            if (handled) return;
-            handled = true;
-
+        const cambiarImagen = () => {
             mainImage.classList.remove('slide-out-left', 'slide-out-right');
+            mainImage.src = image;
 
             if (direction) {
                 mainImage.classList.add(direction === 'next' ? 'slide-in-right' : 'slide-in-left');
@@ -72,24 +72,22 @@ function mostrarImagen(index, direction = null) {
             setTimeout(() => {
                 mainImage.classList.remove('slide-in-right', 'slide-in-left');
                 isAnimating = false;
-            }, 250);
+            }, direction ? 250 : 0);
         };
 
-        mainImage.addEventListener('load', finishAnimation, { once: true });
-        mainImage.src = image;
-
-        // Fallback para imágenes ya en caché
-        if (mainImage.complete) {
-            finishAnimation();
+        if (direction) {
+            mainImage.classList.add(direction === 'next' ? 'slide-out-left' : 'slide-out-right');
+            setTimeout(cambiarImagen, 250); // debe coincidir con la duración de la transición CSS
+        } else {
+            cambiarImagen();
         }
-    }, direction ? 150 : 0);
 
-    // Actualizar miniatura activa
-    thumbs.forEach((item) => item.classList.remove('active'));
-    thumb.classList.add('active');
+        // Actualizar miniatura activa
+        thumbs.forEach((item) => item.classList.remove('active'));
+        thumb.classList.add('active');
 
-    actualizarContador();
-}
+        actualizarContador();
+    }
 
     // Click en miniaturas
     thumbs.forEach((thumb, index) => {
