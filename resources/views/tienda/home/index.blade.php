@@ -2,6 +2,7 @@
 
 
 @section('title', 'Inicio en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+
 @section('meta_description',
     'Bienvenido a ' .
     ($configTienda['tienda_nombre'] ?? 'Mi Tienda') .
@@ -9,9 +10,11 @@
     categorías y marcas destacadas con envíos disponibles en Costa Rica.')
 
 
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-    @endpush
+@push('styles')
+    <link rel="canonical" href="{{ url('/') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+@endpush
+
 
 @section('content')
 
