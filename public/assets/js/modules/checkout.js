@@ -942,7 +942,9 @@ function goToStep(step) {
         el.style.display = 'none';
     });
 
-    document.getElementById(`checkoutStep${step}`).style.display = 'block';
+    const currentStep = document.getElementById(`checkoutStep${step}`);
+
+    currentStep.style.display = 'block';
 
     document.querySelectorAll('.checkout-progress-step').forEach(el => {
         el.classList.remove('active', 'completed');
@@ -962,6 +964,17 @@ function goToStep(step) {
         document.getElementById('indicatorStep2').classList.add('completed');
         document.getElementById('indicatorStep3').classList.add('active');
     }
+
+    // Llevar al usuario al inicio de la sección actual
+    setTimeout(() => {
+        const offset = 100;
+        const position = currentStep.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({
+            top: position,
+            behavior: 'smooth'
+        });
+    }, 50);
 }
 
 // document.getElementById('nextStep1').addEventListener('click', () => {

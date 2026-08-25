@@ -212,7 +212,7 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-end">
+                            <div class="d-flex justify-content-end mt-4">
                                 <button type="button" id="nextStep1" class="btn btn-store-primary">
                                     Siguiente
                                     <i class="bi bi-arrow-right ms-1"></i>
@@ -461,7 +461,7 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between mt-4">
                                 <button type="button" id="prevStep2" class="btn btn-store-outline">
                                     <i class="bi bi-arrow-left me-1"></i>
                                     Atrás
@@ -547,20 +547,40 @@
                                     <div class="row g-3 mt-3">
 
                                         <div class="col-12">
-                                            <label class="store-form-label">
-                                                Número de comprobante o referencia
-                                                <span class="text-danger">*</span>
+                                            <label class="store-form-label d-flex align-items-center gap-2">
+                                                <span>
+                                                    Número de comprobante o referencia
+                                                    <span class="text-danger">*</span>
+                                                </span>
+
+                                                <button type="button"
+                                                    class="btn btn-outline-primary p-0 flex-shrink-0 rounded-circle"
+                                                    style="width: 24px !important; min-width: 24px !important; max-width: 24px !important; height: 24px !important; min-height: 24px !important; max-height: 24px !important;"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#helpNumeroComprobante"
+                                                    aria-expanded="false"
+                                                    aria-controls="helpNumeroComprobante">
+                                                    <i class="bi bi-question-lg"></i>
+                                                </button>
                                             </label>
+
+                                            <div class="collapse" id="helpNumeroComprobante">
+                                                <div class="alert alert-light border small py-2 px-3 mb-2">
+                                                    <i class="bi bi-info-circle me-1"></i>
+                                                    Escribe el número del voucher, referencia SINPE o comprobante
+                                                                                            bancario.
+                                                </div>
+                                            </div>
 
                                             <input type="text" name="numero_comprobante"
                                                 value="{{ old('numero_comprobante') }}"
                                                 class="form-control store-filter-control @error('numero_comprobante') is-invalid @enderror"
                                                 placeholder="Ejemplo: 154848484" required>
 
-                                            <small class="text-muted d-block mt-2">
+                                            {{-- <small class="text-muted d-block mt-2">
                                                 Podés escribir el número del voucher, referencia SINPE o comprobante
                                                 bancario.
-                                            </small>
+                                            </small> --}}
 
                                             @error('numero_comprobante')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -568,9 +588,31 @@
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="store-form-label">
-                                                Imagen del comprobante (Opcional)
+                                            <label class="store-form-label d-flex align-items-center gap-2">
+                                                <span>
+                                                    Imagen del comprobante
+                                                    <span class="text-muted">(Opcional)</span>
+                                                </span>
+
+                                                <button type="button"
+                                                    class="btn btn-outline-primary p-0 flex-shrink-0 rounded-circle"
+                                                    style="width: 24px !important; min-width: 24px !important; max-width: 24px !important; height: 24px !important; min-height: 24px !important; max-height: 24px !important;"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#helpImagenComprobante"
+                                                    aria-expanded="false"
+                                                    aria-controls="helpImagenComprobante">
+                                                    <i class="bi bi-question-lg"></i>
+                                                </button>
                                             </label>
+
+                                            <div class="collapse" id="helpImagenComprobante">
+                                                <div class="alert alert-light border small py-2 px-3 mb-2">
+                                                    <i class="bi bi-info-circle me-1"></i>
+                                                    Puedes adjuntar una captura del SINPE o comprobante bancario.
+                                                    Es opcional si ya ingresaste correctamente el número de referencia.
+                                                </div>
+                                            </div>
+
                                             <input type="file" name="comprobante_pago" id="checkoutComprobanteInput"
                                                 accept="image/png,image/jpeg,image/jpg,image/webp"
                                                 class="form-control store-filter-control @error('comprobante_pago') is-invalid @enderror">
@@ -583,10 +625,10 @@
 
                                             </div>
 
-                                            <small class="text-muted d-block mt-2">
+                                            {{-- <small class="text-muted d-block mt-2">
                                                 Adjunta una captura del SINPE o comprobante bancario.
                                                 Formatos permitidos: JPG, PNG y WEBP.
-                                            </small>
+                                            </small> --}}
 
                                             @error('comprobante_pago')
                                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -595,14 +637,36 @@
 
                                     </div>
 
+                                    {{-- TÉRMINOS --}}
+                                     <div class="form-check mt-4 mb-2">
+                                        <input class="form-check-input" type="checkbox" name="acepta_terminos"
+                                            id="acepta_terminos" required>
+
+                                        <label class="form-check-label" for="acepta_terminos">
+                                            He leído y acepto los
+                                            <a href="#" class="terminos-link" data-bs-toggle="modal"
+                                                data-bs-target="#modalTerminos">
+                                                Términos, Condiciones y Políticas de Cora CR.
+                                            </a>
+                                        </label>
+                                    </div>
+
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-start mt-4">
+                            {{-- ACCIONES --}}
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+
                                 <button type="button" id="prevStep3" class="btn btn-store-outline">
                                     <i class="bi bi-arrow-left me-1"></i>
                                     Atrás
                                 </button>
+
+                                <button type="submit" class="btn btn-store-primary">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Confirmar pedido
+                                </button>
+
                             </div>
 
                         </div>
@@ -757,24 +821,6 @@
                                 Tu pedido será revisado manualmente después de validar el pago.
                             </div>
 
-                            <div class="form-check mt-4 mb-3">
-                                <input class="form-check-input" type="checkbox" name="acepta_terminos"
-                                    id="acepta_terminos" required>
-
-                                <label class="form-check-label" for="acepta_terminos">
-                                    He leído y acepto los
-                                    <a href="#" class="terminos-link" data-bs-toggle="modal"
-                                        data-bs-target="#modalTerminos">
-                                        Términos, Condiciones y Políticas de Cora CR.
-                                    </a>
-                                </label>
-                            </div>
-
-                            <button type="submit" class="btn btn-store-primary store-checkout-submit">
-                                <i class="bi bi-shield-check me-1"></i>
-                                Confirmar pedido
-                            </button>
-
                             <a href="{{ route('tienda.carrito.index') }}" class="btn btn-store-outline w-100 mb-3">
                                 Volver al carrito
                             </a>
@@ -890,5 +936,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('assets/js/modules/checkout.js') }}"></script>
+    <script src="{{ asset('assets/js/modules/checkout.js?v=2') }}"></script>
 @endpush
