@@ -5,6 +5,22 @@
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/css/modules/productos.css') }}">
+    <style>
+        .btn-action.btn-whatsapp {
+            background-color: #25D366;
+            color: #fff;
+            border-color: #25D366;
+        }
+        .btn-action.btn-whatsapp:hover {
+            background-color: #1DA851;
+            border-color: #1DA851;
+            color: #fff;
+        }
+        .btn-action.btn-whatsapp.is-loading {
+            opacity: .6;
+            pointer-events: none;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -136,6 +152,9 @@
                                 $stockReal = $item->usa_variantes
                                     ? $variantesActivas->sum('stock_actual')
                                     : $item->stock_actual;
+
+                                // URL pública del producto en la tienda (ajusta el nombre de ruta a la real)
+                                $urlTienda = route('tienda.productos.show', $item->slug ?? $item->id_producto);
                             @endphp
 
                             <tr>
@@ -373,6 +392,16 @@
                                             <i class="bx bx-edit"></i>
                                         </a>
 
+                                        {{-- WHATSAPP ESTADO --}}
+                                        <button type="button"
+                                            class="btn-action btn-whatsapp btn-whatsapp-status"
+                                            data-imagen="{{ $imagenProducto ?? '' }}"
+                                            data-url="{{ $urlTienda }}"
+                                            data-nombre="{{ $item->nombre }}"
+                                            title="Compartir en Estado de WhatsApp">
+                                            <i class="bx bxl-whatsapp"></i>
+                                        </button>
+
                                         <form action="{{ route('admin.productos.destroy', $item->id_producto) }}"
                                             method="POST" style="display:inline;">
                                             @csrf
@@ -429,3 +458,9 @@
     </div>
 
 @endsection
+
+
+
+@push('scripts')
+    <script src="{{ asset('assets/js/modules/productos-whatsapp.js') }}"></script>
+@endpush
