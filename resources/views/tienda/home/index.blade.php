@@ -1,7 +1,7 @@
 @extends('tienda.layouts.app')
 
 
-@section('title', 'Inicio en ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Envíos en Costa Rica')
+@section('title', ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Tienda en Costa Rica')
 
 @section('meta_description',
     'Bienvenido a ' .
@@ -11,10 +11,8 @@
 
 
 @push('styles')
-    <link rel="canonical" href="{{ url('/') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
 @endpush
-
 
 @section('content')
 

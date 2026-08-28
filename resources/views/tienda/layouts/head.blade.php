@@ -12,6 +12,8 @@
 <title>@yield('title', 'Cora Store CR | Tienda en línea en Costa Rica')</title>
 <meta name="description" content="@yield('meta_description', 'Cora - Tu tienda en línea en Costa Rica. Encontrá productos de calidad con envíos rápidos, compra segura y atención directa por WhatsApp.')">
 
+<link rel="canonical" href="@yield('canonical', url()->current())">
+
 {{-- LOGO --}}
 <link rel="icon" type="image/x-icon" href="{{ asset('assets/images/Logo_C.png') }}">
 
