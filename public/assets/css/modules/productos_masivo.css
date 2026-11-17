@@ -1,0 +1,281 @@
+/* ============================================================
+   productos_masivo.css — CRUD masivo por Categoría + Marca
+   Solo estilos NUEVOS. Lo demás reutiliza las clases del panel
+   (card-form, search-box, pagination-modern, btn-nuevo, btn-action,
+   status-badge, order-badge, img-thumb, index-price-*).
+   ============================================================ */
+
+/* ---------- Tokens locales (claro / oscuro) ---------- */
+#masivo-app {
+    --masivo-tint: #f7f3e8;
+    --masivo-tint-borde: #eadfc4;
+    --masivo-badge-bg: #141414;
+    --masivo-badge-fg: #ffffff;
+    --masivo-vacio-borde: rgba(0, 0, 0, .15);
+    --masivo-oferta-bg: #fdecea;
+    --masivo-oferta-fg: #b42318;
+    --masivo-precio-antes: #8a8a8a;
+}
+
+.dark-theme #masivo-app {
+    --masivo-tint: rgba(255, 255, 255, .06);
+    --masivo-tint-borde: rgba(255, 255, 255, .14);
+    --masivo-badge-bg: rgba(255, 255, 255, .16);
+    --masivo-badge-fg: #ffffff;
+    --masivo-vacio-borde: rgba(255, 255, 255, .18);
+    --masivo-oferta-bg: rgba(248, 113, 113, .16);
+    --masivo-oferta-fg: #f87171;
+    --masivo-precio-antes: #9a9a9a;
+}
+
+/* ---------- Resumen del par elegido ---------- */
+#masivo-app .ctx-resumen {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    padding: .65rem .9rem;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
+}
+
+#masivo-app .ctx-badge {
+    display: inline-block;
+    padding: .25rem .75rem;
+    border-radius: 999px;
+    background: var(--masivo-badge-bg);
+    color: var(--masivo-badge-fg);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    white-space: nowrap;
+}
+
+/* ---------- Barra de selección ---------- */
+#masivo-app .barra-seleccion {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    padding: .6rem .9rem;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
+    font-size: .9rem;
+}
+
+/* ---------- Tabla ---------- */
+#tabla_masivo thead th {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+#tabla_masivo .form-check-input {
+    cursor: pointer;
+}
+
+/* Fila marcada (la fuerza para ganarle al fondo de .table-hover) */
+#tabla_masivo tbody tr.fila-seleccionada > td {
+    background-color: var(--masivo-tint) !important;
+}
+
+/* Mientras se consulta: la tabla se atenúa y no acepta clics */
+#masivo-app.is-loading .table-responsive,
+#masivo-app.is-loading .custom-pagination-container {
+    opacity: .55;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}
+
+/* ---------- Precio en la tabla (normal y en oferta) ---------- */
+#masivo-app .masivo-precio {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    line-height: 1.2;
+}
+
+#masivo-app .masivo-precio-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    background: var(--masivo-oferta-bg);
+    color: var(--masivo-oferta-fg);
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+#masivo-app .masivo-precio-final {
+    color: var(--masivo-oferta-fg);
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+#masivo-app .masivo-precio-antes {
+    color: var(--masivo-precio-antes);
+    font-size: .8rem;
+    font-weight: 400;
+    text-decoration: line-through;
+}
+
+#masivo-app .masivo-precio-normal {
+    font-weight: 600;
+}
+
+/* ---------- Estados vacíos ---------- */
+#masivo-app .masivo-vacio {
+    text-align: center;
+    padding: 2.75rem 1rem;
+    color: var(--bs-secondary-color, #6c757d);
+    border: 1px dashed var(--masivo-vacio-borde);
+    border-radius: 12px;
+}
+
+#masivo-app .masivo-vacio i {
+    display: block;
+    font-size: 2.4rem;
+    margin-bottom: .5rem;
+    opacity: .7;
+}
+
+/* ---------- Modal Eliminar: lista de productos a borrar ---------- */
+#masivo-app .masivo-lista-borrado {
+    list-style: none;
+    margin: 0;
+    padding: .6rem .8rem;
+    max-height: 150px;
+    overflow-y: auto;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
+    font-size: .85rem;
+}
+
+#masivo-app .masivo-lista-borrado li::before {
+    content: "• ";
+    opacity: .6;
+}
+
+/* ---------- Modal Editar: filas de campo (casilla + control) ---------- */
+#masivo-app .ed-campo {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: .5rem 1rem;
+    align-items: start;
+    padding: .8rem 0;
+    border-bottom: 1px solid var(--masivo-tint-borde);
+}
+
+#masivo-app .ed-campo:first-child {
+    padding-top: 0;
+}
+
+#masivo-app .ed-campo .form-check {
+    margin: 0;
+    padding-top: .4rem;
+}
+
+/* Campo sin marcar: se ve apagado */
+#masivo-app .ed-campo:not(.activo) .form-select,
+#masivo-app .ed-campo:not(.activo) .form-control,
+#masivo-app .ed-campo:not(.activo) .input-group-text {
+    opacity: .55;
+}
+
+/* Descuento: un solo selector (sin casilla), ocupa todo el ancho de la fila */
+#masivo-app .ed-campo[data-campo="descuento"] {
+    display: block;
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    #masivo-app .ed-campo {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ---------- Modal Cargar: zona de arrastre y lista de archivos ---------- */
+#masivo-app .cg-zona {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+    padding: 1.75rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    border: 2px dashed var(--masivo-vacio-borde);
+    border-radius: 12px;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+#masivo-app .cg-zona i {
+    font-size: 2.2rem;
+    opacity: .75;
+}
+
+#masivo-app .cg-zona:hover,
+#masivo-app .cg-zona:focus-visible,
+#masivo-app .cg-zona.arrastrando {
+    background: var(--masivo-tint);
+    border-color: var(--masivo-tint-borde);
+    outline: none;
+}
+
+#masivo-app .cg-lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    max-height: 130px;
+    overflow-y: auto;
+    margin-top: .4rem;
+}
+
+#masivo-app .cg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    max-width: 230px;
+    padding: .15rem .3rem .15rem .7rem;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 999px;
+    font-size: .74rem;
+}
+
+#masivo-app .cg-chip-nombre {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#masivo-app .cg-chip-x {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    line-height: 1;
+    padding: 0 .35rem;
+    font-size: 1rem;
+    opacity: .6;
+    cursor: pointer;
+}
+
+#masivo-app .cg-chip-x:hover {
+    opacity: 1;
+}
+
+/* ---------- Móvil ---------- */
+@media (max-width: 575.98px) {
+    #masivo-app .ctx-resumen,
+    #masivo-app .barra-seleccion {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

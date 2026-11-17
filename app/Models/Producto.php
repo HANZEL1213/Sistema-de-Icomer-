@@ -18,6 +18,7 @@ class Producto extends Model
         'slug',
         'codigo',
         'sku',
+        'numero_lote',
         'descripcion',
         'precio',
         'descuento_activo',

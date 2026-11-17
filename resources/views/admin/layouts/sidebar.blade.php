@@ -32,31 +32,35 @@
 			</a>
 		</li>
 
-		<!-- Catálogos -->
-		<li>
-			<a href="javascript:;" class="has-arrow">
-				<div class="parent-icon"><i class="bx bx-category"></i></div>
-				<div class="menu-title">Catálogos</div>
-			</a>
-			<ul>
-				<li>
-					<a href="{{ route('admin.categorias.index') }}">
-						<i class="bx bx-right-arrow-alt"></i>Categorías
-					</a>
-				</li>
-				<li>
-					<a href="{{ route('admin.marcas.index') }}">
-						<i class="bx bx-right-arrow-alt"></i>Marcas
-					</a>
-				</li>
-				<li>
-					<a href="{{ route('admin.productos.index') }}">
-						<i class="bx bx-right-arrow-alt"></i>Productos
-					</a>
-				</li>
-			</ul>
-		</li>
-
+<!-- Catálogos -->
+<li>
+    <a href="javascript:;" class="has-arrow">
+        <div class="parent-icon"><i class="bx bx-category"></i></div>
+        <div class="menu-title">Catálogos</div>
+    </a>
+    <ul>
+        <li>
+            <a href="{{ route('admin.categorias.index') }}">
+                <i class="bx bx-right-arrow-alt"></i>Categorías
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.marcas.index') }}">
+                <i class="bx bx-right-arrow-alt"></i>Marcas
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.productos.index') }}">
+                <i class="bx bx-right-arrow-alt"></i>Productos
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.productos-masivo.index') }}">
+                <i class="bx bx-right-arrow-alt"></i>CRUD Masivo
+            </a>
+        </li>
+    </ul>
+</li>
 		<!-- Ventas -->
 		<li>
 			<a href="javascript:;" class="has-arrow">

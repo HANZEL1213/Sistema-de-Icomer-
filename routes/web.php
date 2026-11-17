@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\{
     PedidosController,
     PagosPedidosController,
     ProductosController,
+    ProductoMasivoController,
     ImagenesProductoController,
     ProductosRelacionadosController,
     UsuariosController,
@@ -541,4 +542,37 @@ Route::resource('pagos-ventas-locales', PagosVentasLocalesController::class)
         // Aquí luego podés agregar relacionados, variantes, etc.
         // Route::get('relacionados', [ProductosRelacionadosController::class, 'index'])->name('relacionados.index');
     });
+
+
+
+
+
+
+
+
+
+
+
+
+    Route::prefix('productos-masivo')->name('productos-masivo.')->group(function () {
+        Route::get('/', [ProductoMasivoController::class, 'index'])->name('index');
+        Route::get('/listar', [ProductoMasivoController::class, 'listar'])->name('listar');
+        Route::post('/crear', [ProductoMasivoController::class, 'crear'])->name('crear');
+        Route::post('/editar', [ProductoMasivoController::class, 'editar'])->name('editar');
+        Route::post('/cambiar-activo', [ProductoMasivoController::class, 'cambiarActivo'])->name('cambiar-activo');
+        Route::post('/previsualizar-borrado', [ProductoMasivoController::class, 'previsualizarBorrado'])->name('previsualizar-borrado');
+        Route::post('/eliminar', [ProductoMasivoController::class, 'eliminar'])->name('eliminar');
+    });
+
+
+
+
+
+
+
+
+
+
+
+
 });
