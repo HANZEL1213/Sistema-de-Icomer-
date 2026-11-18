@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ProductoMasivoController extends Controller
 {
@@ -166,7 +167,7 @@ class ProductoMasivoController extends Controller
         $precio      = round((float) $data['precio'], 2);
         $stock       = (int) $data['stock'];
         $archivos    = $request->file('archivos', []);
-        $usuarioId   = auth()->id() ?? 1;
+        $usuarioId   = $this->usuarioIdActual();
 
            // Lock de aplicación por par categoría+marca: evita que dos tandas
         // simultáneas calculen el mismo próximo numero_lote (RF-02).
@@ -385,181 +386,190 @@ class ProductoMasivoController extends Controller
      * destacado, descuento). Cada producto es atómico: si algo falla para
      * ese producto, no se toca y se reporta en `errores`.
      */
-      public function editar(Request $request)
-    {
-        $data = $request->validate([
-            'ids'              => 'required|array|min:1',
-            'ids.*'            => 'integer|exists:productos,id_producto',
-            'precio'           => 'nullable|numeric|min:1',
-            'stock'            => 'nullable|array',
-            'stock.modo'       => 'required_with:stock|in:fijar,sumar,restar',
-            'stock.valor'      => 'required_with:stock|integer|min:0',
-            'activo'           => 'nullable|boolean',
-            'destacado'        => 'nullable|boolean',
-            'descuento'        => 'nullable|array',
-            'descuento.accion' => 'required_with:descuento|in:activar,quitar',
-            'descuento.precio' => 'required_if:descuento.accion,activar|numeric|min:1',
-            'descuento.inicio' => 'required_if:descuento.accion,activar|date',
-            'descuento.fin'    => 'required_if:descuento.accion,activar|date|after:descuento.inicio',
-        ]);
+public function editar(Request $request)
+{
+    $data = $request->validate([
+        'ids'              => 'required|array|min:1',
+        'ids.*'            => 'integer|distinct',
+        'precio'           => 'nullable|numeric|min:1',
+        'stock'            => 'nullable|array',
+        'stock.modo'       => 'required_with:stock|in:fijar,sumar,restar',
+        'stock.valor'      => 'required_with:stock|integer|min:0',
+        'activo'           => 'nullable|boolean',
+        'destacado'        => 'nullable|boolean',
+        'descuento'        => 'nullable|array',
+        'descuento.accion' => 'required_with:descuento|in:activar,quitar',
+        'descuento.precio' => 'required_if:descuento.accion,activar|numeric|min:1',
+        'descuento.inicio' => 'required_if:descuento.accion,activar|date',
+        'descuento.fin'    => 'required_if:descuento.accion,activar|date|after:descuento.inicio',
+    ]);
 
-        $camposEditables = array_intersect_key($data, array_flip(['precio', 'stock', 'activo', 'destacado', 'descuento']));
-        if (!$camposEditables) {
-            return response()->json(['message' => 'Marcá al menos un campo para modificar.'], 422);
-        }
+    $camposEditables = array_intersect_key($data, array_flip(['precio', 'stock', 'activo', 'destacado', 'descuento']));
+    if (!$camposEditables) {
+        return response()->json(['message' => 'Marcá al menos un campo para modificar.'], 422);
+    }
 
-        $productos = Producto::whereIn('id_producto', $data['ids'])->get();
-        $editados  = [];
-        $errores   = [];
-        $aCero     = 0;
-        $usuarioId = auth()->id() ?? 1;
+    $productos = $this->cargarSeleccion($data['ids']);
+    $editados  = [];
+    $errores   = [];
+    $aCero     = 0;
+    $usuarioId = $this->usuarioIdActual();
 
-        foreach ($productos as $producto) {
-            try {
-                // Se marca dentro de la transacción, pero solo se cuenta si el
-                // producto de verdad se guardó (si falla, no suma).
-                $quedoACero = false;
+    // El lote se crea ANTES del loop para tener su id y anotarlo en cada
+    // movimiento de inventario. Los totales se completan al final.
+    // Asume que toda la selección viene de un mismo par categoría+marca
+    // (así la arma el front).
+    $primero    = $productos->first();
+    $loteMasivo = $primero
+        ? LoteMasivo::create([
+            'operacion'        => 'editar',
+            'id_categoria'     => $primero->id_categoria_principal,
+            'id_marca'         => $primero->id_marca,
+            'id_usuario'       => $usuarioId,
+            'total_solicitado' => count($data['ids']),
+            'total_ok'         => 0,
+            'total_error'      => 0,
+            'detalle'          => null,
+        ])
+        : null;
 
-                DB::transaction(function () use ($producto, $camposEditables, $usuarioId, &$quedoACero) {
-                    
-                                    if ($producto->usa_variantes) {
-                        $bloqueados = array_values(array_intersect(
-                            ['precio', 'stock', 'descuento'],
-                            array_keys($camposEditables)
-                        ));
+    foreach ($productos as $producto) {
+        try {
+            $quedoACero = false;
 
-                        if ($bloqueados) {
+            DB::transaction(function () use ($producto, $camposEditables, $usuarioId, $loteMasivo, &$quedoACero) {
+
+                if ($producto->usa_variantes) {
+                    $bloqueados = array_values(array_intersect(
+                        ['precio', 'stock', 'descuento'],
+                        array_keys($camposEditables)
+                    ));
+
+                    if ($bloqueados) {
+                        throw new \RuntimeException(
+                            'tiene variantes: ' . implode(', ', $bloqueados) . ' se edita en cada variante, no en bloque'
+                        );
+                    }
+                }
+
+                $precioActual = (float) $producto->precio;
+                $precioFinal  = array_key_exists('precio', $camposEditables)
+                    ? round((float) $camposEditables['precio'], 2)
+                    : $precioActual;
+
+                if (isset($camposEditables['stock'])) {
+                    $modo   = $camposEditables['stock']['modo'];
+                    $valor  = (int) $camposEditables['stock']['valor'];
+                    $actual = (int) $producto->stock_actual;
+
+                    if ($modo === 'fijar') {
+                        $nuevo = $valor;
+                    } elseif ($modo === 'sumar') {
+                        $nuevo = $actual + $valor;
+                    } else { // restar
+                        $nuevo = max(0, $actual - $valor);
+                        if ($actual - $valor < 0) {
+                            $quedoACero = true;
+                        }
+                    }
+
+                    if ($nuevo !== $actual) {
+                        $producto->stock_actual = $nuevo;
+
+                        // Sube = entrada, baja = salida. La cantidad es lo que
+                        // realmente se movió (si restar llega a 0, es lo que había).
+                        MovimientoInventario::create([
+                            'id_producto'           => $producto->id_producto,
+                            'tipo'                  => $nuevo > $actual ? 'entrada' : 'salida',
+                            'cantidad'              => abs($nuevo - $actual),
+                            'motivo'                => 'Edición masiva',
+                            'id_usuario_realizador' => $usuarioId,
+                            'notas'                 => 'Lote masivo #' . $loteMasivo->id_lote_masivo,
+                        ]);
+                    }
+                }
+
+                if (array_key_exists('activo', $camposEditables)) {
+                    $producto->activo = (bool) $camposEditables['activo'];
+                }
+                if (array_key_exists('destacado', $camposEditables)) {
+                    $producto->destacado = (bool) $camposEditables['destacado'];
+                }
+
+                if (isset($camposEditables['descuento'])) {
+                    $descuento = $camposEditables['descuento'];
+                    if ($descuento['accion'] === 'quitar') {
+                        $producto->descuento_activo = 0;
+                        $producto->precio_descuento = null;
+                        $producto->descuento_inicio = null;
+                        $producto->descuento_fin = null;
+                    } else {
+                        $precioDescuento = round((float) $descuento['precio'], 2);
+                        if ($precioDescuento >= $precioFinal) {
                             throw new \RuntimeException(
-                                'tiene variantes: ' . implode(', ', $bloqueados) . ' se edita en cada variante, no en bloque'
+                                "el descuento (₡{$precioDescuento}) no queda por debajo del precio (₡{$precioFinal})"
+                            );
+                        }
+                        $producto->descuento_activo = 1;
+                        $producto->precio_descuento = $precioDescuento;
+                        $producto->descuento_inicio = $descuento['inicio'];
+                        $producto->descuento_fin = $descuento['fin'];
+                    }
+                }
+
+                // Si solo se cambia el precio (sin tocar el descuento), el descuento
+                // que el producto ya tiene guardado debe seguir quedando por debajo.
+                if (array_key_exists('precio', $camposEditables) && !isset($camposEditables['descuento'])) {
+                    if ($producto->descuento_activo && $producto->precio_descuento !== null) {
+                        $descuentoGuardado = (float) $producto->precio_descuento;
+
+                        if ($descuentoGuardado >= $precioFinal) {
+                            throw new \RuntimeException(
+                                "el nuevo precio (₡{$precioFinal}) queda igual o por debajo del descuento que ya tiene (₡{$descuentoGuardado}). Quitá o ajustá el descuento primero"
                             );
                         }
                     }
-                
-                $precioActual = (float) $producto->precio;
-                    $precioFinal  = array_key_exists('precio', $camposEditables)
-                        ? round((float) $camposEditables['precio'], 2)
-                        : $precioActual;
-
-                    if (isset($camposEditables['stock'])) {
-                        $modo   = $camposEditables['stock']['modo'];
-                        $valor  = (int) $camposEditables['stock']['valor'];
-                        $actual = (int) $producto->stock_actual;
-
-                        if ($modo === 'fijar') {
-                            $nuevo = $valor;
-                        } elseif ($modo === 'sumar') {
-                            $nuevo = $actual + $valor;
-                        } else { // restar
-                            $nuevo = max(0, $actual - $valor);
-                            if ($actual - $valor < 0) {
-                                $quedoACero = true;
-                            }
-                        }
-
-                        if ($nuevo !== $actual) {
-                            $producto->stock_actual = $nuevo;
-                            MovimientoInventario::create([
-                                'id_producto'           => $producto->id_producto,
-                                'tipo'                  => 'ajuste',
-                                'cantidad'              => abs($nuevo - $actual),
-                                'motivo'                => 'Edición masiva',
-                                'id_usuario_realizador' => $usuarioId,
-                            ]);
-                        }
-                    }
-
-                    if (array_key_exists('activo', $camposEditables)) {
-                        $producto->activo = (bool) $camposEditables['activo'];
-                    }
-                    if (array_key_exists('destacado', $camposEditables)) {
-                        $producto->destacado = (bool) $camposEditables['destacado'];
-                    }
-
-                    if (isset($camposEditables['descuento'])) {
-                        $descuento = $camposEditables['descuento'];
-                        if ($descuento['accion'] === 'quitar') {
-                            $producto->descuento_activo = 0;
-                            $producto->precio_descuento = null;
-                            $producto->descuento_inicio = null;
-                            $producto->descuento_fin = null;
-                        } else {
-                            $precioDescuento = round((float) $descuento['precio'], 2);
-                            if ($precioDescuento >= $precioFinal) {
-                                throw new \RuntimeException(
-                                    "el descuento (₡{$precioDescuento}) no queda por debajo del precio (₡{$precioFinal})"
-                                );
-                            }
-                            $producto->descuento_activo = 1;
-                            $producto->precio_descuento = $precioDescuento;
-                            $producto->descuento_inicio = $descuento['inicio'];
-                            $producto->descuento_fin = $descuento['fin'];
-                        }
-                    }
-
-                    // Si solo se cambia el precio (sin tocar el descuento), el descuento
-                    // que el producto ya tiene guardado debe seguir quedando por debajo.
-                    // Mira descuento_activo y precio_descuento, pero no las fechas: por eso
-                    // también protege descuentos programados a futuro o ya vencidos.
-                    if (array_key_exists('precio', $camposEditables) && !isset($camposEditables['descuento'])) {
-                        if ($producto->descuento_activo && $producto->precio_descuento !== null) {
-                            $descuentoGuardado = (float) $producto->precio_descuento;
-
-                            if ($descuentoGuardado >= $precioFinal) {
-                                throw new \RuntimeException(
-                                    "el nuevo precio (₡{$precioFinal}) queda igual o por debajo del descuento que ya tiene (₡{$descuentoGuardado}). Quitá o ajustá el descuento primero"
-                                );
-                            }
-                        }
-                    }
-
-                    if (array_key_exists('precio', $camposEditables)) {
-                        $producto->precio = $precioFinal;
-                    }
-
-                    $producto->save();
-                });
-
-                if ($quedoACero) {
-                    $aCero++;
                 }
-                $editados[] = $producto->id_producto;
-            } catch (\Throwable $e) {
-                $errores[] = [
-                    'id'     => $producto->id_producto,
-                    'nombre' => $producto->nombre,
-                    'motivo' => $e->getMessage(),
-                ];
+
+                if (array_key_exists('precio', $camposEditables)) {
+                    $producto->precio = $precioFinal;
+                }
+
+                $producto->save();
+            });
+
+            if ($quedoACero) {
+                $aCero++;
             }
+            $editados[] = $producto->id_producto;
+        } catch (\Throwable $e) {
+            $errores[] = [
+                'id'     => $producto->id_producto,
+                'nombre' => $producto->nombre,
+                'motivo' => $e->getMessage(),
+            ];
         }
-
-        $avisos = $aCero
-            ? [$aCero . ($aCero === 1 ? ' producto quedó' : ' productos quedaron') . ' con stock 0 (no se resta por debajo de cero).']
-            : [];
-
-        // Bitácora: asume que toda la selección viene de un mismo par
-        // categoría+marca (así es como la arma el front). Si algún día se
-        // permite mezclar pares en una sola edición, esto hay que revisarlo.
-        if ($primero = $productos->first()) {
-            LoteMasivo::create([
-                'operacion'        => 'editar',
-                'id_categoria'     => $primero->id_categoria_principal,
-                'id_marca'         => $primero->id_marca,
-                'id_usuario'       => $usuarioId,
-                'total_solicitado' => count($data['ids']),
-                'total_ok'         => count($editados),
-                'total_error'      => count($errores),
-                'detalle'          => $errores ?: null,
-            ]);
-        }
-
-        return response()->json([
-            'solicitados' => count($data['ids']),
-            'ok'          => count($editados),
-            'idsEditados' => $editados,
-            'errores'     => $errores,
-            'avisos'      => $avisos,
-        ]);
     }
+
+    $avisos = $aCero
+        ? [$aCero . ($aCero === 1 ? ' producto quedó' : ' productos quedaron') . ' con stock 0 (no se resta por debajo de cero).']
+        : [];
+
+    // Se completan los totales del lote creado antes del loop.
+    $loteMasivo?->update([
+        'total_ok'    => count($editados),
+        'total_error' => count($errores),
+        'detalle'     => $errores ?: null,
+    ]);
+
+    return response()->json([
+        'solicitados' => count($data['ids']),
+        'ok'          => count($editados),
+        'idsEditados' => $editados,
+        'errores'     => $errores,
+        'avisos'      => $avisos,
+    ]);
+}
     /**
      * Interruptor "Activo" de la tabla: cambia el estado de UN producto.
      * No deja registro en la bitácora (lotes_masivos): esa tabla es solo
@@ -591,26 +601,21 @@ class ProductoMasivoController extends Controller
     {
         $data = $request->validate([
             'ids'   => 'required|array|min:1',
-            'ids.*' => 'integer|exists:productos,id_producto',
+            'ids.*' => 'integer|distinct',
         ]);
 
-        $productos  = Producto::whereIn('id_producto', $data['ids'])->pluck('nombre');
+        $productos  = $this->cargarSeleccion($data['ids']);
         $enCarrusel = CarruselItem::where('tipo_destino', 'producto')
             ->whereIn('id_producto', $data['ids'])
             ->count();
 
-          $conVariantes = Producto::whereIn('id_producto', $data['ids'])
-            ->where('usa_variantes', 1)
-            ->count();
-
         return response()->json([
-            'total'        => count($data['ids']),
-            'muestra'      => $productos->take(8)->values(),
+            'total'        => $productos->count(),
+            'muestra'      => $productos->pluck('nombre')->take(8)->values(),
             'enCarrusel'   => $enCarrusel,
-            'conVariantes' => $conVariantes,
+            'conVariantes' => $productos->where('usa_variantes', true)->count(),
         ]);
     }
-
     /**
      * RF-04 — Bulk Delete definitivo (forceDelete). Antes de borrar,
      * desactiva los banners del carrusel que apunten a estos productos
@@ -621,11 +626,11 @@ class ProductoMasivoController extends Controller
     {
         $data = $request->validate([
             'ids'   => 'required|array|min:1',
-            'ids.*' => 'integer|exists:productos,id_producto',
+                        'ids.*' => 'integer|distinct',
         ]);
 
-        $productos = Producto::whereIn('id_producto', $data['ids'])->with('imagenes')->get();
-        $usuarioId = auth()->id() ?? 1;
+        $productos = $this->cargarSeleccion($data['ids'], ['imagenes']);
+        $usuarioId = $this->usuarioIdActual();
 
         CarruselItem::where('tipo_destino', 'producto')
             ->whereIn('id_producto', $data['ids'])
@@ -675,4 +680,50 @@ class ProductoMasivoController extends Controller
             'errores'       => [],
         ]);
     }
-}
+
+
+
+    /**
+     * Trae los productos de la selección con UNA sola consulta y verifica que
+     * todos existan (un producto borrado con soft delete cuenta como inexistente).
+     * Reemplaza al `ids.*` => exists, que hacía una consulta por cada id.
+     */
+    private function cargarSeleccion(array $ids, array $relaciones = []): \Illuminate\Database\Eloquent\Collection
+    {
+        $ids       = array_map('intval', $ids);
+        $productos = Producto::whereIn('id_producto', $ids)->with($relaciones)->get();
+
+        if ($productos->count() !== count($ids)) {
+            $faltantes = array_diff($ids, $productos->pluck('id_producto')->all());
+
+            throw ValidationException::withMessages([
+                'ids' => 'Algunos productos de la selección ya no existen (ids: '
+                    . implode(', ', array_slice($faltantes, 0, 5))
+                    . (count($faltantes) > 5 ? '…' : '')
+                    . '). Recargá la lista e intentá de nuevo.',
+            ]);
+        }
+
+        return $productos;
+    }
+
+
+        /**
+     * Id del usuario con sesión activa. Si no hay ninguno, corta la petición
+     * con 401 en vez de atribuir la acción a otro usuario (antes: `?? 1`).
+     * El mensaje contiene "sesión expiró" para que el JS muestre el aviso
+     * de recargar página.
+     */
+    private function usuarioIdActual(): int
+    {
+        $id = auth()->id();
+
+        if ($id === null) {
+            abort(401, 'Tu sesión expiró. Recargá la página (F5) e intentá de nuevo.');
+        }
+
+        return (int) $id;
+    }
+
+    }
+

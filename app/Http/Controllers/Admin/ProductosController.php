@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MovimientoInventario;
 use App\Models\Producto;
 use App\Models\Marca;
 use App\Models\Categoria;
@@ -173,21 +174,20 @@ public function store(Request $request)
         'variantes.*.sku' => 'nullable|string|max:80',
         'variantes.*.precio' => 'nullable|integer|min:0',
         'variantes.*.descuento_activo' => 'nullable|boolean',
-'variantes.*.precio_descuento' => [
-    'nullable',
-    'integer',
-    'min:0',
-],
-'variantes.*.descuento_inicio' => [
-    'nullable',
-    'date',
-],
-
-'variantes.*.descuento_fin' => [
-    'nullable',
-    'date',
-    'after_or_equal:variantes.*.descuento_inicio',
-],
+        'variantes.*.precio_descuento' => [
+            'nullable',
+            'integer',
+            'min:0',
+        ],
+        'variantes.*.descuento_inicio' => [
+            'nullable',
+            'date',
+        ],
+        'variantes.*.descuento_fin' => [
+            'nullable',
+            'date',
+            'after_or_equal:variantes.*.descuento_inicio',
+        ],
         'variantes.*.stock_actual' => 'nullable|integer|min:0',
         'variantes.*.activo' => 'nullable|boolean',
         'variantes.*.es_principal' => 'nullable|boolean',
@@ -275,7 +275,8 @@ public function store(Request $request)
                     : null,
 
                 // Si usa variantes, el stock vive en las variantes
-                'stock_actual' => $usaVariantes ? 0 : $request->stock_actual,
+                // CAMBIO: cast a entero (la columna es NOT NULL y el campo puede llegar vacío)
+                'stock_actual' => $usaVariantes ? 0 : (int) $request->stock_actual,
 
                 'usa_variantes' => $usaVariantes ? 1 : 0,
                 'id_tipo_variante' => $usaVariantes ? $request->id_tipo_variante : null,
@@ -286,6 +287,19 @@ public function store(Request $request)
                 'id_categoria_principal' => $idCategoriaPrincipal,
             ]);
 
+            // CAMBIO: si el producto simple nace con stock, se deja registro en el
+            // historial de inventario (el stock ya quedó guardado en el create).
+            if (!$usaVariantes && (int) $request->stock_actual > 0) {
+                MovimientoInventario::create([
+                    'id_producto'           => $item->id_producto,
+                    'tipo'                  => 'entrada',
+                    'cantidad'              => (int) $request->stock_actual,
+                    'motivo'                => 'Stock inicial',
+                    'id_usuario_realizador' => auth()->id(),
+                    'notas'                 => 'Creación del producto',
+                ]);
+            }
+
             if ($usaVariantes) {
                 $variantes = collect($request->input('variantes', []))
                     ->filter(function ($variante) {
@@ -294,45 +308,45 @@ public function store(Request $request)
                     })
                     ->values();
 
-         $indicePrincipal = $variantes->search(function ($variante) {
-    return !empty($variante['es_principal']) && !empty($variante['activo']);
-});
+                $indicePrincipal = $variantes->search(function ($variante) {
+                    return !empty($variante['es_principal']) && !empty($variante['activo']);
+                });
 
-if ($indicePrincipal === false) {
-    $indicePrincipal = $variantes->search(function ($variante) {
-        return !empty($variante['activo']);
-    });
-}
+                if ($indicePrincipal === false) {
+                    $indicePrincipal = $variantes->search(function ($variante) {
+                        return !empty($variante['activo']);
+                    });
+                }
 
-foreach ($variantes as $index => $variante) {
-    $esPrincipal = $index === $indicePrincipal;
+                foreach ($variantes as $index => $variante) {
+                    $esPrincipal = $index === $indicePrincipal;
 
-             ProductoVariante::create([
-    'id_producto' => $item->id_producto,
-    'id_opcion_variante' => $variante['id_opcion_variante'] ?? null,
-    'nombre' => $this->nullIfBlank($variante['nombre'] ?? null) ?? 'Variante',
-    'sku' => $this->nullIfBlank($variante['sku'] ?? null),
+                    ProductoVariante::create([
+                        'id_producto' => $item->id_producto,
+                        'id_opcion_variante' => $variante['id_opcion_variante'] ?? null,
+                        'nombre' => $this->nullIfBlank($variante['nombre'] ?? null) ?? 'Variante',
+                        'sku' => $this->nullIfBlank($variante['sku'] ?? null),
 
-    'precio' => $this->nullIfBlank($variante['precio'] ?? null) ?? 0,
+                        'precio' => $this->nullIfBlank($variante['precio'] ?? null) ?? 0,
 
-    'descuento_activo' => !empty($variante['descuento_activo']) ? 1 : 0,
+                        'descuento_activo' => !empty($variante['descuento_activo']) ? 1 : 0,
 
-    'precio_descuento' => !empty($variante['descuento_activo'])
-        ? $this->nullIfBlank($variante['precio_descuento'] ?? null)
-        : null,
+                        'precio_descuento' => !empty($variante['descuento_activo'])
+                            ? $this->nullIfBlank($variante['precio_descuento'] ?? null)
+                            : null,
 
-    'descuento_inicio' => !empty($variante['descuento_activo'])
-        ? $this->nullIfBlank($variante['descuento_inicio'] ?? null)
-        : null,
+                        'descuento_inicio' => !empty($variante['descuento_activo'])
+                            ? $this->nullIfBlank($variante['descuento_inicio'] ?? null)
+                            : null,
 
-    'descuento_fin' => !empty($variante['descuento_activo'])
-        ? $this->nullIfBlank($variante['descuento_fin'] ?? null)
-        : null,
+                        'descuento_fin' => !empty($variante['descuento_activo'])
+                            ? $this->nullIfBlank($variante['descuento_fin'] ?? null)
+                            : null,
 
-    'stock_actual' => (int) ($variante['stock_actual'] ?? 0),
-    'activo' => !empty($variante['activo']) ? 1 : 0,
-    'es_principal' => $esPrincipal ? 1 : 0,
-]);
+                        'stock_actual' => (int) ($variante['stock_actual'] ?? 0),
+                        'activo' => !empty($variante['activo']) ? 1 : 0,
+                        'es_principal' => $esPrincipal ? 1 : 0,
+                    ]);
                 }
 
                 if (!$item->variantes()->where('es_principal', 1)->exists()) {
@@ -516,6 +530,7 @@ public function edit(string $id)
         'tiposVariantes'
     ));
 }
+
 public function update(Request $request, string $id)
 {
     $item = Producto::with(['imagenes', 'categorias', 'variantes'])->findOrFail($id);
@@ -763,6 +778,17 @@ public function update(Request $request, string $id)
                 $imagenPrincipalExistente = null;
             }
 
+            // CAMBIO: stock vigente en la BD ANTES de guardar (con bloqueo de fila),
+            // para registrar la diferencia real aunque un pedido lo haya movido
+            // mientras el formulario estaba abierto.
+            $stockAnterior = (int) Producto::whereKey($item->id_producto)
+                ->lockForUpdate()
+                ->value('stock_actual');
+        
+                $stockNuevo = $usaVariantes
+    ? 0
+    : ($request->filled('stock_actual') ? (int) $request->stock_actual : $stockAnterior);
+
             $item->update([
                 'id_marca' => $request->filled('id_marca') ? $request->id_marca : null,
                 'nombre' => trim($request->nombre),
@@ -789,7 +815,8 @@ public function update(Request $request, string $id)
                     ? $this->nullIfBlank($request->descuento_fin)
                     : null,
 
-                'stock_actual' => $usaVariantes ? 0 : $request->stock_actual,
+                // CAMBIO: usa $stockNuevo (ya convertido a entero)
+                'stock_actual' => $stockNuevo,
 
                 'usa_variantes' => $usaVariantes ? 1 : 0,
                 'id_tipo_variante' => $usaVariantes ? $request->id_tipo_variante : null,
@@ -799,6 +826,20 @@ public function update(Request $request, string $id)
 
                 'id_categoria_principal' => $idCategoriaPrincipal,
             ]);
+
+            // CAMBIO: si el stock del producto simple cambió, se deja registro
+            // en el historial. Se crea solo el movimiento (no se usa
+            // registrarEntradaInventario porque haría increment y duplicaría el cambio).
+            if (!$usaVariantes && $stockNuevo !== $stockAnterior) {
+                MovimientoInventario::create([
+                    'id_producto'           => $item->id_producto,
+                    'tipo'                  => $stockNuevo > $stockAnterior ? 'entrada' : 'salida',
+                    'cantidad'              => abs($stockNuevo - $stockAnterior),
+                    'motivo'                => 'Edición de producto',
+                    'id_usuario_realizador' => auth()->id(),
+                    'notas'                 => "Stock {$stockAnterior} → {$stockNuevo} (formulario de edición)",
+                ]);
+            }
 
             if ($usaVariantes) {
                 $idsVariantesRecibidas = [];
@@ -995,7 +1036,6 @@ public function update(Request $request, string $id)
             ->with('error', 'Error al actualizar el producto.');
     }
 }
-
     /* ============================================
        🗑️ ELIMINAR
     ============================================ */

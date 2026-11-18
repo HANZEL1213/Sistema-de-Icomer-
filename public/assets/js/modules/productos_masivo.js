@@ -119,7 +119,7 @@
             const r = await fetch(url, {
                 method: 'POST',
                 credentials: 'same-origin', // asegura que la cookie de sesión viaje siempre
-                headers: { Accept: 'application/json', ...headersCsrf(), ...extraHeaders },
+               headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', ...headersCsrf(), ...extraHeaders },
                 body,
             });
 
@@ -149,7 +149,8 @@
 
                 const r = await fetch(`${app.dataset.urlListar}?${parametros.toString()}`, {
                     credentials: 'same-origin',
-                    headers: { Accept: 'application/json' },
+                  
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
                 });
                 if (!r.ok) throw new Error(await leerError(r));
 
@@ -1247,3 +1248,4 @@
     // Arranque: sin contexto elegido muestra el estado inicial
     cargar();
 })();
+
