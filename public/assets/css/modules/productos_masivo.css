@@ -1,8 +1,13 @@
 /* ============================================================
    productos_masivo.css — CRUD masivo por Categoría + Marca
+   Versión con retoque visual / UX final.
    Solo estilos NUEVOS. Lo demás reutiliza las clases del panel
    (card-form, search-box, pagination-modern, btn-nuevo, btn-action,
    status-badge, order-badge, img-thumb, index-price-*).
+
+   Todo está dentro de #masivo-app (o de #tabla_masivo), así que no
+   puede afectar a los demás módulos. No se tocó ningún id ni clase
+   que use productos_masivo.js.
    ============================================================ */
 
 /* ---------- Tokens locales (claro / oscuro) ---------- */
@@ -15,6 +20,11 @@
     --masivo-oferta-bg: #fdecea;
     --masivo-oferta-fg: #b42318;
     --masivo-precio-antes: #8a8a8a;
+    --masivo-peligro: #dc3545;
+    --masivo-sombra: 0 6px 18px rgba(15, 23, 42, .08);
+    /* Altura del topbar del panel: si la barra de selección se
+       esconde detrás del header, ajustá solo este valor. */
+    --masivo-sticky-top: 72px;
 }
 
 .dark-theme #masivo-app {
@@ -26,6 +36,83 @@
     --masivo-oferta-bg: rgba(248, 113, 113, .16);
     --masivo-oferta-fg: #f87171;
     --masivo-precio-antes: #9a9a9a;
+    --masivo-peligro: #f87171;
+    --masivo-sombra: 0 6px 18px rgba(0, 0, 0, .35);
+}
+
+/* En modo oscuro los textos "text-dark" del pie de paginación se perdían */
+.dark-theme #masivo-app .pagination-info .text-dark {
+    color: inherit !important;
+}
+
+/* ---------- Encabezado de pasos (1. Contexto · 2. Productos) ---------- */
+#masivo-app .masivo-paso {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+}
+
+#masivo-app .masivo-paso-num {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--masivo-badge-bg);
+    color: var(--masivo-badge-fg);
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+#masivo-app .masivo-paso h6 {
+    margin: 0 0 .1rem;
+}
+
+/* Cabecera de la tarjeta 2: título a la izquierda, acción a la derecha */
+#masivo-app .masivo-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+#masivo-app .masivo-cabecera-accion {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem .85rem;
+}
+
+/* Pista junto al botón "Cargar imágenes": solo se ve mientras está
+   deshabilitado (CSS puro, sin tocar el JS). */
+#masivo-app .masivo-hint-cargar {
+    display: none;
+    order: -1;
+    font-size: .8rem;
+    color: var(--bs-secondary-color, #6c757d);
+}
+
+#masivo-app #btnCargar:disabled ~ .masivo-hint-cargar {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+}
+
+#masivo-app #btnCargar:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* ---------- Resultado de operaciones (alerta superior) ---------- */
+#masivo-app #masivoResultado .alert {
+    border-radius: 12px;
+    box-shadow: var(--masivo-sombra);
 }
 
 /* ---------- Resumen del par elegido ---------- */
@@ -35,9 +122,10 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: .5rem 1rem;
-    padding: .65rem .9rem;
+    padding: .7rem .95rem;
     background: var(--masivo-tint);
     border: 1px solid var(--masivo-tint-borde);
+    border-left: 4px solid var(--masivo-badge-bg);
     border-radius: 10px;
 }
 
@@ -53,8 +141,17 @@
     white-space: nowrap;
 }
 
-/* ---------- Barra de selección ---------- */
+/* Selectores de contexto un poco más cómodos de tocar */
+#masivo-app #ctxCategoria,
+#masivo-app #ctxMarca {
+    min-height: 44px;
+}
+
+/* ---------- Barra de selección (queda visible al hacer scroll) ---------- */
 #masivo-app .barra-seleccion {
+    position: sticky;
+    top: var(--masivo-sticky-top);
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -63,23 +160,53 @@
     padding: .6rem .9rem;
     background: var(--masivo-tint);
     border: 1px solid var(--masivo-tint-borde);
+    border-left: 4px solid var(--masivo-badge-bg);
     border-radius: 10px;
+    box-shadow: var(--masivo-sombra);
     font-size: .9rem;
+}
+
+#masivo-app .barra-seleccion a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
 }
 
 /* ---------- Tabla ---------- */
 #tabla_masivo thead th {
     white-space: nowrap;
     vertical-align: middle;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+#tabla_masivo tbody td {
+    vertical-align: middle;
+}
+
+#tabla_masivo tbody tr {
+    transition: background-color .12s ease;
 }
 
 #tabla_masivo .form-check-input {
     cursor: pointer;
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+/* Interruptor "Activo" más fácil de acertar */
+#tabla_masivo .form-switch .form-check-input {
+    width: 2.4rem;
+    height: 1.2rem;
 }
 
 /* Fila marcada (la fuerza para ganarle al fondo de .table-hover) */
 #tabla_masivo tbody tr.fila-seleccionada > td {
     background-color: var(--masivo-tint) !important;
+}
+
+#tabla_masivo tbody tr.fila-seleccionada > td:first-child {
+    box-shadow: inset 3px 0 0 var(--masivo-badge-bg);
 }
 
 /* Mientras se consulta: la tabla se atenúa y no acepta clics */
@@ -88,6 +215,15 @@
     opacity: .55;
     pointer-events: none;
     transition: opacity .15s ease;
+}
+
+/* En celular la tabla se desplaza en lugar de apretarse */
+#masivo-app .table-responsive {
+    border-radius: 10px;
+}
+
+#tabla_masivo {
+    min-width: 720px;
 }
 
 /* ---------- Precio en la tabla (normal y en oferta) ---------- */
@@ -138,11 +274,73 @@
     border-radius: 12px;
 }
 
-#masivo-app .masivo-vacio i {
+#masivo-app .masivo-vacio > i {
     display: block;
     font-size: 2.4rem;
     margin-bottom: .5rem;
     opacity: .7;
+}
+
+#masivo-app .masivo-vacio-titulo {
+    display: block;
+    margin-bottom: .25rem;
+    font-weight: 700;
+    color: var(--bs-body-color, inherit);
+}
+
+/* Mini guía del estado inicial */
+#masivo-app .masivo-guia {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .5rem 1.25rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: .82rem;
+}
+
+#masivo-app .masivo-guia li {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+#masivo-app .masivo-guia b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--masivo-badge-bg);
+    color: var(--masivo-badge-fg);
+    font-size: .68rem;
+}
+
+/* ---------- Modales: acabado general ---------- */
+#masivo-app .modal-content {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+#masivo-app .modal-header {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--masivo-tint-borde);
+}
+
+#masivo-app .modal-footer {
+    border-top: 1px solid var(--masivo-tint-borde);
+    gap: .5rem;
+}
+
+/* Modal Eliminar: franja roja para que se sienta peligroso */
+#masivo-app .masivo-modal-peligro.modal-content {
+    border-top: 4px solid var(--masivo-peligro);
+}
+
+#masivo-app .masivo-modal-peligro .modal-title {
+    color: var(--masivo-peligro);
 }
 
 /* ---------- Modal Eliminar: lista de productos a borrar ---------- */
@@ -163,7 +361,30 @@
     opacity: .6;
 }
 
+/* Campo de confirmación BORRAR: se lee como una palabra de seguridad */
+#masivo-app #delInput {
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+}
+
+#masivo-app #delInput::placeholder {
+    font-weight: 400;
+    letter-spacing: .2em;
+    opacity: .45;
+}
+
 /* ---------- Modal Editar: filas de campo (casilla + control) ---------- */
+#masivo-app .masivo-ayuda-modal {
+    margin: 0 0 1rem;
+    padding: .55rem .8rem;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
+    font-size: .82rem;
+}
+
 #masivo-app .ed-campo {
     display: grid;
     grid-template-columns: 110px 1fr;
@@ -173,7 +394,7 @@
     border-bottom: 1px solid var(--masivo-tint-borde);
 }
 
-#masivo-app .ed-campo:first-child {
+#masivo-app .ed-campo:first-of-type {
     padding-top: 0;
 }
 
@@ -189,11 +410,24 @@
     opacity: .55;
 }
 
+/* Campo marcado: se resalta suavemente */
+#masivo-app .ed-campo.activo:not([data-campo="descuento"]) .form-check-label {
+    color: var(--bs-body-color, inherit);
+}
+
 /* Descuento: un solo selector (sin casilla), ocupa todo el ancho de la fila */
 #masivo-app .ed-campo[data-campo="descuento"] {
     display: block;
     border-bottom: 0;
     padding-bottom: 0;
+}
+
+/* Bloque de campos del descuento (aparece al elegir "Activar") */
+#masivo-app .ed-desc-campos {
+    padding: .75rem;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
 }
 
 @media (max-width: 575.98px) {
@@ -202,7 +436,38 @@
     }
 }
 
-/* ---------- Modal Cargar: zona de arrastre y lista de archivos ---------- */
+/* ---------- Modal Cargar: pasos, zona de arrastre y lista de archivos ---------- */
+#masivo-app .cg-pasos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.25rem;
+    margin: 0 0 1rem;
+    padding: .6rem .85rem;
+    list-style: none;
+    background: var(--masivo-tint);
+    border: 1px solid var(--masivo-tint-borde);
+    border-radius: 10px;
+    font-size: .8rem;
+}
+
+#masivo-app .cg-pasos li {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+#masivo-app .cg-pasos b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--masivo-badge-bg);
+    color: var(--masivo-badge-fg);
+    font-size: .68rem;
+}
+
 #masivo-app .cg-zona {
     display: flex;
     flex-direction: column;
@@ -213,7 +478,7 @@
     cursor: pointer;
     border: 2px dashed var(--masivo-vacio-borde);
     border-radius: 12px;
-    transition: background-color .15s ease, border-color .15s ease;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
 }
 
 #masivo-app .cg-zona i {
@@ -225,8 +490,12 @@
 #masivo-app .cg-zona:focus-visible,
 #masivo-app .cg-zona.arrastrando {
     background: var(--masivo-tint);
-    border-color: var(--masivo-tint-borde);
+    border-color: var(--masivo-badge-bg);
     outline: none;
+}
+
+#masivo-app .cg-zona.arrastrando {
+    transform: scale(1.01);
 }
 
 #masivo-app .cg-lista {
@@ -269,6 +538,22 @@
 
 #masivo-app .cg-chip-x:hover {
     opacity: 1;
+    color: var(--masivo-peligro);
+}
+
+/* Barra de progreso de la carga */
+#masivo-app #cgProgreso .progress {
+    border-radius: 999px;
+    background: var(--masivo-tint);
+}
+
+#masivo-app #cgProgreso .progress-bar {
+    background-color: var(--masivo-badge-bg);
+    transition: width .25s ease;
+}
+
+.dark-theme #masivo-app #cgProgreso .progress-bar {
+    background-color: #f7f3e8;
 }
 
 /* ---------- Móvil ---------- */
@@ -277,5 +562,41 @@
     #masivo-app .barra-seleccion {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    #masivo-app .barra-seleccion > div:last-child {
+        width: 100%;
+    }
+
+    #masivo-app .barra-seleccion > div:last-child .btn {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+
+    #masivo-app .masivo-cabecera-accion {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    #masivo-app .masivo-cabecera-accion .btn-nuevo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #masivo-app .search-container {
+        width: 100%;
+    }
+}
+
+/* ---------- Accesibilidad: respeta "reducir movimiento" ---------- */
+@media (prefers-reduced-motion: reduce) {
+    #masivo-app *,
+    #tabla_masivo * {
+        transition: none !important;
+    }
+
+    #masivo-app *:not(.spinner-border):not(.progress-bar),
+    #tabla_masivo * {
+        animation: none !important;
     }
 }

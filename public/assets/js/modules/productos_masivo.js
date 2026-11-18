@@ -679,7 +679,7 @@
     const borrado = { ids: [], enCurso: false };
     const PALABRA_BORRAR = 'BORRAR';
 
-    const palabraCorrecta = () => el.delInput.value.trim() === PALABRA_BORRAR;
+   const palabraCorrecta = () => el.delInput.value.trim().toUpperCase() === PALABRA_BORRAR;
     const actualizarBotonBorrar = () => { el.delConfirmar.disabled = borrado.enCurso || !palabraCorrecta(); };
 
     function ponerBorrandoEnCurso(enCurso) {

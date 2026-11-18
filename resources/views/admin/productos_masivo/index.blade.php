@@ -39,7 +39,7 @@
 
 
         {{-- Reporte de resultado de operaciones masivas (lo llena el JS) --}}
-        <div id="masivoResultado" class="d-none"></div>
+        <div id="masivoResultado" class="d-none" role="status" aria-live="polite"></div>
 
         {{-- ─────────── 1. Contexto: Categoría + Marca ─────────── --}}
         <div class="card card-form mb-3">
@@ -47,25 +47,30 @@
 
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-2">
                     <div>
-                        <h4 class="mb-1 fw-bold">CRUD Masivo por Categoría y Marca</h4>
+                        <h4 class="mb-1 text-uppercase fw-bold">CRUD Masivo</h4>
                         <small class="text-muted">
                             Sube, edita o elimina productos en bloque a partir de un lote de imágenes.
                         </small>
                     </div>
 
                     <a href="{{ route('admin.productos.index') }}"
-                        class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+                        class="btn btn-secondary-custom btn-back d-inline-flex align-items-center gap-2">
                         <i class="bx bx-arrow-back"></i>
-                        <span>Volver a productos</span>
+                        <span class="btn-text">Volver a productos</span>
                     </a>
                 </div>
 
                 <hr class="my-3" />
 
-                <h6 class="fw-bold mb-1">1. Elegí categoría y marca</h6>
-                <small class="text-muted d-block mb-3">
-                    Solo se listan categorías y marcas ya existentes. Este módulo no crea nuevas.
-                </small>
+                <div class="masivo-paso mb-3">
+                    <span class="masivo-paso-num" aria-hidden="true">1</span>
+                    <div>
+                        <h6 class="fw-bold">Elegí categoría y marca</h6>
+                        <small class="text-muted d-block">
+                            Solo se listan categorías y marcas ya existentes. Este módulo no crea nuevas.
+                        </small>
+                    </div>
+                </div>
 
                 <div class="row g-3">
                     <div class="col-12 col-md-6">
@@ -107,24 +112,44 @@
         <div class="card card-form">
             <div class="card-body">
 
-                {{-- Acción principal --}}
-                <div class="d-flex justify-content-end mb-3">
-                    <button type="button" id="btnCargar" class="btn btn-nuevo d-inline-flex align-items-center gap-2"
-                        disabled>
-                        <i class="bx bx-plus"></i>
-                        <span>Cargar imágenes (Bulk Create)</span>
-                    </button>
+                {{-- Cabecera + acción principal --}}
+                <div class="masivo-cabecera">
+                    <div class="masivo-paso">
+                        <span class="masivo-paso-num" aria-hidden="true">2</span>
+                        <div>
+                            <h6 class="fw-bold">Productos del par</h6>
+                            <small class="text-muted d-block">
+                                Marcá filas para editarlas o eliminarlas en bloque.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="masivo-cabecera-accion">
+                        <button type="button" id="btnCargar"
+                            class="btn btn-nuevo d-inline-flex align-items-center gap-2" disabled>
+                            <i class="bx bx-cloud-upload"></i>
+                            <span>Cargar imágenes</span>
+                        </button>
+                        {{-- Solo se ve mientras el botón está deshabilitado (lo controla el CSS) --}}
+                        <span class="masivo-hint-cargar">
+                            <i class="bx bx-info-circle"></i> Elegí categoría y marca para habilitarlo
+                        </span>
+                    </div>
                 </div>
 
+                <hr class="my-2" />
+
                 {{-- Buscador + por página --}}
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 my-3">
                     <div class="search-container">
                         <div class="search-box" role="search">
                             <i class="bx bx-search search-icon"></i>
                             <input type="text" id="masivoBuscar" class="search-input"
-                                placeholder="Buscar por nombre o número de lote…" autocomplete="off">
+                                placeholder="Buscar por nombre o número de lote…" autocomplete="off"
+                                aria-label="Buscar productos del par">
                             <div class="search-actions">
-                                <button class="btn-search-clear" id="masivoLimpiar" type="button" title="Limpiar">
+                                <button class="btn-search-clear" id="masivoLimpiar" type="button" title="Limpiar"
+                                    aria-label="Limpiar búsqueda">
                                     <i class="bx bx-x"></i>
                                 </button>
                             </div>
@@ -136,7 +161,8 @@
                             <span class="input-group-text bg-transparent border-end-0">
                                 <i class="bx bx-list-ul"></i>
                             </span>
-                            <select class="form-select form-select-sm border-start-0" id="masivoPorPagina">
+                            <select class="form-select form-select-sm border-start-0" id="masivoPorPagina"
+                                aria-label="Productos por página">
                                 <option value="25">25</option>
                                 <option value="50" selected>50</option>
                                 <option value="100">100</option>
@@ -151,6 +177,7 @@
                 {{-- Barra de selección (aparece cuando hay productos marcados) --}}
                 <div id="barraSeleccion" class="barra-seleccion d-none mb-3">
                     <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <i class="bx bx-check-square fs-5"></i>
                         <span><b id="selCount">0</b> <span id="selTexto">productos seleccionados</span></span>
                         <a href="#" id="btnSelTodosFiltro" class="small d-none">
                             seleccionar los <b id="selTotalFiltro">0</b> del filtro completo
@@ -177,7 +204,8 @@
                             <tr>
                                 <th style="width:42px">
                                     <input type="checkbox" id="chkTodos" class="form-check-input"
-                                        title="Seleccionar los de esta página">
+                                        title="Seleccionar los de esta página"
+                                        aria-label="Seleccionar los productos de esta página">
                                 </th>
                                 <th class="fw-semibold text-start">Producto</th>
                                 <th class="fw-semibold">Precio</th>
@@ -196,15 +224,22 @@
                 {{-- Estados vacíos (el JS muestra el que corresponda) --}}
                 <div id="estadoInicial" class="masivo-vacio">
                     <i class="bx bx-filter-alt"></i>
+                    <span class="masivo-vacio-titulo">Todavía no hay un par elegido</span>
                     <p class="mb-0">Elegí una categoría y una marca para ver sus productos.</p>
+                    <ul class="masivo-guia">
+                        <li><b>1</b> Elegí categoría y marca</li>
+                        <li><b>2</b> Cargá imágenes o marcá filas</li>
+                        <li><b>3</b> Editá o eliminá en bloque</li>
+                    </ul>
                 </div>
                 <div id="estadoSinProductos" class="masivo-vacio d-none">
                     <i class="bx bx-package"></i>
-                    <p class="mb-0">Este par todavía no tiene productos. Usá “Cargar imágenes” para crear el primer lote.
-                    </p>
+                    <span class="masivo-vacio-titulo">Este par todavía no tiene productos</span>
+                    <p class="mb-0">Usá “Cargar imágenes” para crear el primer lote.</p>
                 </div>
                 <div id="estadoSinResultados" class="masivo-vacio d-none">
                     <i class="bx bx-search-alt"></i>
+                    <span class="masivo-vacio-titulo">Sin resultados</span>
                     <p class="mb-0">No hay productos que coincidan con la búsqueda.</p>
                 </div>
 
@@ -248,7 +283,7 @@
         <div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarTitulo"
             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
+                <div class="modal-content masivo-modal-peligro">
                     <div class="modal-header">
                         <div>
                             <h5 class="modal-title fw-bold" id="modalEliminarTitulo">Eliminar selección definitivamente
@@ -265,7 +300,6 @@
                             <div id="delMensaje"></div>
                         </div>
 
-                    
                         <div id="delCarrusel" class="alert alert-warning small d-none" role="alert"></div>
 
                         <ul id="delLista" class="masivo-lista-borrado"></ul>
@@ -307,6 +341,11 @@
                     </div>
 
                     <div class="modal-body">
+
+                        <p class="masivo-ayuda-modal text-muted">
+                            <i class="bx bx-info-circle"></i>
+                            Marcá solo lo que querés cambiar. Los campos sin marcar quedan como están.
+                        </p>
 
                         {{-- Cada campo: casilla + control. El control queda apagado hasta marcar la casilla. --}}
                         <div class="ed-campo" data-campo="precio">
@@ -422,6 +461,13 @@
 
                         {{-- Formulario (se oculta mientras se sube) --}}
                         <div id="cgFormulario">
+
+                            <ol class="cg-pasos">
+                                <li><b>1</b> Definí precio y stock</li>
+                                <li><b>2</b> Agregá las imágenes</li>
+                                <li><b>3</b> Creá los productos</li>
+                            </ol>
+
                             <div class="row g-3">
                                 <div class="col-12 col-md-6">
                                     <label for="cgPrecio" class="form-label fw-semibold">
@@ -482,8 +528,9 @@
                                 <span id="cgProgresoPct">0%</span>
                             </div>
                             <div class="progress" style="height: 12px">
-                                <div id="cgBarra" class="progress-bar" role="progressbar" style="width: 0%"
-                                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                                <div id="cgBarra" class="progress-bar progress-bar-striped progress-bar-animated"
+                                    role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0"></div>
                             </div>
                             <small class="text-muted d-block mt-3">
                                 No cierres esta ventana hasta que termine. Si la detenés, lo que ya se creó se conserva.
