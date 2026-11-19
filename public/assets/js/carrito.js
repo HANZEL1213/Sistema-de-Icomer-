@@ -4,8 +4,7 @@ carrito
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    let productosPreloadPromise = null;
-    let scrollTimer = null;
+    const cargasEnCurso = new Map(); // fila -> petición en curso
 
     function actualizarContadorCarrito(totalItems) {
         document.querySelectorAll('.js-cart-count').forEach(function (cartCount) {
@@ -30,48 +29,41 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    async function cargarMasProductos() {
-        const fila1 = document.querySelector('#homeProductsCarouselOne');
-        const fila2 = document.querySelector('#homeProductsCarouselTwo');
+    function cargarMasProductos(row) {
+        if (!row || row.dataset.hasMore !== '1') return Promise.resolve(false);
+        if (cargasEnCurso.has(row)) return cargasEnCurso.get(row);
 
-        if (!fila1 || !fila2) return false;
-        if (fila1.dataset.hasMore !== '1') return false;
+        const page = parseInt(row.dataset.nextPage || '2', 10);
+        row.dataset.loading = '1';
 
-        if (productosPreloadPromise) {
-            return productosPreloadPromise;
-        }
-
-        const page = parseInt(fila1.dataset.nextPage || '2', 10);
-        const url = `${fila1.dataset.loadUrl}?page=${page}`;
-
-        fila1.dataset.loading = '1';
-
-        productosPreloadPromise = fetch(url, {
+        const promesa = fetch(`${row.dataset.loadUrl}?page=${page}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
                 'Accept': 'application/json'
             }
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                return response.json();
+            })
             .then(data => {
-                fila1.insertAdjacentHTML('beforeend', data.html_fila_1 || '');
-                fila2.insertAdjacentHTML('beforeend', data.html_fila_2 || '');
-
-                fila1.dataset.nextPage = page + 1;
-                fila1.dataset.hasMore = data.has_more ? '1' : '0';
-
+                row.insertAdjacentHTML('beforeend', data.html || '');
+                row.dataset.nextPage = page + 1;
+                row.dataset.hasMore = data.has_more ? '1' : '0';
                 return true;
             })
             .catch(error => {
                 console.error(error);
+                row.dataset.hasMore = '0';
                 return false;
             })
             .finally(() => {
-                fila1.dataset.loading = '0';
-                productosPreloadPromise = null;
+                row.dataset.loading = '0';
+                cargasEnCurso.delete(row);
             });
 
-        return productosPreloadPromise;
+        cargasEnCurso.set(row, promesa);
+        return promesa;
     }
 
     function estaCercaDelFinal(target) {
@@ -81,12 +73,10 @@ document.addEventListener('DOMContentLoaded', function () {
     async function moverCarrusel(target, direction) {
         if (!target) return;
 
-        const esProducto =
-            target.id === 'homeProductsCarouselOne' ||
-            target.id === 'homeProductsCarouselTwo';
+        const esLazy = target.classList.contains('js-lazy-row');
 
-        if (esProducto && direction === 1 && estaCercaDelFinal(target)) {
-            await cargarMasProductos();
+        if (esLazy && direction === 1 && estaCercaDelFinal(target)) {
+            await cargarMasProductos(target);
         }
 
         requestAnimationFrame(() => {
@@ -96,28 +86,25 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        if (esProducto && direction === 1) {
+        if (esLazy && direction === 1) {
             setTimeout(() => {
                 if (estaCercaDelFinal(target)) {
-                    cargarMasProductos();
+                    cargarMasProductos(target);
                 }
             }, 500);
         }
     }
 
     function activarCargaPorScrollManual() {
-        const carruselesProductos = [
-            document.querySelector('#homeProductsCarouselOne'),
-            document.querySelector('#homeProductsCarouselTwo')
-        ].filter(Boolean);
+        document.querySelectorAll('.js-lazy-row').forEach(function (row) {
+            let timer = null;
 
-        carruselesProductos.forEach(function (carousel) {
-            carousel.addEventListener('scroll', function () {
-                clearTimeout(scrollTimer);
+            row.addEventListener('scroll', function () {
+                clearTimeout(timer);
 
-                scrollTimer = setTimeout(function () {
-                    if (estaCercaDelFinal(carousel)) {
-                        cargarMasProductos();
+                timer = setTimeout(function () {
+                    if (estaCercaDelFinal(row)) {
+                        cargarMasProductos(row);
                     }
                 }, 120);
             }, { passive: true });

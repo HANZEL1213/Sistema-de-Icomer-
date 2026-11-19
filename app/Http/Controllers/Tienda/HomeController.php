@@ -13,6 +13,15 @@ use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
+    /** Cantidad de filas (categorías) que se muestran en el home. */
+    private const MAX_FILAS_HOME = 6;
+
+    /** Productos por fila, tanto en la primera carga como en cada carga AJAX. */
+    private const PRODUCTOS_POR_FILA = 12;
+
+    /** Tope de páginas por fila para evitar peticiones absurdas. */
+    private const MAX_PAGINAS_AJAX = 100;
+
     public function index()
     {
         /*
@@ -63,34 +72,32 @@ class HomeController extends Controller
         $productosDestacados = Producto::query()
             ->where('activo', 1)
             ->where('destacado', 1)
-            ->with([
-                'marca:id_marca,nombre,slug',
-                'categoriaPrincipal:id_categoria,nombre,slug',
-                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
-            ])
+            ->with($this->relacionesTarjeta())
             ->orderByDesc('created_at')
-            ->limit(12)
+            ->orderByDesc('id_producto')
+            ->limit(self::PRODUCTOS_POR_FILA)
             ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | PRODUCTOS HOME - PRIMERA CARGA
+        | FILAS POR CATEGORÍA - PRIMERA CARGA
         |--------------------------------------------------------------------------
         */
 
-        $productosHome = Producto::query()
-            ->where('activo', 1)
-            ->with([
-                'marca:id_marca,nombre,slug',
-                'categoriaPrincipal:id_categoria,nombre,slug',
-                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
-            ])
-            ->orderByDesc('created_at')
-            ->limit(24)
-            ->get();
+        $categoriasFilas = $categoriasHome
+            ->where('productos_count', '>', 0)
+            ->take(self::MAX_FILAS_HOME)
+            ->values();
 
-        $productosFila1 = $productosHome->take(12);
-        $productosFila2 = $productosHome->skip(12)->take(12);
+        $productosPorCategoria = collect();
+        $filasTieneMas = [];
+
+        foreach ($categoriasFilas as $cat) {
+            [$lista, $hayMas] = $this->productosDeCategoria($cat->id_categoria);
+
+            $productosPorCategoria->put($cat->id_categoria, $lista);
+            $filasTieneMas[$cat->id_categoria] = $hayMas;
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -120,50 +127,87 @@ class HomeController extends Controller
         return view('tienda.home.index', compact(
             'carruselItems',
             'categoriasHome',
+            'categoriasFilas',
             'productosDestacados',
-            'productosHome',
-            'productosFila1',
-            'productosFila2',
+            'productosPorCategoria',
+            'filasTieneMas',
             'marcasHome',
             'favoritosIds'
         ));
     }
 
-    public function productosAjax(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | AJAX: MÁS PRODUCTOS DE UNA CATEGORÍA (scroll horizontal de cada fila)
+    |--------------------------------------------------------------------------
+    */
+
+    public function productosCategoriaAjax(Request $request, int $categoria)
     {
-        $page = max((int) $request->get('page', 1), 1);
-        $perPage = 24;
+        // Solo categorías activas; evita exponer productos de categorías ocultas.
+        abort_unless(
+            Categoria::where('id_categoria', $categoria)->where('activo', 1)->exists(),
+            404
+        );
 
-        $productos = Producto::query()
-            ->where('activo', 1)
-            ->with([
-                'marca:id_marca,nombre,slug',
-                'categoriaPrincipal:id_categoria,nombre,slug',
-                'imagenPrincipal:id_imagen_producto,id_producto,ruta',
-            ])
-            ->orderByDesc('created_at')
-            ->skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get();
+        $page = min(max((int) $request->query('page', 1), 1), self::MAX_PAGINAS_AJAX);
 
-        $favoritosIds = $this->obtenerFavoritosIds();
-
-        $productosFila1 = $productos->take(12);
-        $productosFila2 = $productos->skip(12)->take(12);
+        [$productos, $hasMore] = $this->productosDeCategoria($categoria, $page);
 
         return response()->json([
-            'html_fila_1' => view('tienda.home.partials.productos-home-items', [
-                'productos' => $productosFila1,
-                'favoritosIds' => $favoritosIds,
+            'html' => view('tienda.home.partials.productos-home-items', [
+                'productos'    => $productos,
+                'favoritosIds' => $this->obtenerFavoritosIds(),
             ])->render(),
-
-            'html_fila_2' => view('tienda.home.partials.productos-home-items', [
-                'productos' => $productosFila2,
-                'favoritosIds' => $favoritosIds,
-            ])->render(),
-
-            'has_more' => $productos->count() === $perPage,
+            'has_more' => $hasMore,
         ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS PRIVADOS
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Relaciones que necesita cada tarjeta de producto del home.
+     * Un solo lugar para que todas las consultas carguen lo mismo
+     * (incluye variantes, que el partial usa para precio y stock).
+     */
+    private function relacionesTarjeta(): array
+    {
+        return [
+            'marca:id_marca,nombre,slug',
+            'categoriaPrincipal:id_categoria,nombre,slug',
+            'imagenPrincipal:id_imagen_producto,id_producto,ruta',
+            'variantePrincipal',
+            'variantesActivas',
+        ];
+    }
+
+    /**
+     * Productos de una categoría, paginados de a PRODUCTOS_POR_FILA.
+     * La primera carga y el AJAX usan este mismo método, así el orden
+     * es idéntico y nunca se repiten ni se saltan productos.
+     *
+     * Devuelve: [Collection $productos, bool $hayMas]
+     */
+    private function productosDeCategoria(int $idCategoria, int $page = 1): array
+    {
+        $perPage = self::PRODUCTOS_POR_FILA;
+
+        // Se piden perPage + 1 para saber si hay más sin hacer un count extra.
+        $lista = Producto::query()
+            ->where('activo', 1)
+            ->where('id_categoria_principal', $idCategoria)
+            ->with($this->relacionesTarjeta())
+            ->orderByDesc('created_at')
+            ->orderByDesc('id_producto')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage + 1)
+            ->get();
+
+        return [$lista->take($perPage)->values(), $lista->count() > $perPage];
     }
 
     private function obtenerFavoritosIds(): array
@@ -179,34 +223,22 @@ class HomeController extends Controller
             ->toArray();
     }
 
-private function resolverDestinoCarrusel(CarruselItem $item): string
-{
-    if (
-        $item->tipo_destino === 'url' &&
-        $item->url_destino
-    ) {
-        return $item->url_destino;
-    }
+    private function resolverDestinoCarrusel(CarruselItem $item): string
+    {
+        if ($item->tipo_destino === 'url' && $item->url_destino) {
+            return $item->url_destino;
+        }
 
-    if (
-        $item->tipo_destino === 'producto' &&
-        $item->producto?->slug
-    ) {
-        return route(
-            'tienda.productos.show',
-            $item->producto->slug
-        );
-    }
+        if ($item->tipo_destino === 'producto' && $item->producto?->slug) {
+            return route('tienda.productos.show', $item->producto->slug);
+        }
 
-    if (
-        $item->tipo_destino === 'categoria' &&
-        $item->id_categoria
-    ) {
-        return route('tienda.productos.index', [
-            'categoria' => $item->id_categoria
-        ]);
-    }
+        if ($item->tipo_destino === 'categoria' && $item->id_categoria) {
+            return route('tienda.productos.index', [
+                'categoria' => $item->id_categoria,
+            ]);
+        }
 
-    return route('tienda.productos.index');
-}
+        return route('tienda.productos.index');
+    }
 }

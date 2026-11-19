@@ -3,16 +3,11 @@
 
 @section('title', ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ' | Tienda en Costa Rica')
 
-@section('meta_description',
-    'Bienvenido a ' .
-    ($configTienda['tienda_nombre'] ?? 'Mi Tienda') .
-    ': descubre productos,
-    categorías y marcas destacadas con envíos disponibles en Costa Rica.')
+@section('meta_description', 'Bienvenido a ' . ($configTienda['tienda_nombre'] ?? 'Mi Tienda') . ': descubre productos, categorías y marcas destacadas con envíos disponibles en Costa Rica.')
 
-
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
-@endpush
+    @push('styles')
+        <link rel="stylesheet" href="{{ asset('assets/css/modules/carrito.css') }}">
+    @endpush
 
 @section('content')
 
@@ -314,108 +309,60 @@
             </div>
         </section>
     @endif
+
     {{-- =========================================================
-    PRODUCTOS  DINÁMICOS
+    PRODUCTOS POR CATEGORÍA (una fila por categoría)
 ========================================================== --}}
-    @if ($productosHome->isNotEmpty())
+    @foreach ($categoriasFilas as $cat)
+        @php $items = $productosPorCategoria->get($cat->id_categoria, collect()); @endphp
+        @continue($items->isEmpty())
 
         <section class="store-section store-products-minimal-section">
             <div class="container">
 
-                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4 mb-lg-5">
-
+                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-4">
                     <div>
-                        <div class="store-mini-label">
-                            Selección
-                        </div>
-
-                        <h2 class="store-section-title mb-2">
-                            Productos
-                        </h2>
-
-                        <p class="store-section-subtitle">
-                            Productos disponibles en el catálogo principal.
-                        </p>
+                        <div class="store-mini-label">Categoría</div>
+                        <h2 class="store-section-title mb-0">{{ $cat->nombre }}</h2>
                     </div>
 
-                    <a href="{{ route('tienda.productos.index') }}" class="btn btn-store-outline px-4">
-                        Ver catálogo
+                    <a href="{{ route('tienda.productos.index', ['categoria' => $cat->id_categoria]) }}"
+                        class="btn btn-store-outline px-4">
+                        Ver todos
                     </a>
-
                 </div>
 
-                {{-- FILA 1 --}}
-                <div class="store-home-carousel mb-4">
+                <div class="store-home-carousel">
 
                     <div class="store-home-carousel-head">
-
                         <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
-                            data-target="#homeProductsCarouselOne">
-
+                            data-target="#homeCat{{ $cat->id_categoria }}">
                             <i class="bi bi-chevron-left"></i>
-
                         </button>
 
                         <button type="button" class="store-home-carousel-btn js-home-carousel-next"
-                            data-target="#homeProductsCarouselOne">
-
+                            data-target="#homeCat{{ $cat->id_categoria }}">
                             <i class="bi bi-chevron-right"></i>
-
                         </button>
-
                     </div>
 
-                    <div id="homeProductsCarouselOne" class="store-home-scroll store-home-products-row"
-                        data-load-url="{{ route('tienda.home.productos.ajax') }}" data-next-page="2" data-has-more="1"
-                        data-loading="0">
+                    <div id="homeCat{{ $cat->id_categoria }}"
+                        class="store-home-scroll store-home-products-row js-lazy-row"
+                        data-load-url="{{ route('tienda.home.categoria.ajax', $cat->id_categoria) }}" data-next-page="2"
+                        data-has-more="{{ $filasTieneMas[$cat->id_categoria] ?? false ? '1' : '0' }}" data-loading="0">
 
                         @include('tienda.home.partials.productos-home-items', [
-                            'productos' => $productosFila1,
+                            'productos' => $items,
                             'favoritosIds' => $favoritosIds,
                         ])
 
                     </div>
-
                 </div>
-
-                {{-- FILA 2 --}}
-                @if ($productosFila2->isNotEmpty())
-                    <div class="store-home-carousel">
-
-                        <div class="store-home-carousel-head">
-
-                            <button type="button" class="store-home-carousel-btn js-home-carousel-prev"
-                                data-target="#homeProductsCarouselTwo">
-
-                                <i class="bi bi-chevron-left"></i>
-
-                            </button>
-
-                            <button type="button" class="store-home-carousel-btn js-home-carousel-next"
-                                data-target="#homeProductsCarouselTwo">
-
-                                <i class="bi bi-chevron-right"></i>
-
-                            </button>
-
-                        </div>
-
-                        <div id="homeProductsCarouselTwo" class="store-home-scroll store-home-products-row">
-
-                            @include('tienda.home.partials.productos-home-items', [
-                                'productos' => $productosFila2,
-                                'favoritosIds' => $favoritosIds,
-                            ])
-
-                        </div>
-
-                    </div>
-                @endif
 
             </div>
         </section>
+    @endforeach
 
-    @endif
     {{-- =========================================================
         BANNER INTERMEDIO PREMIUM
     ========================================================== --}}
@@ -431,7 +378,7 @@
                 <div class="row g-0 align-items-center">
 
                     @php
-                        $bannerProducto = $productosHome->first();
+                       $bannerProducto = $productosDestacados->first() ?? $productosPorCategoria->collapse()->first();
 
                         $bannerImagen = $bannerProducto?->imagenPrincipal?->ruta
                             ? asset('storage/' . $bannerProducto->imagenPrincipal->ruta)

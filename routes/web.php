@@ -169,17 +169,20 @@ Route::name('tienda.')->group(function () {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+
+
 /*
 |--------------------------------------------------------------------------
 | AJAX PRODUCTOS HOME
 |--------------------------------------------------------------------------
 */
 Route::get(
-    '/home/productos',
-    [HomeController::class, 'productosAjax']
-)->name('home.productos.ajax');
-
-
+    '/home/categoria/{categoria}/productos',
+    [HomeController::class, 'productosCategoriaAjax']
+)
+    ->whereNumber('categoria')
+    ->middleware('throttle:60,1')
+    ->name('home.categoria.ajax');
 
     /*
         |--------------------------------------------------------------------------

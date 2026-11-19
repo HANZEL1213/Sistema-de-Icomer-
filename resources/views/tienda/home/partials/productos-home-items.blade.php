@@ -5,6 +5,9 @@
 
 @foreach ($productos as $producto)
     @php
+        // Se reinicia en cada vuelta para no heredar el valor del producto anterior
+        $cartKeyVariante = null;
+
         $productoImagen = $producto->imagenPrincipal?->ruta
             ? asset('storage/' . $producto->imagenPrincipal->ruta)
             : $placeholder;
