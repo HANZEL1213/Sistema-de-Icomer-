@@ -57,11 +57,29 @@ class ProductoVariante extends Model
         );
     }
 
-    public function tienePromocionActiva(): bool
-    {
-        return $this->descuento_activo && $this->precio_descuento !== null;
+public function tienePromocionActiva(): bool
+{
+    if (!$this->descuento_activo || $this->precio_descuento === null) {
+        return false;
     }
 
+    // Un descuento que no baja el precio no es descuento
+    if ((float) $this->precio_descuento >= (float) $this->precio) {
+        return false;
+    }
+
+    $ahora = now();
+
+    if ($this->descuento_inicio && $ahora->lt($this->descuento_inicio)) {
+        return false;
+    }
+
+    if ($this->descuento_fin && $ahora->gt($this->descuento_fin)) {
+        return false;
+    }
+
+    return true;
+}
     public function promocionVigente(): bool
     {
         return $this->tienePromocionActiva();
