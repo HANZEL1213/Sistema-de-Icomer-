@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'cliente' => \App\Http\Middleware\ClienteMiddleware::class,
         ]);
+
+        // Redirigir usuarios no autenticados al login personalizado
+        $middleware->redirectGuestsTo('/panel-adminjh/acceso');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
