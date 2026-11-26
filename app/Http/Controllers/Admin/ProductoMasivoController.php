@@ -54,7 +54,13 @@ class ProductoMasivoController extends Controller
 
         $totalPar = (clone $base)->count();
 
-        $proximoLote = (int) ((clone $base)->max('numero_lote') ?? 0) + 1;
+
+        // Igual que en crear(): se cuentan los productos con soft delete.
+        $proximoLote = (int) (Producto::withTrashed()
+            ->where('id_categoria_principal', $data['categoria'])
+            ->where('id_marca', $data['marca'])
+            ->max('numero_lote') ?? 0) + 1;
+
 
         $filtrada = (clone $base);
         if ($q !== '') {
@@ -241,7 +247,11 @@ class ProductoMasivoController extends Controller
                         $categoria, $marca, $marcaModelo, $precio, $stock, $usuarioId, $loteMasivo, $rutaGuardada,
                         &$primerLote, &$ultimoLote
                     ) { 
-                        $siguienteLote = (int) (Producto::where('id_categoria_principal', $categoria)
+                        
+                         // withTrashed(): el índice único (categoría, marca, numero_lote)
+                        // también incluye los productos con soft delete, así que hay que contarlos.
+                        $siguienteLote = (int) (Producto::withTrashed()
+                            ->where('id_categoria_principal', $categoria)
                             ->where('id_marca', $marca)
                             ->max('numero_lote') ?? 0) + 1;
 

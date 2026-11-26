@@ -1146,7 +1146,7 @@
                 const r = await Fuente.crearTanda({
                     categoria: ctx.categoria,
                     marca: ctx.marca,
-                    marcaNombre: ctx.marcaNombre,
+                
                     token: cgToken(),
                     precio: Math.round(precio),
                     stock,
